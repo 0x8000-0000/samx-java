@@ -1,0 +1,7 @@
+This " is a string ".
+
+This '  is another string with    many spaces'
+
+"Anything ( goes in a ] string including \" "
+
+But stray \( or \] must be escaped.

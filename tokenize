@@ -1,0 +1,5 @@
+#!/bin/sh
+
+LIB=out/artifacts/samxj_jar/
+
+java -cp "${LIB}/*" net.signbit.samx.Tokenize $1

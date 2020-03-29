@@ -1,0 +1,19 @@
+<component name="ArtifactManager">
+  <artifact build-on-make="true" name="samxj:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/samxj_jar</output-path>
+    <root id="root">
+      <element id="archive" name="samxj.jar">
+        <element id="module-output" name="samxj.main" />
+      </element>
+      <element id="library" level="project" name="Gradle: org.hamcrest:hamcrest-core:1.3" />
+      <element id="library" level="project" name="Gradle: org.antlr:antlr4:4.8" />
+      <element id="library" level="project" name="Gradle: junit:junit:4.12" />
+      <element id="library" level="project" name="Gradle: com.ibm.icu:icu4j:61.1" />
+      <element id="library" level="project" name="Gradle: org.antlr:antlr-runtime:3.5.2" />
+      <element id="library" level="project" name="Gradle: org.antlr:ST4:4.3" />
+      <element id="library" level="project" name="Gradle: org.abego.treelayout:org.abego.treelayout.core:1.0.3" />
+      <element id="library" level="project" name="Gradle: org.glassfish:javax.json:1.0.4" />
+      <element id="library" level="project" name="Gradle: org.antlr:antlr4-runtime:4.8" />
+    </root>
+  </artifact>
+</component>
