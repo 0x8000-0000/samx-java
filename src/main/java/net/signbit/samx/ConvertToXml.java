@@ -16,6 +16,8 @@
 
 package net.signbit.samx;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 
 import org.antlr.v4.runtime.CharStream;
@@ -25,11 +27,11 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import net.signbit.samx.parser.SamXLexer;
 import net.signbit.samx.parser.SamXParser;
 
-public final class PrettyPrint
+public final class ConvertToXml
 {
    public static void main(String[] args) throws IOException
    {
-      if (args.length < 1)
+      if (args.length < 2)
       {
          System.err.println("Required argument missing");
          return;
@@ -45,10 +47,15 @@ public final class PrettyPrint
 
       SamXParser.DocumentContext document = parser.document();
 
-      PrettyPrinterVisitor printer = new PrettyPrinterVisitor();
+      FileWriter fileWriter = new FileWriter(args[1]);
 
-      StringBuilder builder = printer.visit(document);
+      BufferedWriter writer = new BufferedWriter(fileWriter);
 
-      System.out.println(builder.toString());
+      XmlTextVisitor visitor = new XmlTextVisitor(writer);
+
+      visitor.visit(document);
+
+      writer.close();
+      fileWriter.close();
    }
 }

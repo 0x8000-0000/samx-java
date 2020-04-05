@@ -1,0 +1,5 @@
+#!/bin/bash
+
+LIB=out/artifacts/samxj_jar/
+
+java -cp "${LIB}/*" net.signbit.samx.ConvertToXml $1 $2
