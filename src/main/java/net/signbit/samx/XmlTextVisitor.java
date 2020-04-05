@@ -11,6 +11,7 @@ import net.signbit.samx.parser.SamXParser;
 public class XmlTextVisitor extends SamXBaseVisitor<Exception>
 {
    private BufferedWriter writer;
+   private int charactersWritten = 0;
 
    private Exception exception = null;
 
@@ -41,7 +42,9 @@ public class XmlTextVisitor extends SamXBaseVisitor<Exception>
    {
       try
       {
-         writer.write(aBuilder.toString());
+         final String aString = aBuilder.toString();
+         writer.write(aString);
+         charactersWritten += aString.length();
       }
       catch (IOException ioe)
       {
@@ -54,6 +57,7 @@ public class XmlTextVisitor extends SamXBaseVisitor<Exception>
       try
       {
          writer.write(aString);
+         charactersWritten += aString.length();
       }
       catch (IOException ioe)
       {
@@ -66,6 +70,7 @@ public class XmlTextVisitor extends SamXBaseVisitor<Exception>
       try
       {
          writer.write(aChar);
+         charactersWritten ++;
       }
       catch (IOException ioe)
       {
@@ -116,17 +121,17 @@ public class XmlTextVisitor extends SamXBaseVisitor<Exception>
    @Override
    public Exception visitFlow(SamXParser.FlowContext ctx)
    {
-      int length = 0;
+      int offset = charactersWritten;
 
       for (ParseTree pt : ctx.children)
       {
-         if (length > 0)
+         if (offset != charactersWritten)
          {
             append(' ');
+            offset = charactersWritten;
          }
 
          visit(pt);
-         length += pt.getText().length();
       }
 
       return null;
@@ -145,18 +150,17 @@ public class XmlTextVisitor extends SamXBaseVisitor<Exception>
    @Override
    public Exception visitText(SamXParser.TextContext ctx)
    {
-      int textLength = 0;
+      int offset = charactersWritten;
 
       for (ParseTree pt: ctx.children)
       {
-         if (textLength > 0)
+         if (offset != charactersWritten)
          {
             append(' ');
+            offset = charactersWritten;
          }
 
          final String text = pt.getText();
-         textLength += text.length();
-
          append(text);
       }
 
@@ -213,20 +217,50 @@ public class XmlTextVisitor extends SamXBaseVisitor<Exception>
       addIndent();
       append("<p>");
 
-      int textLength = 0;
+      int offset = charactersWritten;
 
       for (SamXParser.FlowContext fc: ctx.flow())
       {
-         if (textLength > 0)
+         if (offset != charactersWritten)
          {
             append(' ');
+            offset = charactersWritten;
          }
 
          visit(fc);
-         textLength += fc.getText().length();
       }
 
-      append("</p>\n");
+      append("</p>");
+
+      return null;
+   }
+
+   @Override
+   public Exception visitUnorderedList(SamXParser.UnorderedListContext ctx)
+   {
+      addIndent();
+      append("\n<ul>\n");
+
+      indentLevel++;
+
+      final int saveIndent = indentLevel;
+
+      for (SamXParser.ParagraphContext pc: ctx.paragraph())
+      {
+         addIndent();
+         indentLevel = 0;
+
+         append("<li>");
+         visit(pc);
+         append("</li>\n");
+
+         indentLevel = saveIndent;
+      }
+
+      indentLevel--;
+
+      addIndent();
+      append("</ul>\n");
 
       return null;
    }
