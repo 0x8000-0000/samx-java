@@ -1,11 +1,12 @@
 plugins {
     id 'java'
     id 'antlr'
+    id 'distribution'
     id 'application'
 }
 
 group 'net.signbit.samx'
-version '0.1.1'
+version '0.1.2'
 
 sourceCompatibility = 1.8
 
@@ -26,4 +27,8 @@ generateGrammarSource {
 application {
     mainClassName = 'net.signbit.samx.PrettyPrint'
     executableDir = 'bin'
+}
+
+applicationDistribution.from("src/test/resources/") {
+    into "test"
 }
