@@ -188,6 +188,16 @@ NEWLINE
 
 NAME : [-a-zA-Z_] [-a-zA-Z0-9_.]+ ;
 
+INTEGER : [1-9] [0-9]+ ;
+
+SCHEME : 'http' 's'? ':' ;
+
+keyValuePair: key=NAME '=' value=NAME ;
+
+path : ('/' NAME) * ;
+
+url : SCHEME '//' (authority=NAME '@')? host=NAME (':' port=INTEGER)? path ('?' keyValuePair ('&' keyValuePair)* )? ('#' frag=NAME)? ;
+
 TOKEN : [-a-zA-Z0-9_'.;,]+ ;
 
 TYPESEP : ':' ;
@@ -213,7 +223,7 @@ STRING :
 
 escapeSeq : ESCAPE . ;
 
-text : (NAME | TOKEN | STRING | escapeSeq ) + ;
+text : (NAME | TOKEN | INTEGER | STRING | '/' | escapeSeq ) + ;
 
 annotation : '(' text ')' ;
 
@@ -230,7 +240,7 @@ phrase : OPEN_PHR text CLOSE_PHR annotation* attribute* ;
 
 localInsert : '>($' text ')' ;
 
-flow : ( text | phrase | localInsert )+ ;
+flow : ( text | phrase | localInsert | url )+ ;
 
 paragraph : ( flow NEWLINE )+ NEWLINE ;
 recordRow : ( COLSEP flow )+ NEWLINE ;
@@ -245,5 +255,7 @@ block :
    | NEWLINE                                                                        # Empty
    ;
 
-document: block* EOF ;
+declaration: '!' NAME TYPESEP description=flow NEWLINE ;
+
+document: declaration* block* EOF ;
 

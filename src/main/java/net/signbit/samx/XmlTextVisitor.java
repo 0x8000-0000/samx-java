@@ -17,6 +17,9 @@ public class XmlTextVisitor extends SamXBaseVisitor<Exception>
 
    private int indentLevel = 0;
 
+   private boolean indentParagraph = true;
+   private boolean writeNewlines = true;
+
    public XmlTextVisitor(BufferedWriter aWriter)
    {
       writer = aWriter;
@@ -26,7 +29,7 @@ public class XmlTextVisitor extends SamXBaseVisitor<Exception>
    {
       for (int ii = 0; ii < indentLevel; ++ii)
       {
-         append("   ");
+         append("  ");
       }
    }
 
@@ -34,7 +37,7 @@ public class XmlTextVisitor extends SamXBaseVisitor<Exception>
    {
       for (int ii = 0; ii < indentLevel; ++ii)
       {
-         builder.append("   ");
+         builder.append("  ");
       }
    }
 
@@ -71,6 +74,21 @@ public class XmlTextVisitor extends SamXBaseVisitor<Exception>
       {
          writer.write(aChar);
          charactersWritten ++;
+      }
+      catch (IOException ioe)
+      {
+         exception = ioe;
+      }
+   }
+
+   private void appendNewline()
+   {
+      try
+      {
+         if (writeNewlines)
+         {
+            writer.newLine();
+         }
       }
       catch (IOException ioe)
       {
@@ -214,7 +232,11 @@ public class XmlTextVisitor extends SamXBaseVisitor<Exception>
    @Override
    public Exception visitParagraph(SamXParser.ParagraphContext ctx)
    {
-      addIndent();
+      if (indentParagraph)
+      {
+         addIndent();
+      }
+
       append("<p>");
 
       int offset = charactersWritten;
@@ -232,6 +254,11 @@ public class XmlTextVisitor extends SamXBaseVisitor<Exception>
 
       append("</p>");
 
+      if (indentParagraph)
+      {
+         appendNewline();
+      }
+
       return null;
    }
 
@@ -243,19 +270,21 @@ public class XmlTextVisitor extends SamXBaseVisitor<Exception>
 
       indentLevel++;
 
-      final int saveIndent = indentLevel;
+      final boolean saveIndentParagraph = indentParagraph;
+      indentParagraph = false;
 
       for (SamXParser.ParagraphContext pc: ctx.paragraph())
       {
          addIndent();
-         indentLevel = 0;
 
          append("<li>");
          visit(pc);
-         append("</li>\n");
+         append("</li>");
 
-         indentLevel = saveIndent;
+         appendNewline();
       }
+
+      indentParagraph = saveIndentParagraph;
 
       indentLevel--;
 

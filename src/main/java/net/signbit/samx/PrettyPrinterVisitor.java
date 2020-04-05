@@ -239,13 +239,13 @@ public class PrettyPrinterVisitor extends SamXBaseVisitor<StringBuilder>
       return builder;
    }
 
-   private StringBuilder visitAttribute(char sigil, ParseTree pt)
+   private StringBuilder visitAttribute(char sigil, String text)
    {
       StringBuilder builder = new StringBuilder();
 
       builder.append('(');
       builder.append(sigil);
-      builder.append(visit(pt));
+      builder.append(text);
       builder.append(')');
 
       return builder;
@@ -254,13 +254,19 @@ public class PrettyPrinterVisitor extends SamXBaseVisitor<StringBuilder>
    @Override
    public StringBuilder visitConditionAttr(SamXParser.ConditionAttrContext ctx)
    {
-      return visitAttribute('?', ctx.text());
+      return visitAttribute('?', ctx.text().getText());
    }
 
    @Override
    public StringBuilder visitIdAttr(SamXParser.IdAttrContext ctx)
    {
-      return visitAttribute('*', ctx.NAME());
+      return visitAttribute('*', ctx.NAME().getText());
+   }
+
+   @Override
+   public StringBuilder visitLanguageAttr(SamXParser.LanguageAttrContext ctx)
+   {
+      return visitAttribute('!', ctx.NAME().getText());
    }
 
    @Override
@@ -293,14 +299,51 @@ public class PrettyPrinterVisitor extends SamXBaseVisitor<StringBuilder>
    {
       StringBuilder builder = new StringBuilder();
 
-      for (SamXParser.BlockContext pt : ctx.block())
+      for (SamXParser.DeclarationContext dc: ctx.declaration())
       {
-         StringBuilder childBuilder = visit(pt);
+         StringBuilder childBuilder = visit(dc);
          if (childBuilder != null)
          {
             builder.append(childBuilder);
          }
       }
+
+      for (SamXParser.BlockContext bc : ctx.block())
+      {
+         StringBuilder childBuilder = visit(bc);
+         if (childBuilder != null)
+         {
+            builder.append(childBuilder);
+         }
+      }
+
+      return builder;
+   }
+
+   @Override
+   public StringBuilder visitDeclaration(SamXParser.DeclarationContext ctx)
+   {
+      StringBuilder builder = new StringBuilder();
+
+      builder.append('!');
+      builder.append(ctx.NAME());
+      builder.append(':');
+      builder.append(' ');
+      builder.append(visit(ctx.description));
+      builder.append('\n');
+
+      return builder;
+   }
+
+   @Override
+   public StringBuilder visitUrl(SamXParser.UrlContext ctx)
+   {
+      StringBuilder builder = new StringBuilder();
+
+      builder.append(ctx.SCHEME().getText());
+      builder.append("//");
+      builder.append(ctx.host.getText());
+      builder.append(ctx.path().getText());
 
       return builder;
    }
