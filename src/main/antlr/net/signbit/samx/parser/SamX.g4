@@ -276,6 +276,9 @@ inlineCode : APOSTR text APOSTR ;
 flow : ( text | phrase | localInsert | url | inlineCode )+ ;
 
 paragraph : ( flow NEWLINE )+ NEWLINE ;
+
+headerRow : ( COLSEP NAME )+ NEWLINE ;
+
 recordRow : ( COLSEP flow )+ NEWLINE ;
 
 EXTCODE : (~'\n')+ { processingCode }? { addCodeIndent(); };
@@ -288,7 +291,7 @@ block :
      NAME TYPESEP attribute* description=flow? NEWLINE+ INDENT block+ DEDENT        # TypedBlock
    | NAME TYPESEP attribute* value=flow NEWLINE                                     # Field
    | paragraph                                                                      # PlainParagraph
-   | NAME RECSEP description=flow NEWLINE+ INDENT (recordRow | NEWLINE)+ DEDENT     # RecordSet
+   | NAME RECSEP description=flow NEWLINE+ INDENT headerRow (recordRow | NEWLINE)+ DEDENT     # RecordSet
    | INDENT ((BULLET paragraph+) | NEWLINE)+ DEDENT                                 # UnorderedList
    | INDENT ((HASH paragraph+) | NEWLINE)+ DEDENT                                   # OrderedList
    | '!!!(' text ')' NEWLINE block                                                  # Remark

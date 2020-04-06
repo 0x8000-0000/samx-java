@@ -266,7 +266,9 @@ public class XmlTextVisitor extends SamXBaseVisitor<Exception>
    public Exception visitUnorderedList(SamXParser.UnorderedListContext ctx)
    {
       addIndent();
-      append("\n<ul>\n");
+      appendNewline();
+      append("<ul>");
+      appendNewline();
 
       indentLevel++;
 
@@ -289,8 +291,73 @@ public class XmlTextVisitor extends SamXBaseVisitor<Exception>
       indentLevel--;
 
       addIndent();
-      append("</ul>\n");
+      append("</ul>");
+      appendNewline();
 
+      return null;
+   }
+
+   @Override
+   public Exception visitRecordSet(SamXParser.RecordSetContext ctx)
+   {
+      final String typeText = ctx.NAME().getText();
+
+      addIndent();
+      append('<');
+      append(typeText);
+      append('>');
+      appendNewline();
+
+      indentLevel++;
+
+      final SamXParser.HeaderRowContext header = ctx.headerRow();
+
+      for (SamXParser.RecordRowContext rrc: ctx.recordRow())
+      {
+         addIndent();
+         append("<record>");
+         appendNewline();
+
+         indentLevel ++;
+
+         for (int ii = 0; ii < header.NAME().size(); ii ++)
+         {
+            addIndent();
+            append('<');
+            append(header.NAME(ii).getText());
+            append('>');
+
+            visitFlow(rrc.flow(ii));
+
+            append('<');
+            append('/');
+            append(header.NAME(ii).getText());
+            append('>');
+            appendNewline();
+         }
+
+         indentLevel --;
+
+         addIndent();
+         append("</record>");
+         appendNewline();
+      }
+
+      indentLevel--;
+
+      addIndent();
+      append('<');
+      append('/');
+      append(typeText);
+      append('>');
+      appendNewline();
+
+      return null;
+   }
+
+   @Override
+   public Exception visitRecordRow(SamXParser.RecordRowContext ctx)
+   {
       return null;
    }
 }
