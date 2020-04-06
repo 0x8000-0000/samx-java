@@ -68,7 +68,15 @@ public class PrettyPrinterVisitor extends SamXBaseVisitor<StringBuilder>
 
       builder.append(ctx.NAME().getText());
       builder.append(ctx.TYPESEP().getText());
-      builder.append(visit(ctx.description));
+      for (SamXParser.AttributeContext ac : ctx.attribute())
+      {
+         builder.append(visit(ac));
+      }
+      builder.append(' ');
+      if (ctx.description != null)
+      {
+         builder.append(visit(ctx.description));
+      }
       builder.append('\n');
       builder.append('\n');
       indentLevel++;
@@ -84,28 +92,6 @@ public class PrettyPrinterVisitor extends SamXBaseVisitor<StringBuilder>
 
       return builder;
    }
-
-
-   /*
-   @Override
-   public StringBuilder visitIndentedBlock(SamXParser.IndentedBlockContext ctx)
-   {
-      StringBuilder builder = new StringBuilder();
-
-      indentLevel++;
-      for (ParseTree pt : ctx.children)
-      {
-         StringBuilder childBuilder = visit(pt);
-         if (childBuilder != null)
-         {
-            builder.append(childBuilder);
-         }
-      }
-      indentLevel--;
-
-      return builder;
-   }
-    */
 
    @Override
    public StringBuilder visitUnorderedList(SamXParser.UnorderedListContext ctx)
@@ -142,7 +128,10 @@ public class PrettyPrinterVisitor extends SamXBaseVisitor<StringBuilder>
       addIndent(builder);
       builder.append(ctx.NAME().getText());
       builder.append(ctx.RECSEP().getText());
-      builder.append(visit(ctx.description));
+      if (ctx.description != null)
+      {
+         builder.append(visit(ctx.description));
+      }
       builder.append('\n');
       builder.append('\n');
       indentLevel++;
@@ -270,6 +259,18 @@ public class PrettyPrinterVisitor extends SamXBaseVisitor<StringBuilder>
    }
 
    @Override
+   public StringBuilder visitCitation(SamXParser.CitationContext ctx)
+   {
+      StringBuilder builder = new StringBuilder();
+
+      builder.append('[');
+      builder.append(visit(ctx.text()));
+      builder.append(']');
+
+      return builder;
+   }
+
+   @Override
    public StringBuilder visitField(SamXParser.FieldContext ctx)
    {
       StringBuilder builder = new StringBuilder();
@@ -277,7 +278,7 @@ public class PrettyPrinterVisitor extends SamXBaseVisitor<StringBuilder>
       addIndent(builder);
       builder.append(ctx.NAME().getText());
       builder.append(ctx.TYPESEP().getText());
-      for (SamXParser.AttributeContext ac: ctx.attribute())
+      for (SamXParser.AttributeContext ac : ctx.attribute())
       {
          builder.append(visit(ac));
       }

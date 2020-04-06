@@ -250,7 +250,7 @@ paragraph : ( flow NEWLINE )+ NEWLINE ;
 recordRow : ( COLSEP flow )+ NEWLINE ;
 
 block :
-     NAME TYPESEP attribute* description=flow NEWLINE+ INDENT block+ DEDENT         # TypedBlock
+     NAME TYPESEP attribute* description=flow? NEWLINE+ INDENT block+ DEDENT        # TypedBlock
    | NAME TYPESEP attribute* value=flow NEWLINE                                     # Field
    | paragraph                                                                      # PlainParagraph
    | NAME RECSEP description=flow NEWLINE+ INDENT (recordRow | NEWLINE)+ DEDENT     # RecordSet
