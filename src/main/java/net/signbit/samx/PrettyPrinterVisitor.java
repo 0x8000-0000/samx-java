@@ -17,6 +17,7 @@
 package net.signbit.samx;
 
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.antlr.v4.runtime.tree.TerminalNode;
 
 import net.signbit.samx.parser.SamXBaseVisitor;
 import net.signbit.samx.parser.SamXParser;
@@ -345,6 +346,29 @@ public class PrettyPrinterVisitor extends SamXBaseVisitor<StringBuilder>
       builder.append("//");
       builder.append(ctx.host.getText());
       builder.append(ctx.path().getText());
+
+      return builder;
+   }
+
+   @Override
+   public StringBuilder visitCodeBlock(SamXParser.CodeBlockContext ctx)
+   {
+      StringBuilder builder = new StringBuilder();
+
+      addIndent(builder);
+      builder.append("```(");
+      builder.append(visit(ctx.language));
+      builder.append(")");
+      builder.append('\n');
+
+      indentLevel ++;
+      for (TerminalNode tn: ctx.EXTCODE())
+      {
+         addIndent(builder);
+         builder.append(tn.getText());
+         builder.append('\n');
+      }
+      indentLevel --;
 
       return builder;
    }

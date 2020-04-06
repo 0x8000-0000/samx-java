@@ -28,6 +28,9 @@ tokens { INDENT, DEDENT, END, INVALID }
    private java.util.ArrayDeque<Token> tokens = new java.util.ArrayDeque<Token>();
    private java.util.Stack<Integer> indents = new java.util.Stack<>();
 
+   private boolean prepareProcessingCode = false;
+   private boolean processingCode = false;
+
    private Token lastToken;
 
    @Override
@@ -172,16 +175,29 @@ NEWLINE
       }
       else if (thisIndent > currentIndent)
       {
-         indents.push(thisIndent);
-
          addNewLine();
-         addIndent();
+
+         if (! processingCode)
+         {
+            indents.push(thisIndent);
+            addIndent();
+
+            if (prepareProcessingCode)
+            {
+               processingCode = true;
+               prepareProcessingCode = false;
+            }
+         }
+
          skip();
       }
       else
       {
          addNewLine();
+
          popIndents(thisIndent);
+
+         processingCode = false;
          skip();
       }
    } ;
@@ -249,6 +265,10 @@ flow : ( text | phrase | localInsert | url | inlineCode )+ ;
 paragraph : ( flow NEWLINE )+ NEWLINE ;
 recordRow : ( COLSEP flow )+ NEWLINE ;
 
+EXTCODE : (~'\n')+ { processingCode }?;
+
+CODE_MARKER : '```(' { prepareProcessingCode = true; };
+
 block :
      NAME TYPESEP attribute* description=flow? NEWLINE+ INDENT block+ DEDENT        # TypedBlock
    | NAME TYPESEP attribute* value=flow NEWLINE                                     # Field
@@ -260,6 +280,7 @@ block :
    | '"""[' text ']' NEWLINE ( INDENT block+ DEDENT )                               # CitationBlock
    | '>>>(' text ')' attribute*                                                     # InsertFragment
    | '<<<(' text ')' attribute*                                                     # IncludeFile
+   | CODE_MARKER language=text ')' attribute* NEWLINE+ INDENT (EXTCODE? NEWLINE)+ DEDENT     # CodeBlock
    | NEWLINE                                                                        # Empty
    ;
 
