@@ -362,10 +362,15 @@ public class PrettyPrinterVisitor extends SamXBaseVisitor<StringBuilder>
       builder.append('\n');
 
       indentLevel ++;
-      for (TerminalNode tn: ctx.EXTCODE())
+      for (SamXParser.ExternalCodeContext ecc: ctx.externalCode())
       {
          addIndent(builder);
-         builder.append(tn.getText());
+         int codeIndent = Integer.valueOf(ecc.CODE_INDENT().getText());
+         for (int ii = 0; ii < codeIndent; ++ii)
+         {
+            builder.append(' ');
+         }
+         builder.append(ecc.EXTCODE().getText());
          builder.append('\n');
       }
       indentLevel --;

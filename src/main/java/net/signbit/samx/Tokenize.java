@@ -67,6 +67,9 @@ public final class Tokenize
                   case SamXParser.INVALID:
                      tokenSymbol = "INVALID";
                      break;
+                  case SamXParser.CODE_INDENT:
+                     tokenSymbol = "CODE_IDT";
+                     break;
                   default:
                      tokenSymbol = "¯\\_(ツ)_/¯";
                      break;

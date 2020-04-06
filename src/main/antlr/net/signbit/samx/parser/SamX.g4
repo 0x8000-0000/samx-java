@@ -20,7 +20,7 @@ grammar SamX;
 package net.signbit.samx.parser;
 }
 
-tokens { INDENT, DEDENT, END, INVALID }
+tokens { INDENT, DEDENT, END, INVALID, CODE_INDENT }
 
 @lexer::members 
 {
@@ -30,6 +30,9 @@ tokens { INDENT, DEDENT, END, INVALID }
 
    private boolean prepareProcessingCode = false;
    private boolean processingCode = false;
+
+   private int thisIndent = 0;
+   private int codeIndentBase = 0;
 
    private Token lastToken;
 
@@ -125,6 +128,15 @@ tokens { INDENT, DEDENT, END, INVALID }
       }
    }
 
+   private void addCodeIndent()
+   {
+      CommonToken codeIndent = makeToken(SamXParser.CODE_INDENT, java.lang.Integer.toString(thisIndent - codeIndentBase));
+      codeIndent.setLine(_tokenStartLine);
+      codeIndent.setCharPositionInLine(_tokenStartCharPositionInLine);
+
+      tokens.add(codeIndent);
+   }
+
 }
 
 SKIP_
@@ -145,7 +157,7 @@ NEWLINE
    )
    {
       final char[] tokenText = getText().toCharArray();
-      int thisIndent = 0;
+      thisIndent = 0;
       for (char ch: tokenText)
       {
          if (ch == ' ')
@@ -186,6 +198,7 @@ NEWLINE
             {
                processingCode = true;
                prepareProcessingCode = false;
+               codeIndentBase = thisIndent;
             }
          }
 
@@ -265,9 +278,11 @@ flow : ( text | phrase | localInsert | url | inlineCode )+ ;
 paragraph : ( flow NEWLINE )+ NEWLINE ;
 recordRow : ( COLSEP flow )+ NEWLINE ;
 
-EXTCODE : (~'\n')+ { processingCode }?;
+EXTCODE : (~'\n')+ { processingCode }? { addCodeIndent(); };
 
 CODE_MARKER : '```(' { prepareProcessingCode = true; };
+
+externalCode : CODE_INDENT EXTCODE ;
 
 block :
      NAME TYPESEP attribute* description=flow? NEWLINE+ INDENT block+ DEDENT        # TypedBlock
@@ -280,7 +295,7 @@ block :
    | '"""[' text ']' NEWLINE ( INDENT block+ DEDENT )                               # CitationBlock
    | '>>>(' text ')' attribute*                                                     # InsertFragment
    | '<<<(' text ')' attribute*                                                     # IncludeFile
-   | CODE_MARKER language=text ')' attribute* NEWLINE+ INDENT (EXTCODE? NEWLINE)+ DEDENT     # CodeBlock
+   | CODE_MARKER language=text ')' attribute* NEWLINE+ INDENT (externalCode? NEWLINE)+ DEDENT     # CodeBlock
    | NEWLINE                                                                        # Empty
    ;
 
