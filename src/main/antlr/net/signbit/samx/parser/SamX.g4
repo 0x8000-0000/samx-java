@@ -240,7 +240,11 @@ phrase : OPEN_PHR text CLOSE_PHR annotation* attribute* ;
 
 localInsert : '>($' text ')' ;
 
-flow : ( text | phrase | localInsert | url )+ ;
+APOSTR : '`' ;
+
+inlineCode : APOSTR text APOSTR ;
+
+flow : ( text | phrase | localInsert | url | inlineCode )+ ;
 
 paragraph : ( flow NEWLINE )+ NEWLINE ;
 recordRow : ( COLSEP flow )+ NEWLINE ;
@@ -252,10 +256,24 @@ block :
    | NAME RECSEP description=flow NEWLINE+ INDENT (recordRow | NEWLINE)+ DEDENT     # RecordSet
    | INDENT ((BULLET paragraph+) | NEWLINE)+ DEDENT                                 # UnorderedList
    | INDENT ((HASH paragraph+) | NEWLINE)+ DEDENT                                   # OrderedList
+   | '!!!(' text ')' NEWLINE block                                                  # Remark
+   | '"""[' text ']' NEWLINE ( INDENT block+ DEDENT )                               # CitationBlock
+   | '>>>(' text ')' attribute*                                                     # InsertFragment
+   | '<<<(' text ')' attribute*                                                     # IncludeFile
    | NEWLINE                                                                        # Empty
    ;
 
 declaration: '!' NAME TYPESEP description=flow NEWLINE ;
+
+UNICODE_BOM: (UTF8_BOM
+    | UTF16_BOM
+    | UTF32_BOM
+    ) -> skip
+    ;
+
+UTF8_BOM: '\uEFBBBF';
+UTF16_BOM: '\uFEFF';
+UTF32_BOM: '\u0000FEFF';
 
 document: declaration* block* EOF ;
 

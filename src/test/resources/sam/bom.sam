@@ -1,0 +1,5 @@
+﻿!annotation-lookup: case insensitive
+!smart-quotes: on
+
+tests:(!en) SAM Parser Tests
+
