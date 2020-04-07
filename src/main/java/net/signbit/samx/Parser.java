@@ -31,10 +31,12 @@ public class Parser
 {
    public static class Result
    {
-      public SamXParser.DocumentContext document;
+      public File inputFile = null;
+      public SamXParser.DocumentContext document = null;
 
-      public HashMap<String, SamXParser.DocumentContext> includedDocuments;
-      public HashMap<String, IOException> includedExceptions;
+      public HashMap<String, Result> includedDocuments = new HashMap<>();
+      public HashMap<String, IOException> includedExceptions = new HashMap<>();
+      public HashMap<String, String> referencePaths;
    }
 
    public static Result parse(String inputFileName) throws IOException
@@ -50,7 +52,13 @@ public class Parser
       }
    }
 
+
    public static Result parse(File inputFile) throws IOException
+   {
+      return parse(inputFile, new HashMap<>(), new HashMap<>());
+   }
+
+   public static Result parse(File inputFile, HashMap<String, Result> includedDocuments, HashMap<String, IOException> includedExceptions) throws IOException
    {
       CharStream input = CharStreams.fromFileName(inputFile.getPath());
 
@@ -60,12 +68,16 @@ public class Parser
 
       SamXParser parser = new SamXParser(tokens);
 
-      parser.setReferencePath(inputFile.getParentFile());
-      
       Result result = new Result();
+      result.inputFile = inputFile;
+      result.includedDocuments = includedDocuments;
+      result.includedExceptions = includedExceptions;
+
+      parser.setBasePath(inputFile.getParentFile());
+      parser.setIncludeDictionary(includedDocuments);
+      parser.setIncludeExceptionsDictionary(includedExceptions);
       result.document = parser.document();
-      result.includedDocuments = parser.includedDocuments;
-      result.includedExceptions = parser.includedExceptions;
+      result.referencePaths = parser.getReferencePaths();
 
       return result;
    }

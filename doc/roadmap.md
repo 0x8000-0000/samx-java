@@ -3,8 +3,6 @@ Roadmap for SAMx
 
 To Do:
 
-* Add support for including a SAMx document in another SAMx document.
-
 * Add support for fragments.
 
 * Add support for conditions.
@@ -19,4 +17,6 @@ To Do:
 
 Done
 
-* Initial support for XML serialization.
+* [0.1.5] Add support for including a SAMx document in another SAMx document.
+
+* [0.1.3] Initial support for XML serialization.

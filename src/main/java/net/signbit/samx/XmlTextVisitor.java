@@ -2,6 +2,7 @@ package net.signbit.samx;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.util.HashMap;
 
 import org.antlr.v4.runtime.tree.ParseTree;
 
@@ -18,11 +19,24 @@ public class XmlTextVisitor extends SamXBaseVisitor<Exception>
    private int indentLevel = 0;
 
    private boolean indentParagraph = true;
+   private boolean writeXmlDeclaration = true;
    private boolean writeNewlines = true;
 
-   public XmlTextVisitor(BufferedWriter aWriter)
+   private HashMap<String, Parser.Result> includedDocuments;
+   private HashMap<String, IOException> includedExceptions;
+   private HashMap<String, String> referencePaths;
+
+   public XmlTextVisitor(BufferedWriter aWriter, HashMap<String, Parser.Result> docDict, HashMap<String, IOException> errDict, HashMap<String, String> referenceDict)
    {
       writer = aWriter;
+      includedDocuments = docDict;
+      includedExceptions = errDict;
+      referencePaths = referenceDict;
+   }
+
+   public void skipXmlDeclaration()
+   {
+      writeXmlDeclaration = false;
    }
 
    private void addIndent()
@@ -99,15 +113,21 @@ public class XmlTextVisitor extends SamXBaseVisitor<Exception>
    @Override
    public Exception visitDocument(SamXParser.DocumentContext ctx)
    {
-      append("<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n");
-      append("<document>\n");
+      if (writeXmlDeclaration)
+      {
+         append("<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n");
+         append("<document>\n");
+      }
 
       for (ParseTree pt: ctx.children)
       {
          visit(pt);
       }
 
-      append("</document>\n");
+      if (writeXmlDeclaration)
+      {
+         append("</document>\n");
+      }
 
       return exception;
    }
@@ -356,8 +376,57 @@ public class XmlTextVisitor extends SamXBaseVisitor<Exception>
    }
 
    @Override
-   public Exception visitRecordRow(SamXParser.RecordRowContext ctx)
+   public Exception visitIncludeFile(SamXParser.IncludeFileContext ctx)
    {
+      StringBuilder builder = new StringBuilder();
+
+      builder.append("<!-- ");
+      builder.append("include: ");
+
+      final String reference = ctx.reference.getText();
+
+      builder.append(reference);
+
+      String absolutePath = referencePaths.get(reference);
+
+      Parser.Result includedResult = includedDocuments.get(absolutePath);
+      if (includedResult == null)
+      {
+         builder.append(" is not found: ");
+
+         IOException ioe = includedExceptions.get(absolutePath);
+
+         if (ioe != null)
+         {
+            builder.append(ioe.getMessage());
+         }
+         else
+         {
+            builder.append(" exception missing");
+         }
+      }
+
+      builder.append(" -->");
+
+      append(builder);
+      appendNewline();
+
+      if (includedResult != null)
+      {
+         XmlTextVisitor visitor = new XmlTextVisitor(writer, includedDocuments, includedExceptions, includedResult.referencePaths);
+         visitor.skipXmlDeclaration();
+
+         visitor.visit(includedResult.document);
+
+         StringBuilder endBuilder = new StringBuilder();
+         endBuilder.append("<!-- ");
+         endBuilder.append("include: ");
+         endBuilder.append(reference);
+         endBuilder.append(" -->");
+         append(endBuilder);
+         appendNewline();
+      }
+
       return null;
    }
 }

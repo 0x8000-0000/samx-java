@@ -142,30 +142,59 @@ tokens { INDENT, DEDENT, END, INVALID, CODE_INDENT }
 @parser::members
 {
 
-   public java.util.HashMap<String, SamXParser.DocumentContext> includedDocuments = new java.util.HashMap<>();
-   public java.util.HashMap<String, java.io.IOException> includedExceptions = new java.util.HashMap<>();
+   private java.util.HashMap<String, net.signbit.samx.Parser.Result> includedDocuments = null;
+   private java.util.HashMap<String, java.io.IOException> includedExceptions = null;
+
+   private java.util.HashMap<String, String> referencePaths = new java.util.HashMap<>();
    private java.io.File basePath = null;
 
-   public void setReferencePath(java.io.File aPath)
+   public void setBasePath(java.io.File aPath)
    {
       basePath = aPath;
    }
 
+   public java.util.HashMap<String, String> getReferencePaths()
+   {
+      return referencePaths;
+   }
+
+   public void setIncludeDictionary(java.util.HashMap<String, net.signbit.samx.Parser.Result> aDict)
+   {
+      includedDocuments = aDict;
+   }
+
+   public void setIncludeExceptionsDictionary(java.util.HashMap<String, java.io.IOException> aDict)
+   {
+      includedExceptions = aDict;
+   }
+
    private void parseFile(String reference)
    {
-      if (! includedDocuments.containsKey(reference))
+      java.io.File includeFile = new java.io.File(basePath, reference);
+
+      if (includeFile.exists())
       {
-         try
+         referencePaths.put(reference, includeFile.getAbsolutePath());
+
+         if (! includedDocuments.containsKey(includeFile.getAbsolutePath()))
          {
-            java.io.File input = new java.io.File(basePath, reference);
-            // TODO: what to do about _its_ included documents?
-            SamXParser.DocumentContext document = net.signbit.samx.Parser.parse(reference).document;
-            includedDocuments.put(reference, document);
+            try
+            {
+               net.signbit.samx.Parser.Result result = net.signbit.samx.Parser.parse(includeFile,
+                  includedDocuments,
+                  includedExceptions);
+
+               includedDocuments.put(includeFile.getAbsolutePath(), result);
+            }
+            catch (java.io.IOException ioe)
+            {
+               includedExceptions.put(includeFile.getAbsolutePath(), ioe);
+            }
          }
-         catch (java.io.IOException ioe)
-         {
-            includedExceptions.put(reference, ioe);
-         }
+      }
+      else
+      {
+         includedExceptions.put(includeFile.getAbsolutePath(), new java.io.FileNotFoundException(includeFile.getAbsolutePath()));
       }
    }
 

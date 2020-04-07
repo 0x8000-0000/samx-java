@@ -32,15 +32,15 @@ public final class ConvertToXml
          return;
       }
 
-      SamXParser.DocumentContext document = Parser.parse(args[0]).document;
+      Parser.Result result = Parser.parse(args[0]);
 
       FileWriter fileWriter = new FileWriter(args[1]);
 
       BufferedWriter writer = new BufferedWriter(fileWriter);
 
-      XmlTextVisitor visitor = new XmlTextVisitor(writer);
+      XmlTextVisitor visitor = new XmlTextVisitor(writer, result.includedDocuments, result.includedExceptions, result.referencePaths);
 
-      visitor.visit(document);
+      visitor.visit(result.document);
 
       writer.close();
       fileWriter.close();
