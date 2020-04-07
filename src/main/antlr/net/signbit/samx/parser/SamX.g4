@@ -139,6 +139,38 @@ tokens { INDENT, DEDENT, END, INVALID, CODE_INDENT }
 
 }
 
+@parser::members
+{
+
+   public java.util.HashMap<String, SamXParser.DocumentContext> includedDocuments = new java.util.HashMap<>();
+   public java.util.HashMap<String, java.io.IOException> includedExceptions = new java.util.HashMap<>();
+   private java.io.File basePath = null;
+
+   public void setReferencePath(java.io.File aPath)
+   {
+      basePath = aPath;
+   }
+
+   private void parseFile(String reference)
+   {
+      if (! includedDocuments.containsKey(reference))
+      {
+         try
+         {
+            java.io.File input = new java.io.File(basePath, reference);
+            // TODO: what to do about _its_ included documents?
+            SamXParser.DocumentContext document = net.signbit.samx.Parser.parse(reference).document;
+            includedDocuments.put(reference, document);
+         }
+         catch (java.io.IOException ioe)
+         {
+            includedExceptions.put(reference, ioe);
+         }
+      }
+   }
+
+}
+
 SKIP_
  : ( SPACES | COMMENT ) -> skip
  ;
@@ -297,7 +329,7 @@ block :
    | '!!!(' text ')' NEWLINE block                                                  # Remark
    | '"""[' text ']' NEWLINE ( INDENT block+ DEDENT )                               # CitationBlock
    | '>>>(' text ')' attribute*                                                     # InsertFragment
-   | '<<<(' text ')' attribute*                                                     # IncludeFile
+   | '<<<(' reference=text ')' attribute*   { parseFile($reference.text); }         # IncludeFile
    | CODE_MARKER language=text ')' attribute* NEWLINE+ INDENT (externalCode? NEWLINE)+ DEDENT     # CodeBlock
    | NEWLINE                                                                        # Empty
    ;

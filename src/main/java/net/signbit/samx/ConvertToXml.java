@@ -20,11 +20,6 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import org.antlr.v4.runtime.CharStream;
-import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.CommonTokenStream;
-
-import net.signbit.samx.parser.SamXLexer;
 import net.signbit.samx.parser.SamXParser;
 
 public final class ConvertToXml
@@ -37,15 +32,7 @@ public final class ConvertToXml
          return;
       }
 
-      CharStream input = CharStreams.fromFileName(args[0]);
-
-      SamXLexer lexer = new SamXLexer(input);
-
-      CommonTokenStream tokens = new CommonTokenStream(lexer);
-
-      SamXParser parser = new SamXParser(tokens);
-
-      SamXParser.DocumentContext document = parser.document();
+      SamXParser.DocumentContext document = Parser.parse(args[0]).document;
 
       FileWriter fileWriter = new FileWriter(args[1]);
 
@@ -58,4 +45,5 @@ public final class ConvertToXml
       writer.close();
       fileWriter.close();
    }
+
 }
