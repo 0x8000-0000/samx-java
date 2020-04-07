@@ -17,7 +17,6 @@
 package net.signbit.samx;
 
 import org.antlr.v4.runtime.tree.ParseTree;
-import org.antlr.v4.runtime.tree.TerminalNode;
 
 import net.signbit.samx.parser.SamXBaseVisitor;
 import net.signbit.samx.parser.SamXParser;
@@ -217,6 +216,11 @@ public class PrettyPrinterVisitor extends SamXBaseVisitor<StringBuilder>
       {
          builder.append(visit(ac));
       }
+      final SamXParser.ConditionContext cond = ctx.condition();
+      if (cond != null)
+      {
+         builder.append(visit(cond));
+      }
 
       return builder;
    }
@@ -240,20 +244,6 @@ public class PrettyPrinterVisitor extends SamXBaseVisitor<StringBuilder>
       builder.append('(');
       builder.append(sigil);
       builder.append(text);
-      builder.append(')');
-
-      return builder;
-   }
-
-   @Override
-   public StringBuilder visitConditionAttr(SamXParser.ConditionAttrContext ctx)
-   {
-      StringBuilder builder = new StringBuilder();
-
-      builder.append("(?");
-      builder.append(ctx.variable.getText());
-      builder.append(ctx.oper.getText());
-      builder.append(visit(ctx.value));
       builder.append(')');
 
       return builder;
@@ -287,8 +277,8 @@ public class PrettyPrinterVisitor extends SamXBaseVisitor<StringBuilder>
    public StringBuilder visitField(SamXParser.FieldContext ctx)
    {
       StringBuilder builder = new StringBuilder();
-
       addIndent(builder);
+
       builder.append(ctx.NAME().getText());
       builder.append(ctx.TYPESEP().getText());
       for (SamXParser.AttributeContext ac : ctx.attribute())
@@ -386,6 +376,51 @@ public class PrettyPrinterVisitor extends SamXBaseVisitor<StringBuilder>
          builder.append('\n');
       }
       indentLevel --;
+
+      return builder;
+   }
+
+   @Override
+   public StringBuilder visitCondition(SamXParser.ConditionContext ctx)
+   {
+      StringBuilder builder = new StringBuilder();
+
+      builder.append("(?");
+      builder.append(visit(ctx.condition_expr()));
+      builder.append(")");
+
+      return builder;
+   }
+
+   @Override
+   public StringBuilder visitBooleanTrueCondition(SamXParser.BooleanTrueConditionContext ctx)
+   {
+      StringBuilder builder = new StringBuilder();
+
+      builder.append(ctx.variable.getText());
+
+      return builder;
+   }
+
+   @Override
+   public StringBuilder visitBooleanFalseCondition(SamXParser.BooleanFalseConditionContext ctx)
+   {
+      StringBuilder builder = new StringBuilder();
+
+      builder.append('!');
+      builder.append(ctx.variable.getText());
+
+      return builder;
+   }
+
+   @Override
+   public StringBuilder visitComparisonCondition(SamXParser.ComparisonConditionContext ctx)
+   {
+      StringBuilder builder = new StringBuilder();
+
+      builder.append(ctx.variable.getText());
+      builder.append(ctx.oper.getText());
+      builder.append(visit(ctx.value));
 
       return builder;
    }

@@ -5,8 +5,6 @@ To Do:
 
 * Add support for fragments.
 
-* Add support for conditions.
-
 * Add more tests.
 
 * Add HTML exporter / visitor / converter.
@@ -16,6 +14,8 @@ To Do:
 * Convert exporter visitors to use StringTemplate instead of hard-coding.
 
 Done
+
+* [0.1.6] Add support for conditions.
 
 * [0.1.5] Add support for including a SAMx document in another SAMx document.
 

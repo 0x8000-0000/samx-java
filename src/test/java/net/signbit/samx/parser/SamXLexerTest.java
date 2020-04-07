@@ -96,13 +96,12 @@ public class SamXLexerTest
                {
                   return false;
                }
-               lastColumn = thisColumn;
             }
             else
             {
                lastLine = thisLine;
-               lastColumn = thisColumn;
             }
+            lastColumn = thisColumn;
          }
       }
 

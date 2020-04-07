@@ -276,6 +276,18 @@ NEWLINE
       }
    } ;
 
+condition_expr :
+   variable=NAME                                         # BooleanTrueCondition
+   | variable=NAME EQUAL 'true'                          # BooleanTrueCondition
+   | variable=NAME EQUAL 'false'                         # BooleanFalseCondition
+   | '!' variable=NAME                                   # BooleanFalseCondition
+   | variable=NAME oper=(EQUAL|NOT_EQ) value=text        # ComparisonCondition
+   | OPEN_PAR firstCond=condition_expr CLOSE_PAR 'or' OPEN_PAR secondCond=condition_expr CLOSE_PAR  # AlternativeCondition
+   | OPEN_PAR firstCond=condition_expr CLOSE_PAR 'and' OPEN_PAR secondCond=condition_expr CLOSE_PAR  # CombinedCondition
+   ;
+
+condition : STT_COND condition_expr CLOSE_PAR ;
+
 NAME : [-a-zA-Z_] [-a-zA-Z0-9_.]+ ;
 
 INTEGER : [1-9] [0-9]+ ;
@@ -313,16 +325,15 @@ STRING :
 
 escapeSeq : ESCAPE . ;
 
-text : ( NAME | TOKEN | INTEGER | STRING | '/' | escapeSeq ) + ;
-
 attribute :
-   STT_COND variable=NAME oper=(EQUAL|NOT_EQ) value=text CLOSE_PAR   # ConditionAttr
-   | STT_NAME CLOSE_PAR         # NameAttr
-   | STT_ID NAME CLOSE_PAR         # IdAttr
-   | STT_LANG '!' NAME CLOSE_PAR         # LanguageAttr
-   | '[' text ']'             # Citation
-   | '[*' blockName=NAME '/' idName=NAME ']'   # Reference
+   STT_NAME CLOSE_PAR                           # NameAttr
+   | STT_ID NAME CLOSE_PAR                      # IdAttr
+   | STT_LANG '!' NAME CLOSE_PAR                # LanguageAttr
+   | '[' text ']'                               # Citation
+   | '[*' blockName=NAME '/' idName=NAME ']'    # Reference
    ;
+
+text : ( NAME | TOKEN | INTEGER | STRING | '/' | escapeSeq ) + ;
 
 STT_COND : '(?' ;
 
@@ -336,7 +347,7 @@ STT_ANN : '(:' ;
 
 annotation : STT_ANN text CLOSE_PAR ;
 
-phrase : OPEN_PHR text CLOSE_PHR annotation* attribute* ;
+phrase : OPEN_PHR text CLOSE_PHR annotation* attribute* condition? ;
 
 localInsert : '>($' text ')' ;
 
@@ -359,8 +370,8 @@ CODE_MARKER : '```(' { prepareProcessingCode = true; };
 externalCode : CODE_INDENT EXTCODE ;
 
 block :
-     NAME TYPESEP attribute* description=flow? NEWLINE+ INDENT block+ DEDENT        # TypedBlock
-   | NAME TYPESEP attribute* value=flow NEWLINE                                     # Field
+     NAME TYPESEP attribute* condition? description=flow? NEWLINE+ INDENT block+ DEDENT        # TypedBlock
+   | NAME TYPESEP attribute* condition? value=flow NEWLINE                                     # Field
    | paragraph                                                                      # PlainParagraph
    | NAME RECSEP description=flow NEWLINE+ INDENT headerRow (recordRow | NEWLINE)+ DEDENT     # RecordSet
    | INDENT ((BULLET paragraph+) | NEWLINE)+ DEDENT                                 # UnorderedList
@@ -368,8 +379,8 @@ block :
    | '!!!(' text ')' NEWLINE block                                                  # Remark
    | '"""[' text ']' NEWLINE ( INDENT block+ DEDENT )                               # CitationBlock
    | '>>>(' text ')' attribute*                                                     # InsertFragment
-   | '<<<(' reference=text ')' attribute*   { parseFile($reference.text); }         # IncludeFile
-   | CODE_MARKER language=text ')' attribute* NEWLINE+ INDENT (externalCode? NEWLINE)+ DEDENT     # CodeBlock
+   | '<<<(' reference=text ')' attribute* condition?    { parseFile($reference.text); }     # IncludeFile
+   | CODE_MARKER language=text ')' attribute* condition? NEWLINE+ INDENT (externalCode? NEWLINE)+ DEDENT     # CodeBlock
    | NEWLINE                                                                        # Empty
    ;
 

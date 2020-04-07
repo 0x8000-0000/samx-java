@@ -2,16 +2,16 @@ package net.signbit.samx;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.*;
 
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import net.signbit.samx.parser.SamXBaseVisitor;
 import net.signbit.samx.parser.SamXParser;
 
-public class XmlTextVisitor extends SamXBaseVisitor<Exception>
+public class XmlTextVisitor extends SamXBaseVisitor<Object>
 {
-   private BufferedWriter writer;
+   private final BufferedWriter writer;
    private int charactersWritten = 0;
 
    private Exception exception = null;
@@ -22,9 +22,12 @@ public class XmlTextVisitor extends SamXBaseVisitor<Exception>
    private boolean writeXmlDeclaration = true;
    private boolean writeNewlines = true;
 
-   private HashMap<String, Parser.Result> includedDocuments;
-   private HashMap<String, IOException> includedExceptions;
-   private HashMap<String, String> referencePaths;
+   private final HashMap<String, Parser.Result> includedDocuments;
+   private final HashMap<String, IOException> includedExceptions;
+   private final HashMap<String, String> referencePaths;
+   private Properties properties = new Properties();
+   private final Set<String> trueFlags = new HashSet<>();
+   private final Set<String> falseFlags = new HashSet<>();
 
    public XmlTextVisitor(BufferedWriter aWriter, HashMap<String, Parser.Result> docDict, HashMap<String, IOException> errDict, HashMap<String, String> referenceDict)
    {
@@ -37,6 +40,11 @@ public class XmlTextVisitor extends SamXBaseVisitor<Exception>
    public void skipXmlDeclaration()
    {
       writeXmlDeclaration = false;
+   }
+
+   public void skipNewLines()
+   {
+      writeNewlines = false;
    }
 
    private void addIndent()
@@ -87,7 +95,7 @@ public class XmlTextVisitor extends SamXBaseVisitor<Exception>
       try
       {
          writer.write(aChar);
-         charactersWritten ++;
+         charactersWritten++;
       }
       catch (IOException ioe)
       {
@@ -119,7 +127,7 @@ public class XmlTextVisitor extends SamXBaseVisitor<Exception>
          append("<document>\n");
       }
 
-      for (ParseTree pt: ctx.children)
+      for (ParseTree pt : ctx.children)
       {
          visit(pt);
       }
@@ -157,7 +165,7 @@ public class XmlTextVisitor extends SamXBaseVisitor<Exception>
    }
 
    @Override
-   public Exception visitFlow(SamXParser.FlowContext ctx)
+   public Object visitFlow(SamXParser.FlowContext ctx)
    {
       int offset = charactersWritten;
 
@@ -176,11 +184,15 @@ public class XmlTextVisitor extends SamXBaseVisitor<Exception>
    }
 
    @Override
-   public Exception visitPhrase(SamXParser.PhraseContext ctx)
+   public Object visitPhrase(SamXParser.PhraseContext ctx)
    {
-      append("<phrase>");
-      append(ctx.text().getText());
-      append("</phrase>");
+      Object enabled = visit(ctx.condition());
+      if (Boolean.TRUE.equals(enabled))
+      {
+         append("<phrase>");
+         visit(ctx.text());
+         append("</phrase>");
+      }
 
       return null;
    }
@@ -190,7 +202,7 @@ public class XmlTextVisitor extends SamXBaseVisitor<Exception>
    {
       int offset = charactersWritten;
 
-      for (ParseTree pt: ctx.children)
+      for (ParseTree pt : ctx.children)
       {
          if (offset != charactersWritten)
          {
@@ -221,10 +233,10 @@ public class XmlTextVisitor extends SamXBaseVisitor<Exception>
       append('>');
       append('\n');
 
-      indentLevel ++;
+      indentLevel++;
 
       final String descriptionText = ctx.description.getText();
-      if (! descriptionText.isEmpty())
+      if (!descriptionText.isEmpty())
       {
          addIndent();
          append("<title>");
@@ -232,12 +244,12 @@ public class XmlTextVisitor extends SamXBaseVisitor<Exception>
          append("</title>\n");
       }
 
-      for (ParseTree pt: ctx.block())
+      for (ParseTree pt : ctx.block())
       {
          visit(pt);
       }
 
-      indentLevel --;
+      indentLevel--;
 
       addIndent();
       append('<');
@@ -261,7 +273,7 @@ public class XmlTextVisitor extends SamXBaseVisitor<Exception>
 
       int offset = charactersWritten;
 
-      for (SamXParser.FlowContext fc: ctx.flow())
+      for (SamXParser.FlowContext fc : ctx.flow())
       {
          if (offset != charactersWritten)
          {
@@ -295,7 +307,7 @@ public class XmlTextVisitor extends SamXBaseVisitor<Exception>
       final boolean saveIndentParagraph = indentParagraph;
       indentParagraph = false;
 
-      for (SamXParser.ParagraphContext pc: ctx.paragraph())
+      for (SamXParser.ParagraphContext pc : ctx.paragraph())
       {
          addIndent();
 
@@ -332,15 +344,15 @@ public class XmlTextVisitor extends SamXBaseVisitor<Exception>
 
       final SamXParser.HeaderRowContext header = ctx.headerRow();
 
-      for (SamXParser.RecordRowContext rrc: ctx.recordRow())
+      for (SamXParser.RecordRowContext rrc : ctx.recordRow())
       {
          addIndent();
          append("<record>");
          appendNewline();
 
-         indentLevel ++;
+         indentLevel++;
 
-         for (int ii = 0; ii < header.NAME().size(); ii ++)
+         for (int ii = 0; ii < header.NAME().size(); ii++)
          {
             addIndent();
             append('<');
@@ -356,7 +368,7 @@ public class XmlTextVisitor extends SamXBaseVisitor<Exception>
             appendNewline();
          }
 
-         indentLevel --;
+         indentLevel--;
 
          addIndent();
          append("</record>");
@@ -428,5 +440,89 @@ public class XmlTextVisitor extends SamXBaseVisitor<Exception>
       }
 
       return null;
+   }
+
+   public void setProperties(Properties inputProperties)
+   {
+      properties = inputProperties;
+   }
+
+   @Override
+   public Object visitCondition(SamXParser.ConditionContext ctx)
+   {
+      return visit(ctx.condition_expr());
+   }
+
+   @Override
+   public Object visitBooleanTrueCondition(SamXParser.BooleanTrueConditionContext ctx)
+   {
+      final String variable = ctx.variable.getText();
+
+      if (trueFlags.contains(variable))
+      {
+         return Boolean.TRUE;
+      }
+
+      final Object val = properties.get(variable);
+      if ("true".equals(val))
+      {
+         return Boolean.TRUE;
+      }
+
+      return Boolean.FALSE;
+   }
+
+   @Override
+   public Object visitBooleanFalseCondition(SamXParser.BooleanFalseConditionContext ctx)
+   {
+      final String variable = ctx.variable.getText();
+
+      if (falseFlags.contains(variable))
+      {
+         return Boolean.TRUE;
+      }
+
+      final Object val = properties.get(variable);
+      if ("false".equals(val))
+      {
+         return Boolean.TRUE;
+      }
+
+      return Boolean.FALSE;
+   }
+
+   @Override
+   public Object visitComparisonCondition(SamXParser.ComparisonConditionContext ctx)
+   {
+      final String variable = ctx.variable.getText();
+      final String value = ctx.value.getText();
+
+      final String configuredValue = (String) properties.get(variable);
+
+      if (configuredValue != null)
+      {
+         if (configuredValue.equals(value))
+         {
+            return Boolean.TRUE;
+         }
+      }
+
+      return Boolean.FALSE;
+   }
+
+   public void setTrueFlags(String[] trueFlagInput)
+   {
+      if (trueFlagInput != null)
+      {
+         trueFlags.addAll(Arrays.asList(trueFlagInput));
+      }
+   }
+
+   public void setFalseFlags(String[] falseFlagInput)
+   {
+      if (falseFlagInput != null)
+      {
+         falseFlags.addAll(Arrays.asList(falseFlagInput));
+      }
    }
 }
