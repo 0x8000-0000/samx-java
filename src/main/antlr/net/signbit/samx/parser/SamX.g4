@@ -316,7 +316,7 @@ escapeSeq : ESCAPE . ;
 text : ( NAME | TOKEN | INTEGER | STRING | '/' | escapeSeq ) + ;
 
 attribute :
-   STT_COND text CLOSE_PAR   # ConditionAttr
+   STT_COND variable=NAME oper=(EQUAL|NOT_EQ) value=text CLOSE_PAR   # ConditionAttr
    | STT_NAME CLOSE_PAR         # NameAttr
    | STT_ID NAME CLOSE_PAR         # IdAttr
    | STT_LANG '!' NAME CLOSE_PAR         # LanguageAttr
@@ -392,3 +392,5 @@ CLOSE_PAR : ')' ;
 OPEN_PAR : '(' ;
 
 EQUAL : '=' ;
+
+NOT_EQ : '!=' ;

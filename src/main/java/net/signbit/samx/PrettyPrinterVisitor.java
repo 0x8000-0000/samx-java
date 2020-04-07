@@ -213,6 +213,10 @@ public class PrettyPrinterVisitor extends SamXBaseVisitor<StringBuilder>
       {
          builder.append(visit(ac));
       }
+      for (SamXParser.AttributeContext ac : ctx.attribute())
+      {
+         builder.append(visit(ac));
+      }
 
       return builder;
    }
@@ -244,7 +248,15 @@ public class PrettyPrinterVisitor extends SamXBaseVisitor<StringBuilder>
    @Override
    public StringBuilder visitConditionAttr(SamXParser.ConditionAttrContext ctx)
    {
-      return visitAttribute('?', ctx.text().getText());
+      StringBuilder builder = new StringBuilder();
+
+      builder.append("(?");
+      builder.append(ctx.variable.getText());
+      builder.append(ctx.oper.getText());
+      builder.append(visit(ctx.value));
+      builder.append(')');
+
+      return builder;
    }
 
    @Override
