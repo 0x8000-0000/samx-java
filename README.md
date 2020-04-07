@@ -47,6 +47,12 @@ defines the field names.
 'and'-ed together. SAMx allows for one condition on a flow, but allows that
 condition to be computed as a boolean expression of other conditions.
 
+* SAM annotations are in plain parentheses, attached without space to the
+phrase they apply to. However since the SAMx parser ignores space, and
+allowing an arbitrary mix of attributes and annotations attached to a phrase,
+SAMx uses the '(:' syntax to introduce an annotation. This allows at this time
+for parentheses to be freely used in text without having to escape them.
+
 
 License for sam
 ---------------

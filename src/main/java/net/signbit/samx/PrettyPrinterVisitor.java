@@ -222,7 +222,7 @@ public class PrettyPrinterVisitor extends SamXBaseVisitor<StringBuilder>
    {
       StringBuilder builder = new StringBuilder();
 
-      builder.append('(');
+      builder.append("(:");
       builder.append(visit(ctx.text()));
       builder.append(')');
 

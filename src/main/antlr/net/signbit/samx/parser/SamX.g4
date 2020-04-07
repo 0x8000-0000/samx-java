@@ -282,7 +282,7 @@ INTEGER : [1-9] [0-9]+ ;
 
 SCHEME : 'http' 's'? ':' ;
 
-keyValuePair: key=NAME '=' value=NAME ;
+keyValuePair: key=NAME EQUAL value=NAME ;
 
 path : ('/' NAME) * ;
 
@@ -313,18 +313,28 @@ STRING :
 
 escapeSeq : ESCAPE . ;
 
-text : (NAME | TOKEN | INTEGER | STRING | '/' | escapeSeq ) + ;
-
-annotation : '(' text ')' ;
+text : ( NAME | TOKEN | INTEGER | STRING | '/' | escapeSeq ) + ;
 
 attribute :
-   '(' '?' text ')'           # ConditionAttr
-   | '(' '#' NAME ')'         # NameAttr
-   | '(' '*' NAME ')'         # IdAttr
-   | '(' '!' NAME ')'         # LanguageAttr
+   STT_COND text CLOSE_PAR   # ConditionAttr
+   | STT_NAME CLOSE_PAR         # NameAttr
+   | STT_ID NAME CLOSE_PAR         # IdAttr
+   | STT_LANG '!' NAME CLOSE_PAR         # LanguageAttr
    | '[' text ']'             # Citation
    | '[*' blockName=NAME '/' idName=NAME ']'   # Reference
    ;
+
+STT_COND : '(?' ;
+
+STT_NAME : '(#' ;
+
+STT_ID : '(*' ;
+
+STT_LANG : '(!' ;
+
+STT_ANN : '(:' ;
+
+annotation : STT_ANN text CLOSE_PAR ;
 
 phrase : OPEN_PHR text CLOSE_PHR annotation* attribute* ;
 
@@ -377,3 +387,8 @@ UTF32_BOM: '\u0000FEFF';
 
 document: declaration* block* EOF ;
 
+CLOSE_PAR : ')' ;
+
+OPEN_PAR : '(' ;
+
+EQUAL : '=' ;
