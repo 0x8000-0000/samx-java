@@ -170,9 +170,9 @@ public class XmlTextVisitor extends SamXBaseVisitor<Object>
          appendNewline();
       }
 
-      for (ParseTree pt : ctx.children)
+      for (SamXParser.BlockContext bc : ctx.block())
       {
-         visit(pt);
+         visit(bc);
       }
 
       if (writeXmlDeclaration)
