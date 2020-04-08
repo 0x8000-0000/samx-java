@@ -31,6 +31,8 @@ public class XmlTextVisitor extends SamXBaseVisitor<Object>
    private final Set<String> falseFlags = new HashSet<>();
 
    private String topElement = "document";
+   private String topElementNamespace = null;
+   private String topElementVersion = null;
 
    public XmlTextVisitor(BufferedWriter aWriter, HashMap<String, Parser.Result> docDict, HashMap<String, IOException> errDict, HashMap<String, String> referenceDict)
    {
@@ -53,6 +55,16 @@ public class XmlTextVisitor extends SamXBaseVisitor<Object>
    public void setTopElement(String name)
    {
       topElement = name;
+   }
+
+   public void setTopElementNamespace(String name)
+   {
+      topElementNamespace = name;
+   }
+
+   public void setTopElementVersion(String name)
+   {
+      topElementVersion = name;
    }
 
    public void skipNewLines()
@@ -139,6 +151,21 @@ public class XmlTextVisitor extends SamXBaseVisitor<Object>
          append("<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n");
          append('<');
          append(topElement);
+
+         if (topElementNamespace != null)
+         {
+            append(" xmlns=\"");
+            append(topElementNamespace);
+            append('"');
+
+            if (topElementVersion != null)
+            {
+               append(" version=\"");
+               append(topElementVersion);
+               append('"');
+            }
+         }
+
          append('>');
          appendNewline();
       }
@@ -297,7 +324,7 @@ public class XmlTextVisitor extends SamXBaseVisitor<Object>
          addIndent();
       }
 
-      append("<p>");
+      append("<para>");
 
       int offset = charactersWritten;
 
@@ -312,7 +339,7 @@ public class XmlTextVisitor extends SamXBaseVisitor<Object>
          visit(fc);
       }
 
-      append("</p>");
+      append("</para>");
 
       if (indentParagraph)
       {

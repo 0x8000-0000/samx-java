@@ -40,8 +40,8 @@ description, while SAMx uses the record set description flow for the
 equivalent of a table caption, and uses the first row as a header which
 defines the field names.
 
-* SAM record set field separator is comma, while SAMx uses a vertical pipe symbol
-'|' .
+* SAM record set field separator is comma, while SAMx uses a vertical pipe
+symbol '|' .
 
 * SAM allows for multiple conditions on a flow, and they are all logically
 'and'-ed together. SAMx allows for one condition on a flow, but allows that
@@ -52,6 +52,9 @@ phrase they apply to. However since the SAMx parser ignores space, and
 allowing an arbitrary mix of attributes and annotations attached to a phrase,
 SAMx uses the '(:' syntax to introduce an annotation. This allows at this time
 for parentheses to be freely used in text without having to escape them.
+
+* SAM uses "p" for paragraph in the XML serialization while SAMx uses "para"
+for compatibility with DocBook.
 
 
 License for sam

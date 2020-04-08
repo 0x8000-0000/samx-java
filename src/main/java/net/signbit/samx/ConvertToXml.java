@@ -40,6 +40,12 @@ public final class ConvertToXml
       Option rootElement = new Option("r", "root", true, "root element tag (default document)");
       options.addOption(rootElement);
 
+      Option rootElementNamespace = new Option("n", "namespace", true, "root element namespace (default null)");
+      options.addOption(rootElementNamespace);
+
+      Option rootElementVersion = new Option("v", "version", true, "root element version (default null)");
+      options.addOption(rootElementVersion);
+
       Option property = new Option("V", true, "variables");
       property.setArgs(2);
       property.setValueSeparator('=');
@@ -74,6 +80,9 @@ public final class ConvertToXml
          if (cmd.getOptionValue("r") != null)
          {
             visitor.setTopElement(cmd.getOptionValue("r"));
+
+            visitor.setTopElementNamespace(cmd.getOptionValue("n"));
+            visitor.setTopElementVersion(cmd.getOptionValue("v"));
          }
 
          visitor.visit(result.document);

@@ -9,11 +9,11 @@ To Do:
 
 * Add HTML exporter / visitor / converter.
 
-* Add DocBook exporter / visitor / converter.
-
 * Convert exporter visitors to use StringTemplate instead of hard-coding.
 
 Done
+
+* [0.1.9] Add DocBook exporter / visitor / converter.
 
 * [0.1.8] Add an example of generating DocBook.
 
