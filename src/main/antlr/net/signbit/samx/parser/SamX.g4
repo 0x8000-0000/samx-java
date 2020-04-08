@@ -384,7 +384,8 @@ block :
    | INDENT ((HASH listElement) | NEWLINE)+ DEDENT                           # OrderedList
    | '!!!(' text ')' NEWLINE block                                                     # Remark
    | '"""[' text ']' NEWLINE ( INDENT block+ DEDENT )                                  # CitationBlock
-   | '>>>(' text ')' attribute* condition?                                             # InsertFragment
+   | '>>>(' NAME ')' attribute* condition?                                             # InsertFragment
+   | '~~~(' NAME ')' attribute* condition? NEWLINE+ INDENT block+ DEDENT               # DefineFragment
    | '<<<(' reference=text ')' attribute* condition?    { parseFile($reference.text); }     # IncludeFile
    | CODE_MARKER language=text ')' attribute* condition? NEWLINE+ INDENT (externalCode? NEWLINE)+ DEDENT     # CodeBlock
    | NEWLINE                                                                           # Empty
