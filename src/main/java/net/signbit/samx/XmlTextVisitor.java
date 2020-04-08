@@ -558,7 +558,7 @@ public class XmlTextVisitor extends SamXBaseVisitor<Object>
    @Override
    public Object visitCondition(SamXParser.ConditionContext ctx)
    {
-      return visit(ctx.condition_expr());
+      return visit(ctx.conditionExpr());
    }
 
    @Override
@@ -689,5 +689,33 @@ public class XmlTextVisitor extends SamXBaseVisitor<Object>
       }
 
       return values;
+   }
+
+   @Override
+   public Object visitAlternativeCondition(SamXParser.AlternativeConditionContext ctx)
+   {
+      Object firstEnabled = visit(ctx.firstCond);
+      if (Boolean.TRUE.equals(firstEnabled))
+      {
+         return Boolean.TRUE;
+      }
+      else
+      {
+         return visit(ctx.secondCond);
+      }
+   }
+
+   @Override
+   public Object visitCombinedCondition(SamXParser.CombinedConditionContext ctx)
+   {
+      Object firstEnabled = visit(ctx.firstCond);
+      if (Boolean.FALSE.equals(firstEnabled))
+      {
+         return Boolean.FALSE;
+      }
+      else
+      {
+         return visit(ctx.secondCond);
+      }
    }
 }

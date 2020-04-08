@@ -16,6 +16,8 @@
 
 package net.signbit.samx;
 
+import java.util.List;
+
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
@@ -69,13 +71,18 @@ public class PrettyPrinterVisitor extends SamXBaseVisitor<StringBuilder>
 
       builder.append(ctx.NAME().getText());
       builder.append(ctx.TYPESEP().getText());
+      final SamXParser.ConditionContext cond = ctx.condition();
+      if (cond != null)
+      {
+         builder.append(visit(ctx.condition()));
+      }
       for (SamXParser.AttributeContext ac : ctx.attribute())
       {
          builder.append(visit(ac));
       }
-      builder.append(' ');
       if (ctx.description != null)
       {
+         builder.append(' ');
          builder.append(visit(ctx.description));
       }
       builder.append('\n');
@@ -97,15 +104,26 @@ public class PrettyPrinterVisitor extends SamXBaseVisitor<StringBuilder>
    @Override
    public StringBuilder visitUnorderedList(SamXParser.UnorderedListContext ctx)
    {
+      return visitList("* ", ctx.listElement());
+   }
+
+   @Override
+   public StringBuilder visitOrderedList(SamXParser.OrderedListContext ctx)
+   {
+      return visitList("# ", ctx.listElement());
+   }
+
+   private StringBuilder visitList(String type, List<SamXParser.ListElementContext> elements)
+   {
       StringBuilder builder = new StringBuilder();
 
       final int savedIndent = indentLevel;
 
       final int thisIndent = savedIndent + 1;
 
-      for (ParseTree pt : ctx.children)
+      for (SamXParser.ListElementContext lec: elements)
       {
-         StringBuilder childBuilder = visit(pt);
+         StringBuilder childBuilder = visit(lec);
          if (childBuilder != null)
          {
             indentLevel = thisIndent;
@@ -122,6 +140,26 @@ public class PrettyPrinterVisitor extends SamXBaseVisitor<StringBuilder>
    }
 
    @Override
+   public StringBuilder visitListElement(SamXParser.ListElementContext ctx)
+   {
+      StringBuilder builder = new StringBuilder();
+
+      final SamXParser.ConditionContext cond = ctx.condition();
+      if (cond != null)
+      {
+         builder.append(visit(cond));
+         builder.append(' ');
+      }
+
+      for (SamXParser.ParagraphContext pc: ctx.paragraph())
+      {
+         builder.append(visit(pc));
+      }
+
+      return builder;
+   }
+
+   @Override
    public StringBuilder visitRecordSet(SamXParser.RecordSetContext ctx)
    {
       StringBuilder builder = new StringBuilder();
@@ -129,13 +167,26 @@ public class PrettyPrinterVisitor extends SamXBaseVisitor<StringBuilder>
       addIndent(builder);
       builder.append(ctx.NAME().getText());
       builder.append(ctx.RECSEP().getText());
+      final SamXParser.ConditionContext cond = ctx.condition();
+      if (cond != null)
+      {
+         builder.append(visit(ctx.condition()));
+      }
+      for (SamXParser.AttributeContext ac : ctx.attribute())
+      {
+         builder.append(visit(ac));
+      }
       if (ctx.description != null)
       {
+         builder.append(' ');
          builder.append(visit(ctx.description));
       }
       builder.append('\n');
       builder.append('\n');
+
       indentLevel++;
+
+      builder.append(visit(ctx.headerRow()));
       for (SamXParser.RecordRowContext pt : ctx.recordRow())
       {
          StringBuilder childBuilder = visit(pt);
@@ -150,16 +201,61 @@ public class PrettyPrinterVisitor extends SamXBaseVisitor<StringBuilder>
    }
 
    @Override
+   public StringBuilder visitHeaderRow(SamXParser.HeaderRowContext ctx)
+   {
+      StringBuilder builder = new StringBuilder();
+      addIndent(builder);
+
+      boolean firstToken = true;
+      for (TerminalNode tc: ctx.NAME())
+      {
+         if (firstToken)
+         {
+            firstToken = false;
+         }
+         else
+         {
+            builder.append(" ");
+         }
+
+         builder.append("| ");
+         builder.append(tc.getText());
+      }
+      builder.append('\n');
+
+      return builder;
+   }
+
+   @Override
    public StringBuilder visitRecordRow(SamXParser.RecordRowContext ctx)
    {
       StringBuilder builder = new StringBuilder();
       addIndent(builder);
+
+      final SamXParser.ConditionContext cond = ctx.condition();
+      if (cond != null)
+      {
+         builder.append(visit(cond));
+         builder.append(" ");
+      }
+
+      boolean firstToken = true;
+
       for (SamXParser.FlowContext tc: ctx.flow())
       {
+         if (firstToken)
+         {
+            firstToken = false;
+         }
+         else
+         {
+            builder.append(" ");
+         }
+
          StringBuilder childBuilder = visit(tc);
          if (childBuilder != null)
          {
-            builder.append('|');
+            builder.append("| ");
             builder.append(childBuilder);
          }
       }
@@ -387,7 +483,7 @@ public class PrettyPrinterVisitor extends SamXBaseVisitor<StringBuilder>
       StringBuilder builder = new StringBuilder();
 
       builder.append("(?");
-      builder.append(visit(ctx.condition_expr()));
+      builder.append(visit(ctx.conditionExpr()));
       builder.append(")");
 
       return builder;
@@ -472,5 +568,32 @@ public class PrettyPrinterVisitor extends SamXBaseVisitor<StringBuilder>
       }
 
       return builder;
+   }
+
+   private StringBuilder visitConditionWithOperator(String operator, SamXParser.ConditionExprContext firstCond, SamXParser.ConditionExprContext secondCond)
+   {
+      StringBuilder builder = new StringBuilder();
+
+      builder.append("(");
+      builder.append(visit(firstCond));
+      builder.append(") ");
+      builder.append(operator);
+      builder.append(" (");
+      builder.append(visit(secondCond));
+      builder.append(")");
+
+      return builder;
+   }
+
+   @Override
+   public StringBuilder visitAlternativeCondition(SamXParser.AlternativeConditionContext ctx)
+   {
+      return visitConditionWithOperator("or", ctx.firstCond, ctx.secondCond);
+   }
+
+   @Override
+   public StringBuilder visitCombinedCondition(SamXParser.CombinedConditionContext ctx)
+   {
+      return visitConditionWithOperator("and", ctx.firstCond, ctx.secondCond);
    }
 }

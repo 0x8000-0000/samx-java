@@ -278,7 +278,7 @@ NEWLINE
 
 nameList : NAME (',' NAME) + ;
 
-condition_expr :
+conditionExpr :
    variable=NAME                                               # BooleanTrueCondition
    | variable=NAME EQUAL 'true'                                # BooleanTrueCondition
    | variable=NAME EQUAL 'false'                               # BooleanFalseCondition
@@ -286,11 +286,11 @@ condition_expr :
    | variable=NAME oper=(EQUAL|NOT_EQ) value=NAME              # ComparisonCondition
    | variable=NAME 'in' OPEN_PHR nameList CLOSE_PHR            # BelongsToSetCondition
    | variable=NAME 'not' 'in' OPEN_PHR nameList CLOSE_PHR      # NotBelongsToSetCondition
-   | OPEN_PAR firstCond=condition_expr CLOSE_PAR 'or' OPEN_PAR secondCond=condition_expr CLOSE_PAR  # AlternativeCondition
-   | OPEN_PAR firstCond=condition_expr CLOSE_PAR 'and' OPEN_PAR secondCond=condition_expr CLOSE_PAR  # CombinedCondition
+   | OPEN_PAR firstCond=conditionExpr CLOSE_PAR 'or' OPEN_PAR secondCond=conditionExpr CLOSE_PAR  # AlternativeCondition
+   | OPEN_PAR firstCond=conditionExpr CLOSE_PAR 'and' OPEN_PAR secondCond=conditionExpr CLOSE_PAR  # CombinedCondition
    ;
 
-condition : STT_COND condition_expr CLOSE_PAR ;
+condition : STT_COND conditionExpr CLOSE_PAR ;
 
 NAME : [-a-zA-Z_] [-a-zA-Z0-9_.]+ ;
 
@@ -378,7 +378,7 @@ block :
      NAME TYPESEP attribute* condition? description=flow? NEWLINE+ INDENT block+ DEDENT        # TypedBlock
    | NAME TYPESEP attribute* condition? value=flow NEWLINE                                     # Field
    | paragraph                                                                         # PlainParagraph
-   | NAME RECSEP condition? description=flow NEWLINE+ INDENT headerRow (recordRow | NEWLINE)+ DEDENT     # RecordSet
+   | NAME RECSEP attribute* condition? description=flow NEWLINE+ INDENT headerRow (recordRow | NEWLINE)+ DEDENT     # RecordSet
    | INDENT ((BULLET listElement) | NEWLINE)+ DEDENT                         # UnorderedList
    | INDENT ((HASH listElement) | NEWLINE)+ DEDENT                           # OrderedList
    | '!!!(' text ')' NEWLINE block                                                     # Remark

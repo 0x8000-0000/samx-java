@@ -17,11 +17,55 @@
 package net.signbit.samx;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import net.signbit.samx.parser.SamXParser;
 
 public final class PrettyPrint
 {
+   private static void checkMatch(String originalFileName, String pretty) throws IOException
+   {
+      final String original = new String(Files.readAllBytes(Paths.get(originalFileName)));
+
+      if (original.equals(pretty))
+      {
+         System.err.println("OK: Prettified output matched input");
+      }
+      else
+      {
+         if (original.length() != pretty.length())
+         {
+            System.err.println(String.format("Input is %d characters, pretty is %d characters", original.length(), pretty.length()));
+         }
+
+         int compareLength = original.length();
+         if (compareLength > pretty.length())
+         {
+            compareLength = pretty.length();
+         }
+
+         int lineNumber = 1;
+         int columnNumber = 1;
+
+         int ii = 0;
+
+         while ((ii < compareLength) && (original.charAt(ii) == pretty.charAt(ii)))
+         {
+            if (original.charAt(ii) == '\n')
+            {
+               ++ lineNumber;
+               columnNumber = 0;
+            }
+            ++ columnNumber;
+
+            ++ ii;
+         }
+
+         System.err.println(String.format("Mismatch at offset %d (line %d, column %d): input has '%c', pretty has '%c'", ii, lineNumber, columnNumber, original.charAt(ii), pretty.charAt(ii)));
+      }
+   }
+
    public static void main(String[] args) throws IOException
    {
       if (args.length < 1)
@@ -36,6 +80,10 @@ public final class PrettyPrint
 
       StringBuilder builder = printer.visit(document);
 
-      System.out.println(builder.toString());
+      final String pretty = builder.toString();
+
+      System.out.println(pretty);
+
+      checkMatch(args[0], pretty);
    }
 }
