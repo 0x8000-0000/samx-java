@@ -30,6 +30,8 @@ public class XmlTextVisitor extends SamXBaseVisitor<Object>
    private final Set<String> trueFlags = new HashSet<>();
    private final Set<String> falseFlags = new HashSet<>();
 
+   private String topElement = "document";
+
    public XmlTextVisitor(BufferedWriter aWriter, HashMap<String, Parser.Result> docDict, HashMap<String, IOException> errDict, HashMap<String, String> referenceDict)
    {
       writer = aWriter;
@@ -41,6 +43,16 @@ public class XmlTextVisitor extends SamXBaseVisitor<Object>
    public void skipXmlDeclaration()
    {
       writeXmlDeclaration = false;
+   }
+
+   public void setIndentLevel(int newLevel)
+   {
+      indentLevel = newLevel;
+   }
+
+   public void setTopElement(String name)
+   {
+      topElement = name;
    }
 
    public void skipNewLines()
@@ -125,7 +137,10 @@ public class XmlTextVisitor extends SamXBaseVisitor<Object>
       if (writeXmlDeclaration)
       {
          append("<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n");
-         append("<document>\n");
+         append('<');
+         append(topElement);
+         append('>');
+         appendNewline();
       }
 
       for (ParseTree pt : ctx.children)
@@ -135,7 +150,10 @@ public class XmlTextVisitor extends SamXBaseVisitor<Object>
 
       if (writeXmlDeclaration)
       {
-         append("</document>\n");
+         append("</");
+         append(topElement);
+         append('>');
+         appendNewline();
       }
 
       return exception;
@@ -489,6 +507,7 @@ public class XmlTextVisitor extends SamXBaseVisitor<Object>
       {
          XmlTextVisitor visitor = new XmlTextVisitor(writer, includedDocuments, includedExceptions, includedResult.referencePaths);
          visitor.skipXmlDeclaration();
+         visitor.setIndentLevel(indentLevel + 1);
 
          visitor.visit(includedResult.document);
 

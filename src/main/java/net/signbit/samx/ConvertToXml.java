@@ -37,6 +37,9 @@ public final class ConvertToXml
       output.setRequired(true);
       options.addOption(output);
 
+      Option rootElement = new Option("r", "root", true, "root element tag (default document)");
+      options.addOption(rootElement);
+
       Option property = new Option("V", true, "variables");
       property.setArgs(2);
       property.setValueSeparator('=');
@@ -55,7 +58,6 @@ public final class ConvertToXml
       {
          CommandLine cmd = cmdLine.parse(options, args);
 
-
          Parser.Result result = Parser.parse(cmd.getOptionValue("input"));
 
          FileWriter fileWriter = new FileWriter(cmd.getOptionValue("output"));
@@ -68,6 +70,11 @@ public final class ConvertToXml
          visitor.setProperties(props);
          visitor.setTrueFlags(cmd.getOptionValues("T"));
          visitor.setFalseFlags(cmd.getOptionValues("F"));
+
+         if (cmd.getOptionValue("r") != null)
+         {
+            visitor.setTopElement(cmd.getOptionValue("r"));
+         }
 
          visitor.visit(result.document);
 
