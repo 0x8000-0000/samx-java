@@ -7,7 +7,6 @@ import java.util.*;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import net.signbit.samx.parser.SamXBaseVisitor;
 import net.signbit.samx.parser.SamXParser;
 
@@ -188,13 +187,14 @@ public class XmlTextVisitor extends SamXBaseVisitor<Object>
    @Override
    public Object visitPhrase(SamXParser.PhraseContext ctx)
    {
-      Object enabled = visit(ctx.condition());
-      if (Boolean.TRUE.equals(enabled))
+      if (! isEnabled(ctx.condition()))
       {
-         append("<phrase>");
-         visit(ctx.text());
-         append("</phrase>");
+         return null;
       }
+
+      append("<phrase>");
+      visit(ctx.text());
+      append("</phrase>");
 
       return null;
    }
@@ -228,8 +228,7 @@ public class XmlTextVisitor extends SamXBaseVisitor<Object>
    @Override
    public Object visitTypedBlock(SamXParser.TypedBlockContext ctx)
    {
-      Object enabled = visit(ctx.condition());
-      if (!Boolean.TRUE.equals(enabled))
+      if (! isEnabled(ctx.condition()))
       {
          return null;
       }
@@ -364,11 +363,23 @@ public class XmlTextVisitor extends SamXBaseVisitor<Object>
       return null;
    }
 
-   @Override
-   public Exception visitRecordSet(SamXParser.RecordSetContext ctx)
+   private boolean isEnabled(SamXParser.ConditionContext condition)
    {
-      Object enabled = visit(ctx.condition());
-      if (!Boolean.TRUE.equals(enabled))
+      if (condition != null)
+      {
+         Object enabled = visit(condition);
+         return Boolean.TRUE.equals(enabled);
+      }
+      else
+      {
+         return true;
+      }
+   }
+
+   @Override
+   public Object visitRecordSet(SamXParser.RecordSetContext ctx)
+   {
+      if (! isEnabled(ctx.condition()))
       {
          return null;
       }
@@ -387,6 +398,11 @@ public class XmlTextVisitor extends SamXBaseVisitor<Object>
 
       for (SamXParser.RecordRowContext rrc : ctx.recordRow())
       {
+         if (! isEnabled(rrc.condition()))
+         {
+            continue;
+         }
+
          addIndent();
          append("<record>");
          appendNewline();
@@ -431,6 +447,11 @@ public class XmlTextVisitor extends SamXBaseVisitor<Object>
    @Override
    public Exception visitIncludeFile(SamXParser.IncludeFileContext ctx)
    {
+      if (! isEnabled(ctx.condition()))
+      {
+         return null;
+      }
+
       StringBuilder builder = new StringBuilder();
 
       builder.append("<!-- ");

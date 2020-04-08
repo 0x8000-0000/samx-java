@@ -1,0 +1,11 @@
+report:
+
+   First line
+
+   sales:: Vehicle Sales
+
+      | year | type  | quantity
+      | 2010 | sedan | 10000
+      | 2011 | SUV   | 2000
+      (?secret)| 2020 | any   | more
+
