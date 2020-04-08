@@ -7,6 +7,7 @@ import java.util.*;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import net.signbit.samx.parser.SamXBaseVisitor;
 import net.signbit.samx.parser.SamXParser;
 
@@ -225,8 +226,14 @@ public class XmlTextVisitor extends SamXBaseVisitor<Object>
    }
 
    @Override
-   public Exception visitTypedBlock(SamXParser.TypedBlockContext ctx)
+   public Object visitTypedBlock(SamXParser.TypedBlockContext ctx)
    {
+      Object enabled = visit(ctx.condition());
+      if (! Boolean.TRUE.equals(enabled))
+      {
+         return null;
+      }
+
       final String typeText = ctx.NAME().getText();
       addIndent();
       append('<');
@@ -236,13 +243,16 @@ public class XmlTextVisitor extends SamXBaseVisitor<Object>
 
       indentLevel++;
 
-      final String descriptionText = ctx.description.getText();
-      if (!descriptionText.isEmpty())
+      if (ctx.description != null)
       {
-         addIndent();
-         append("<title>");
-         visit(ctx.description);
-         append("</title>\n");
+         final String descriptionText = ctx.description.getText();
+         if (!descriptionText.isEmpty())
+         {
+            addIndent();
+            append("<title>");
+            visit(ctx.description);
+            append("</title>\n");
+         }
       }
 
       for (ParseTree pt : ctx.block())
