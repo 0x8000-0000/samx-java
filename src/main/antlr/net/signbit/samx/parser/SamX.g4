@@ -322,10 +322,9 @@ CLOSE_PHR : '}' ;
 
 ESCAPE : '\\' ;
 
-STRING :
-   '\'' ( '\\' . | ~[\\\r\n\f'] )* '\''
-   | '"' ( '\\' . | ~[\\\r\n\f"] )* '"'
-   ;
+QUOT : '\'' ;
+
+STRING : '"' ( '\\' . | ~[\\\r\n\f"] )* '"' ;
 
 escapeSeq : ESCAPE . ;
 
@@ -337,7 +336,7 @@ attribute :
    | '[*' blockName=NAME '/' idName=NAME ']'    # Reference
    ;
 
-text : ( NAME | TOKEN | INTEGER | STRING | '/' | escapeSeq | 'in' | 'not' | 'or' | 'and' | 'true' | 'false' ) + ;
+text : ( NAME | TOKEN | INTEGER | STRING | '/' | escapeSeq | 'in' | 'not' | 'or' | 'and' | 'true' | 'false' | QUOT | '+' | ',' ) + ;
 
 STT_COND : '(?' ;
 
