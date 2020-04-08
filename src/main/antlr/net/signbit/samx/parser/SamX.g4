@@ -276,12 +276,16 @@ NEWLINE
       }
    } ;
 
+nameList : NAME (',' NAME) + ;
+
 condition_expr :
-   variable=NAME                                         # BooleanTrueCondition
-   | variable=NAME EQUAL 'true'                          # BooleanTrueCondition
-   | variable=NAME EQUAL 'false'                         # BooleanFalseCondition
-   | '!' variable=NAME                                   # BooleanFalseCondition
-   | variable=NAME oper=(EQUAL|NOT_EQ) value=text        # ComparisonCondition
+   variable=NAME                                               # BooleanTrueCondition
+   | variable=NAME EQUAL 'true'                                # BooleanTrueCondition
+   | variable=NAME EQUAL 'false'                               # BooleanFalseCondition
+   | '!' variable=NAME                                         # BooleanFalseCondition
+   | variable=NAME oper=(EQUAL|NOT_EQ) value=NAME              # ComparisonCondition
+   | variable=NAME 'in' OPEN_PHR nameList CLOSE_PHR            # BelongsToSetCondition
+   | variable=NAME 'not' 'in' OPEN_PHR nameList CLOSE_PHR      # NotBelongsToSetCondition
    | OPEN_PAR firstCond=condition_expr CLOSE_PAR 'or' OPEN_PAR secondCond=condition_expr CLOSE_PAR  # AlternativeCondition
    | OPEN_PAR firstCond=condition_expr CLOSE_PAR 'and' OPEN_PAR secondCond=condition_expr CLOSE_PAR  # CombinedCondition
    ;
@@ -298,9 +302,9 @@ keyValuePair: key=NAME EQUAL value=NAME ;
 
 path : ('/' NAME) * ;
 
-url : SCHEME '//' (authority=NAME '@')? host=NAME (':' port=INTEGER)? path ('?' keyValuePair ('&' keyValuePair)* )? ('#' frag=NAME)? ;
+url : SCHEME '//' (authority=NAME '@')? host=NAME (TYPESEP port=INTEGER)? path ('?' keyValuePair ('&' keyValuePair)* )? ('#' frag=NAME)? ;
 
-TOKEN : [-a-zA-Z0-9_'.;,]+ ;
+TOKEN : [-a-zA-Z0-9_]+ | '.' | ',' | '&' | ';' ;
 
 TYPESEP : ':' ;
 
@@ -333,7 +337,7 @@ attribute :
    | '[*' blockName=NAME '/' idName=NAME ']'    # Reference
    ;
 
-text : ( NAME | TOKEN | INTEGER | STRING | '/' | escapeSeq ) + ;
+text : ( NAME | TOKEN | INTEGER | STRING | '/' | escapeSeq | 'in' | 'not' | 'or' | 'and' | 'true' | 'false' ) + ;
 
 STT_COND : '(?' ;
 

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.*;
 
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.antlr.v4.runtime.tree.TerminalNode;
 
 import net.signbit.samx.parser.SamXBaseVisitor;
 import net.signbit.samx.parser.SamXParser;
@@ -524,5 +525,62 @@ public class XmlTextVisitor extends SamXBaseVisitor<Object>
       {
          falseFlags.addAll(Arrays.asList(falseFlagInput));
       }
+   }
+
+   @SuppressWarnings("unchecked")
+   @Override
+   public Object visitBelongsToSetCondition(SamXParser.BelongsToSetConditionContext ctx)
+   {
+      final String variable = ctx.variable.getText();
+      final String configuredValue = (String) properties.get(variable);
+
+      if (configuredValue != null)
+      {
+         HashSet<String> potentialValues = (HashSet<String>) visit(ctx.nameList());
+         if (potentialValues != null)
+         {
+            if (potentialValues.contains(configuredValue))
+            {
+               return Boolean.TRUE;
+            }
+         }
+      }
+
+      return Boolean.FALSE;
+   }
+
+   @SuppressWarnings("unchecked")
+   @Override
+   public Object visitNotBelongsToSetCondition(SamXParser.NotBelongsToSetConditionContext ctx)
+   {
+      final String variable = ctx.variable.getText();
+      final String configuredValue = (String) properties.get(variable);
+
+      if (configuredValue != null)
+      {
+         HashSet<String> potentialValues = (HashSet<String>) visit(ctx.nameList());
+         if (potentialValues != null)
+         {
+            if (! potentialValues.contains(configuredValue))
+            {
+               return Boolean.TRUE;
+            }
+         }
+      }
+
+      return Boolean.FALSE;
+   }
+
+   @Override
+   public HashSet<String> visitNameList(SamXParser.NameListContext ctx)
+   {
+      HashSet<String> values = new HashSet<>();
+
+      for (TerminalNode tn: ctx.NAME())
+      {
+         values.add(tn.getText());
+      }
+
+      return values;
    }
 }

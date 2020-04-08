@@ -17,6 +17,7 @@
 package net.signbit.samx;
 
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.antlr.v4.runtime.tree.TerminalNode;
 
 import net.signbit.samx.parser.SamXBaseVisitor;
 import net.signbit.samx.parser.SamXParser;
@@ -420,7 +421,55 @@ public class PrettyPrinterVisitor extends SamXBaseVisitor<StringBuilder>
 
       builder.append(ctx.variable.getText());
       builder.append(ctx.oper.getText());
-      builder.append(visit(ctx.value));
+      builder.append(ctx.value.getText());
+
+      return builder;
+   }
+
+   @Override
+   public StringBuilder visitBelongsToSetCondition(SamXParser.BelongsToSetConditionContext ctx)
+   {
+      StringBuilder builder = new StringBuilder();
+
+      builder.append(ctx.variable.getText());
+      builder.append(" in {");
+      builder.append(visit(ctx.nameList()));
+      builder.append("}");
+
+      return builder;
+   }
+
+   @Override
+   public StringBuilder visitNotBelongsToSetCondition(SamXParser.NotBelongsToSetConditionContext ctx)
+   {
+      StringBuilder builder = new StringBuilder();
+
+      builder.append(ctx.variable.getText());
+      builder.append(" not in {");
+      builder.append(visit(ctx.nameList()));
+      builder.append("}");
+
+      return builder;
+   }
+
+   @Override
+   public StringBuilder visitNameList(SamXParser.NameListContext ctx)
+   {
+      StringBuilder builder = new StringBuilder();
+
+      boolean firstToken = true;
+      for (TerminalNode tn: ctx.NAME())
+      {
+         if (firstToken)
+         {
+            firstToken = false;
+         }
+         else
+         {
+            builder.append(", ");
+         }
+         builder.append(tn.getText());
+      }
 
       return builder;
    }

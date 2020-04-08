@@ -1,3 +1,5 @@
-This cat is {dead}(?radiation=detected) {alive}(?radiation=absent).
+This cat is {dead}(?radiation in {detected, present}) {alive}(?radiation=absent).
 
 {This phrase is not here.}(?missing)
+
+This is not in here or there. And it is false or is it true .
