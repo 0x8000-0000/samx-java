@@ -377,7 +377,7 @@ block :
      NAME TYPESEP attribute* condition? description=flow? NEWLINE+ INDENT block+ DEDENT        # TypedBlock
    | NAME TYPESEP attribute* condition? value=flow NEWLINE                                     # Field
    | paragraph                                                                      # PlainParagraph
-   | NAME RECSEP description=flow NEWLINE+ INDENT headerRow (recordRow | NEWLINE)+ DEDENT     # RecordSet
+   | NAME RECSEP condition? description=flow NEWLINE+ INDENT headerRow (recordRow | NEWLINE)+ DEDENT     # RecordSet
    | INDENT ((BULLET paragraph+) | NEWLINE)+ DEDENT                                 # UnorderedList
    | INDENT ((HASH paragraph+) | NEWLINE)+ DEDENT                                   # OrderedList
    | '!!!(' text ')' NEWLINE block                                                  # Remark

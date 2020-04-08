@@ -343,6 +343,12 @@ public class XmlTextVisitor extends SamXBaseVisitor<Object>
    @Override
    public Exception visitRecordSet(SamXParser.RecordSetContext ctx)
    {
+      Object enabled = visit(ctx.condition());
+      if (! Boolean.TRUE.equals(enabled))
+      {
+         return null;
+      }
+
       final String typeText = ctx.NAME().getText();
 
       addIndent();
