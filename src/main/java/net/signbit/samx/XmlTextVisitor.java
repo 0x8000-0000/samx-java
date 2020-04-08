@@ -229,7 +229,7 @@ public class XmlTextVisitor extends SamXBaseVisitor<Object>
    public Object visitTypedBlock(SamXParser.TypedBlockContext ctx)
    {
       Object enabled = visit(ctx.condition());
-      if (! Boolean.TRUE.equals(enabled))
+      if (!Boolean.TRUE.equals(enabled))
       {
          return null;
       }
@@ -305,12 +305,13 @@ public class XmlTextVisitor extends SamXBaseVisitor<Object>
       return null;
    }
 
-   @Override
-   public Exception visitUnorderedList(SamXParser.UnorderedListContext ctx)
+   private void visitGenericList(String tagType, List<SamXParser.ListElementContext> elements)
    {
       addIndent();
       appendNewline();
-      append("<ul>");
+      append('<');
+      append(tagType);
+      append('>');
       appendNewline();
 
       indentLevel++;
@@ -318,15 +319,22 @@ public class XmlTextVisitor extends SamXBaseVisitor<Object>
       final boolean saveIndentParagraph = indentParagraph;
       indentParagraph = false;
 
-      for (SamXParser.ParagraphContext pc : ctx.paragraph())
+      for (SamXParser.ListElementContext lec : elements)
       {
-         addIndent();
+         Object enabled = visit(lec.condition());
+         if (Boolean.TRUE.equals(enabled))
+         {
+            addIndent();
 
-         append("<li>");
-         visit(pc);
-         append("</li>");
+            append("<li>");
+            for (SamXParser.ParagraphContext pc : lec.paragraph())
+            {
+               visit(pc);
+            }
+            append("</li>");
 
-         appendNewline();
+            appendNewline();
+         }
       }
 
       indentParagraph = saveIndentParagraph;
@@ -334,8 +342,24 @@ public class XmlTextVisitor extends SamXBaseVisitor<Object>
       indentLevel--;
 
       addIndent();
-      append("</ul>");
+      append("</");
+      append(tagType);
+      append('>');
       appendNewline();
+   }
+
+   @Override
+   public Exception visitUnorderedList(SamXParser.UnorderedListContext ctx)
+   {
+      visitGenericList("ul", ctx.listElement());
+
+      return null;
+   }
+
+   @Override
+   public Object visitOrderedList(SamXParser.OrderedListContext ctx)
+   {
+      visitGenericList("ol", ctx.listElement());
 
       return null;
    }
@@ -344,7 +368,7 @@ public class XmlTextVisitor extends SamXBaseVisitor<Object>
    public Exception visitRecordSet(SamXParser.RecordSetContext ctx)
    {
       Object enabled = visit(ctx.condition());
-      if (! Boolean.TRUE.equals(enabled))
+      if (!Boolean.TRUE.equals(enabled))
       {
          return null;
       }
@@ -577,7 +601,7 @@ public class XmlTextVisitor extends SamXBaseVisitor<Object>
          HashSet<String> potentialValues = (HashSet<String>) visit(ctx.nameList());
          if (potentialValues != null)
          {
-            if (! potentialValues.contains(configuredValue))
+            if (!potentialValues.contains(configuredValue))
             {
                return Boolean.TRUE;
             }
@@ -592,7 +616,7 @@ public class XmlTextVisitor extends SamXBaseVisitor<Object>
    {
       HashSet<String> values = new HashSet<>();
 
-      for (TerminalNode tn: ctx.NAME())
+      for (TerminalNode tn : ctx.NAME())
       {
          values.add(tn.getText());
       }

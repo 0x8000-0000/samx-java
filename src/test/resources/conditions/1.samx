@@ -11,3 +11,10 @@ section:(?radiation in {detected, present})
 section:(?radiation not in {detected, present})
 
    The cat is alive because radiation was not detected.
+
+The options are
+
+   * (?radiation in {detected, present}) dead
+
+   * (?radiation=absent) alive
+

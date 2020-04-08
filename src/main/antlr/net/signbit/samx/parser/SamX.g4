@@ -365,7 +365,7 @@ paragraph : ( flow NEWLINE )+ NEWLINE ;
 
 headerRow : ( COLSEP NAME )+ NEWLINE ;
 
-recordRow : ( COLSEP flow )+ NEWLINE ;
+recordRow : condition? ( COLSEP flow )+ NEWLINE ;
 
 EXTCODE : (~'\n')+ { processingCode }? { addCodeIndent(); };
 
@@ -373,19 +373,21 @@ CODE_MARKER : '```(' { prepareProcessingCode = true; };
 
 externalCode : CODE_INDENT EXTCODE ;
 
+listElement : condition? paragraph+ ;
+
 block :
      NAME TYPESEP attribute* condition? description=flow? NEWLINE+ INDENT block+ DEDENT        # TypedBlock
    | NAME TYPESEP attribute* condition? value=flow NEWLINE                                     # Field
-   | paragraph                                                                      # PlainParagraph
+   | paragraph                                                                         # PlainParagraph
    | NAME RECSEP condition? description=flow NEWLINE+ INDENT headerRow (recordRow | NEWLINE)+ DEDENT     # RecordSet
-   | INDENT ((BULLET paragraph+) | NEWLINE)+ DEDENT                                 # UnorderedList
-   | INDENT ((HASH paragraph+) | NEWLINE)+ DEDENT                                   # OrderedList
-   | '!!!(' text ')' NEWLINE block                                                  # Remark
-   | '"""[' text ']' NEWLINE ( INDENT block+ DEDENT )                               # CitationBlock
-   | '>>>(' text ')' attribute*                                                     # InsertFragment
+   | INDENT ((BULLET listElement) | NEWLINE)+ DEDENT                         # UnorderedList
+   | INDENT ((HASH listElement) | NEWLINE)+ DEDENT                           # OrderedList
+   | '!!!(' text ')' NEWLINE block                                                     # Remark
+   | '"""[' text ']' NEWLINE ( INDENT block+ DEDENT )                                  # CitationBlock
+   | '>>>(' text ')' attribute* condition?                                             # InsertFragment
    | '<<<(' reference=text ')' attribute* condition?    { parseFile($reference.text); }     # IncludeFile
    | CODE_MARKER language=text ')' attribute* condition? NEWLINE+ INDENT (externalCode? NEWLINE)+ DEDENT     # CodeBlock
-   | NEWLINE                                                                        # Empty
+   | NEWLINE                                                                           # Empty
    ;
 
 declaration: '!' NAME TYPESEP description=flow NEWLINE ;
