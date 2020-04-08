@@ -1,8 +1,26 @@
 info:
 
    title: My First Book
-   author: Sign Bit
-   copyright: 2020 Sign Bit
+   author:
+
+      personname:
+
+         firstname: Sign
+         surname: Bit
+
+   copyright:
+
+      year: 2020
+      holder: Sign Bit
+
+   revhistory:
+
+      revision:
+
+         revnumber: 0.1
+         date: 2020-04-07
+         authorinitials: sb
+         revremark: First draft
 
 preface:
 
