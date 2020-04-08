@@ -336,7 +336,7 @@ attribute :
    | '[*' blockName=NAME '/' idName=NAME ']'    # Reference
    ;
 
-text : ( NAME | TOKEN | INTEGER | STRING | '/' | escapeSeq | 'in' | 'not' | 'or' | 'and' | 'true' | 'false' | QUOT | '+' | ',' ) + ;
+text : ( NAME | TOKEN | INTEGER | STRING | '/' | escapeSeq | 'in' | 'not' | 'or' | 'and' | 'true' | 'false' | QUOT | '+' | ',' | OPEN_PAR | CLOSE_PAR ) + ;
 
 STT_COND : '(?' ;
 
@@ -352,7 +352,7 @@ annotation : STT_ANN text CLOSE_PAR ;
 
 phrase : OPEN_PHR text CLOSE_PHR annotation* attribute* condition? ;
 
-localInsert : '>($' text ')' ;
+localInsert : '>($' text CLOSE_PAR ;
 
 APOSTR : '`' ;
 
