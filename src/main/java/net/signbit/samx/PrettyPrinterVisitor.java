@@ -24,6 +24,7 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 import net.signbit.samx.parser.SamXBaseVisitor;
 import net.signbit.samx.parser.SamXParser;
 
+
 public class PrettyPrinterVisitor extends SamXBaseVisitor<StringBuilder>
 {
    private int indentLevel = 0;
@@ -74,7 +75,7 @@ public class PrettyPrinterVisitor extends SamXBaseVisitor<StringBuilder>
       final SamXParser.ConditionContext cond = ctx.condition();
       if (cond != null)
       {
-         builder.append(visit(ctx.condition()));
+         builder.append(visit(cond));
       }
       for (SamXParser.AttributeContext ac : ctx.attribute())
       {
@@ -87,7 +88,9 @@ public class PrettyPrinterVisitor extends SamXBaseVisitor<StringBuilder>
       }
       builder.append('\n');
       builder.append('\n');
+
       indentLevel++;
+
       for (SamXParser.BlockContext bc : ctx.block())
       {
          StringBuilder childBuilder = visit(bc);
@@ -96,6 +99,7 @@ public class PrettyPrinterVisitor extends SamXBaseVisitor<StringBuilder>
             builder.append(childBuilder);
          }
       }
+
       indentLevel--;
 
       return builder;
@@ -170,7 +174,7 @@ public class PrettyPrinterVisitor extends SamXBaseVisitor<StringBuilder>
       final SamXParser.ConditionContext cond = ctx.condition();
       if (cond != null)
       {
-         builder.append(visit(ctx.condition()));
+         builder.append(visit(cond));
       }
       for (SamXParser.AttributeContext ac : ctx.attribute())
       {
@@ -195,6 +199,7 @@ public class PrettyPrinterVisitor extends SamXBaseVisitor<StringBuilder>
             builder.append(childBuilder);
          }
       }
+
       indentLevel--;
 
       return builder;

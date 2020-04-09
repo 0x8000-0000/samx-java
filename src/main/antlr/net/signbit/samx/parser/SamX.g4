@@ -24,7 +24,6 @@ tokens { INDENT, DEDENT, END, INVALID, CODE_INDENT }
 
 @lexer::members 
 {
-
    private java.util.ArrayDeque<Token> tokens = new java.util.ArrayDeque<Token>();
    private java.util.Stack<Integer> indents = new java.util.Stack<>();
 
@@ -200,17 +199,9 @@ tokens { INDENT, DEDENT, END, INVALID, CODE_INDENT }
 
 }
 
-SKIP_
- : ( SPACES | COMMENT ) -> skip
- ;
+SPACES : [ \t]+ -> skip ;
 
-fragment SPACES
- : [ \t]+
- ;
-
-fragment COMMENT
- : '#' ~[\r\n\f]*
- ;
+COMMENT : '#' ~[\r\n\f]* -> skip ;
 
 NEWLINE
  : ( {atStartOfInput()}?   SPACES
