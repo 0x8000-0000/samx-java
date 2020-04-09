@@ -115,7 +115,9 @@ attribute :
    | STT_REFR blockName=NAME SLASH idName=NAME CLOSE_SQR    # Reference
    ;
 
-text : ( NAME | TOKEN | INTEGER | STRING | SLASH | escapeSeq | KW_IN | KW_NOT | KW_OR | KW_AND | KW_TRUE | KW_FALSE | QUOT | PLUS | COMMA | OPEN_PAR | CLOSE_PAR ) + ;
+declaration: BANG NAME TYPESEP description=flow NEWLINE ;
+
+text : ( NAME | TOKEN | INTEGER | STRING | SLASH | escapeSeq | KW_IN | KW_NOT | KW_OR | KW_AND | KW_TRUE | KW_FALSE | QUOT | PLUS | COMMA | OPEN_PAR | CLOSE_PAR | BANG ) + ;
 
 annotation : STT_ANN text CLOSE_PAR ;
 
@@ -152,8 +154,6 @@ block :
    | CODE_MARKER language=text CLOSE_PAR attribute* condition? NEWLINE+ INDENT (externalCode? NEWLINE)+ DEDENT     # CodeBlock
    | NEWLINE                                                                           # Empty
    ;
-
-declaration: BANG NAME TYPESEP description=flow NEWLINE ;
 
 document: declaration* block* EOF ;
 

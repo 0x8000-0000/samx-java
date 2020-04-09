@@ -1,7 +1,15 @@
+!test: example
+
 Three commas,,, and three dots... without spaces.
 
 Three commas ,,, and three dots ... with spaces.
 
+Some-text contains ---- and other ...
+
+Dashes and dots -.-. - . - .
+
+Cat's meow!
+
+# Note: comparison with pretty-printed output will fail on next one, because we normalize the spaces
 Three commas  ,,, and three dots  ... with double spaces.
 
-Some-text contains ---- and other ...

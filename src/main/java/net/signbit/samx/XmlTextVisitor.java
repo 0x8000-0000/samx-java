@@ -4,9 +4,13 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.util.*;
 
+import org.antlr.v4.runtime.BufferedTokenStream;
+import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.misc.Interval;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
+import net.signbit.samx.parser.SamXLexer;
 import net.signbit.samx.parser.SamXParserBaseVisitor;
 import net.signbit.samx.parser.SamXParser;
 
@@ -14,6 +18,8 @@ public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
 {
    private final BufferedWriter writer;
    private int charactersWritten = 0;
+
+   private BufferedTokenStream tokenStream;
 
    private Exception exception = null;
 
@@ -253,7 +259,16 @@ public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
       {
          if (offset != charactersWritten)
          {
-            append(' ');
+            final Interval pos = pt.getSourceInterval();
+            if (pos.a == pos.b)
+            {
+               final List<Token> precedingTokens = tokenStream.getHiddenTokensToLeft(pos.a, SamXLexer.WHITESPACE);
+               if ((precedingTokens != null) && (! precedingTokens.isEmpty()))
+               {
+                  append(' ');
+               }
+            }
+
             offset = charactersWritten;
          }
 
@@ -535,6 +550,7 @@ public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
          XmlTextVisitor visitor = new XmlTextVisitor(writer, includedDocuments, includedExceptions, includedResult.referencePaths);
          visitor.skipXmlDeclaration();
          visitor.setIndentLevel(indentLevel + 1);
+         visitor.setTokenStream(includedResult.tokens);
 
          visitor.visit(includedResult.document);
 
@@ -717,5 +733,10 @@ public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
       {
          return visit(ctx.secondCond);
       }
+   }
+
+   public void setTokenStream(BufferedTokenStream tokens)
+   {
+      tokenStream = tokens;
    }
 }

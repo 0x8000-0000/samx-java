@@ -20,6 +20,8 @@ lexer grammar SamXLexer;
 package net.signbit.samx.parser;
 }
 
+channels { WHITESPACE, COMMENTS }
+
 tokens { INDENT, DEDENT, END, INVALID, CODE_INDENT }
 
 @lexer::members 
@@ -138,9 +140,9 @@ tokens { INDENT, DEDENT, END, INVALID, CODE_INDENT }
 
 }
 
-SPACES : [ \t]+ -> skip ;
+SPACES : [ \t]+ -> channel(WHITESPACE) ;
 
-COMMENT : '#' ~[\r\n\f]* -> skip ;
+COMMENT : '#' ~[\r\n\f]* -> channel(COMMENTS) ;
 
 NEWLINE
  : ( {atStartOfInput()}?   SPACES

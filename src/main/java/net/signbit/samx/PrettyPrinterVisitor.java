@@ -18,9 +18,13 @@ package net.signbit.samx;
 
 import java.util.List;
 
+import org.antlr.v4.runtime.BufferedTokenStream;
+import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.misc.Interval;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
+import net.signbit.samx.parser.SamXLexer;
 import net.signbit.samx.parser.SamXParserBaseVisitor;
 import net.signbit.samx.parser.SamXParser;
 
@@ -28,6 +32,7 @@ import net.signbit.samx.parser.SamXParser;
 public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
 {
    private int indentLevel = 0;
+   private BufferedTokenStream tokenStream;
 
    private void addIndent(StringBuilder builder)
    {
@@ -272,12 +277,19 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
    public StringBuilder visitText(SamXParser.TextContext ctx)
    {
       StringBuilder builder = new StringBuilder();
+
       for (ParseTree tn : ctx.children)
       {
-         if (builder.length() > 0)
+         final Interval pos = tn.getSourceInterval();
+         if (pos.a == pos.b)
          {
-            builder.append(' ');
+            final List<Token> precedingTokens = tokenStream.getHiddenTokensToLeft(pos.a, SamXLexer.WHITESPACE);
+            if ((precedingTokens != null) && (! precedingTokens.isEmpty()))
+            {
+               builder.append(' ');
+            }
          }
+
          builder.append(tn.getText());
       }
       return builder;
@@ -600,5 +612,10 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
    public StringBuilder visitCombinedCondition(SamXParser.CombinedConditionContext ctx)
    {
       return visitConditionWithOperator("and", ctx.firstCond, ctx.secondCond);
+   }
+
+   public void setTokenStream(BufferedTokenStream tokens)
+   {
+      tokenStream = tokens;
    }
 }

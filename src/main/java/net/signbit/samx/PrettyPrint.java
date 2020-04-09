@@ -74,11 +74,12 @@ public final class PrettyPrint
          return;
       }
 
-      SamXParser.DocumentContext document = Parser.parse(args[0]).document;
+      Parser.Result parsingResult = Parser.parse(args[0]);
 
       PrettyPrinterVisitor printer = new PrettyPrinterVisitor();
+      printer.setTokenStream(parsingResult.tokens);
 
-      StringBuilder builder = printer.visit(document);
+      StringBuilder builder = printer.visit(parsingResult.document);
 
       final String pretty = builder.toString();
 

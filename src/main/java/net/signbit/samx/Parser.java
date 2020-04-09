@@ -32,6 +32,7 @@ public class Parser
    public static class Result
    {
       public File inputFile = null;
+      public CommonTokenStream tokens = null;
       public SamXParser.DocumentContext document = null;
 
       public HashMap<String, Result> includedDocuments = new HashMap<>();
@@ -64,12 +65,12 @@ public class Parser
 
       SamXLexer lexer = new SamXLexer(input);
 
-      CommonTokenStream tokens = new CommonTokenStream(lexer);
-
-      SamXParser parser = new SamXParser(tokens);
-
       Result result = new Result();
       result.inputFile = inputFile;
+      result.tokens = new CommonTokenStream(lexer);
+
+      SamXParser parser = new SamXParser(result.tokens);
+
       result.includedDocuments = includedDocuments;
       result.includedExceptions = includedExceptions;
 

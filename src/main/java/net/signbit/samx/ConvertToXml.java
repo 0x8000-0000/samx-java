@@ -76,6 +76,7 @@ public final class ConvertToXml
          visitor.setProperties(props);
          visitor.setTrueFlags(cmd.getOptionValues("T"));
          visitor.setFalseFlags(cmd.getOptionValues("F"));
+         visitor.setTokenStream(result.tokens);
 
          if (cmd.getOptionValue("r") != null)
          {
