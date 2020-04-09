@@ -10,6 +10,10 @@ Dashes and dots -.-. - . - .
 
 Cat's meow!
 
+. can start with that?
+
+, can too; and then continue
+
 # Note: comparison with pretty-printed output will fail on next one, because we normalize the spaces
 Three commas  ,,, and three dots  ... with double spaces.
 

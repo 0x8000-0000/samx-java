@@ -255,17 +255,26 @@ public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
    {
       int offset = charactersWritten;
 
+      boolean firstToken = true;
+
       for (ParseTree pt : ctx.children)
       {
          if (offset != charactersWritten)
          {
-            final Interval pos = pt.getSourceInterval();
-            if (pos.a == pos.b)
+            if (firstToken)
             {
-               final List<Token> precedingTokens = tokenStream.getHiddenTokensToLeft(pos.a, SamXLexer.WHITESPACE);
-               if ((precedingTokens != null) && (! precedingTokens.isEmpty()))
+               firstToken = true;
+            }
+            else
+            {
+               final Interval pos = pt.getSourceInterval();
+               if (pos.a == pos.b)
                {
-                  append(' ');
+                  final List<Token> precedingTokens = tokenStream.getHiddenTokensToLeft(pos.a, SamXLexer.WHITESPACE);
+                  if ((precedingTokens != null) && (!precedingTokens.isEmpty()))
+                  {
+                     append(' ');
+                  }
                }
             }
 

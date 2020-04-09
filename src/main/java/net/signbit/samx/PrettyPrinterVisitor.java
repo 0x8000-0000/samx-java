@@ -278,15 +278,24 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
    {
       StringBuilder builder = new StringBuilder();
 
+      boolean firstToken = true;
+
       for (ParseTree tn : ctx.children)
       {
-         final Interval pos = tn.getSourceInterval();
-         if (pos.a == pos.b)
+         if (firstToken)
          {
-            final List<Token> precedingTokens = tokenStream.getHiddenTokensToLeft(pos.a, SamXLexer.WHITESPACE);
-            if ((precedingTokens != null) && (! precedingTokens.isEmpty()))
+            firstToken = false;
+         }
+         else
+         {
+            final Interval pos = tn.getSourceInterval();
+            if (pos.a == pos.b)
             {
-               builder.append(' ');
+               final List<Token> precedingTokens = tokenStream.getHiddenTokensToLeft(pos.a, SamXLexer.WHITESPACE);
+               if ((precedingTokens != null) && (!precedingTokens.isEmpty()))
+               {
+                  builder.append(' ');
+               }
             }
          }
 
