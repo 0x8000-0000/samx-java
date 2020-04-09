@@ -627,4 +627,26 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
    {
       tokenStream = tokens;
    }
+
+   @Override
+   public StringBuilder visitConditionalBlock(SamXParser.ConditionalBlockContext ctx)
+   {
+      StringBuilder builder = new StringBuilder();
+      addIndent(builder);
+      builder.append(visit(ctx.condition()));
+      builder.append('\n');
+
+      indentLevel ++;
+      for (SamXParser.BlockContext bc : ctx.block())
+      {
+         StringBuilder childBuilder = visit(bc);
+         if (childBuilder != null)
+         {
+            builder.append(childBuilder);
+         }
+      }
+      indentLevel --;
+
+      return builder;
+   }
 }

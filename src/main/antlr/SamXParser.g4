@@ -140,19 +140,20 @@ externalCode : CODE_INDENT EXTCODE ;
 listElement : condition? paragraph+ ;
 
 block :
-     NAME TYPESEP attribute* condition? description=flow? NEWLINE+ INDENT block+ DEDENT        # TypedBlock
-   | NAME TYPESEP attribute* condition? value=flow NEWLINE                                     # Field
-   | paragraph                                                                         # PlainParagraph
+     NAME TYPESEP attribute* condition? description=flow? NEWLINE+ INDENT block+ DEDENT         # TypedBlock
+   | NAME TYPESEP attribute* condition? value=flow NEWLINE                                      # Field
+   | condition NEWLINE+ INDENT block+ DEDENT                                                    # ConditionalBlock
+   | paragraph                                                                                  # PlainParagraph
    | NAME RECSEP attribute* condition? description=flow NEWLINE+ INDENT headerRow (recordRow | NEWLINE)+ DEDENT     # RecordSet
-   | INDENT ((BULLET listElement) | NEWLINE)+ DEDENT                         # UnorderedList
-   | INDENT ((HASH listElement) | NEWLINE)+ DEDENT                           # OrderedList
-   | STT_RMK text CLOSE_PAR NEWLINE block                                                     # Remark
-   | STT_CIT text CLOSE_SQR NEWLINE ( INDENT block+ DEDENT )                                  # CitationBlock
+   | INDENT ((BULLET listElement) | NEWLINE)+ DEDENT                                            # UnorderedList
+   | INDENT ((HASH listElement) | NEWLINE)+ DEDENT                                              # OrderedList
+   | STT_RMK text CLOSE_PAR NEWLINE block                                                       # Remark
+   | STT_CIT text CLOSE_SQR NEWLINE ( INDENT block+ DEDENT )                                    # CitationBlock
    | STT_INFRG NAME CLOSE_PAR attribute* condition?                                             # InsertFragment
    | STT_DEFRG NAME CLOSE_PAR attribute* condition? NEWLINE+ INDENT block+ DEDENT               # DefineFragment
-   | STT_INCL reference=text CLOSE_PAR attribute* condition?    { parseFile($reference.text); }     # IncludeFile
+   | STT_INCL reference=text CLOSE_PAR attribute* condition?    { parseFile($reference.text); } # IncludeFile
    | CODE_MARKER language=text CLOSE_PAR attribute* condition? NEWLINE+ INDENT (externalCode? NEWLINE)+ DEDENT     # CodeBlock
-   | NEWLINE                                                                           # Empty
+   | NEWLINE                                                                                    # Empty
    ;
 
 document: declaration* block* EOF ;

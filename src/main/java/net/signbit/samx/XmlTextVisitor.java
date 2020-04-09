@@ -261,11 +261,7 @@ public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
       {
          if (offset != charactersWritten)
          {
-            if (firstToken)
-            {
-               firstToken = true;
-            }
-            else
+            if (! firstToken)
             {
                final Interval pos = pt.getSourceInterval();
                if (pos.a == pos.b)
@@ -283,6 +279,7 @@ public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
 
          final String text = pt.getText();
          append(text);
+         firstToken = false;
       }
 
       return null;
@@ -323,7 +320,7 @@ public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
          }
       }
 
-      for (ParseTree pt : ctx.block())
+      for (SamXParser.BlockContext pt : ctx.block())
       {
          visit(pt);
       }
@@ -747,5 +744,21 @@ public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
    public void setTokenStream(BufferedTokenStream tokens)
    {
       tokenStream = tokens;
+   }
+
+   @Override
+   public Object visitConditionalBlock(SamXParser.ConditionalBlockContext ctx)
+   {
+      if (! isEnabled(ctx.condition()))
+      {
+         return null;
+      }
+
+      for (SamXParser.BlockContext pt : ctx.block())
+      {
+         visit(pt);
+      }
+
+      return null;
    }
 }

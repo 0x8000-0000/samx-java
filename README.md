@@ -56,6 +56,9 @@ for parentheses to be freely used in text without having to escape them.
 * SAM uses "p" for paragraph in the XML serialization while SAMx uses "para"
 for compatibility with DocBook.
 
+* SAMx has support for conditional blocks, where a top-level condition is
+applied to several sub-blocks at once.
+
 
 License for sam
 ---------------
