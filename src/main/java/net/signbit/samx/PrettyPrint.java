@@ -62,7 +62,14 @@ public final class PrettyPrint
             ++ ii;
          }
 
-         System.err.println(String.format("Mismatch at offset %d (line %d, column %d): input has '%c', pretty has '%c'", ii, lineNumber, columnNumber, original.charAt(ii), pretty.charAt(ii)));
+         if (ii == compareLength)
+         {
+            System.err.println(String.format("The smaller file is a prefix of the larger file, but the lengths differ: original %d vs pretty %d", original.length(), pretty.length()));
+         }
+         else
+         {
+            System.err.println(String.format("Mismatch at offset %d (line %d, column %d): input has '%c', pretty has '%c'", ii, lineNumber, columnNumber, original.charAt(ii), pretty.charAt(ii)));
+         }
       }
    }
 
