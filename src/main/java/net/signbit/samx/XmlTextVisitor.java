@@ -7,10 +7,10 @@ import java.util.*;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
-import net.signbit.samx.parser.SamXBaseVisitor;
+import net.signbit.samx.parser.SamXParserBaseVisitor;
 import net.signbit.samx.parser.SamXParser;
 
-public class XmlTextVisitor extends SamXBaseVisitor<Object>
+public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
 {
    private final BufferedWriter writer;
    private int charactersWritten = 0;

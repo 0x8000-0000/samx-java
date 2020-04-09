@@ -21,11 +21,11 @@ import java.util.List;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
-import net.signbit.samx.parser.SamXBaseVisitor;
+import net.signbit.samx.parser.SamXParserBaseVisitor;
 import net.signbit.samx.parser.SamXParser;
 
 
-public class PrettyPrinterVisitor extends SamXBaseVisitor<StringBuilder>
+public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
 {
    private int indentLevel = 0;
 

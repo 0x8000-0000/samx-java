@@ -14,7 +14,7 @@
    limitations under the License.
  */
 
-grammar SamX;
+lexer grammar SamXLexer;
 
 @header {
 package net.signbit.samx.parser;
@@ -138,67 +138,6 @@ tokens { INDENT, DEDENT, END, INVALID, CODE_INDENT }
 
 }
 
-@parser::members
-{
-
-   private java.util.HashMap<String, net.signbit.samx.Parser.Result> includedDocuments = null;
-   private java.util.HashMap<String, java.io.IOException> includedExceptions = null;
-
-   private java.util.HashMap<String, String> referencePaths = new java.util.HashMap<>();
-   private java.io.File basePath = null;
-
-   public void setBasePath(java.io.File aPath)
-   {
-      basePath = aPath;
-   }
-
-   public java.util.HashMap<String, String> getReferencePaths()
-   {
-      return referencePaths;
-   }
-
-   public void setIncludeDictionary(java.util.HashMap<String, net.signbit.samx.Parser.Result> aDict)
-   {
-      includedDocuments = aDict;
-   }
-
-   public void setIncludeExceptionsDictionary(java.util.HashMap<String, java.io.IOException> aDict)
-   {
-      includedExceptions = aDict;
-   }
-
-   private void parseFile(String reference)
-   {
-      java.io.File includeFile = new java.io.File(basePath, reference);
-
-      if (includeFile.exists())
-      {
-         referencePaths.put(reference, includeFile.getAbsolutePath());
-
-         if (! includedDocuments.containsKey(includeFile.getAbsolutePath()))
-         {
-            try
-            {
-               net.signbit.samx.Parser.Result result = net.signbit.samx.Parser.parse(includeFile,
-                  includedDocuments,
-                  includedExceptions);
-
-               includedDocuments.put(includeFile.getAbsolutePath(), result);
-            }
-            catch (java.io.IOException ioe)
-            {
-               includedExceptions.put(includeFile.getAbsolutePath(), ioe);
-            }
-         }
-      }
-      else
-      {
-         includedExceptions.put(includeFile.getAbsolutePath(), new java.io.FileNotFoundException(includeFile.getAbsolutePath()));
-      }
-   }
-
-}
-
 SPACES : [ \t]+ -> skip ;
 
 COMMENT : '#' ~[\r\n\f]* -> skip ;
@@ -267,21 +206,17 @@ NEWLINE
       }
    } ;
 
-nameList : NAME (',' NAME) + ;
+KW_NOT : 'not' ;
 
-conditionExpr :
-   variable=NAME                                               # BooleanTrueCondition
-   | variable=NAME EQUAL 'true'                                # BooleanTrueCondition
-   | variable=NAME EQUAL 'false'                               # BooleanFalseCondition
-   | '!' variable=NAME                                         # BooleanFalseCondition
-   | variable=NAME oper=(EQUAL|NOT_EQ) value=NAME              # ComparisonCondition
-   | variable=NAME 'in' OPEN_PHR nameList CLOSE_PHR            # BelongsToSetCondition
-   | variable=NAME 'not' 'in' OPEN_PHR nameList CLOSE_PHR      # NotBelongsToSetCondition
-   | OPEN_PAR firstCond=conditionExpr CLOSE_PAR 'or' OPEN_PAR secondCond=conditionExpr CLOSE_PAR  # AlternativeCondition
-   | OPEN_PAR firstCond=conditionExpr CLOSE_PAR 'and' OPEN_PAR secondCond=conditionExpr CLOSE_PAR  # CombinedCondition
-   ;
+KW_IN : 'in' ;
 
-condition : STT_COND conditionExpr CLOSE_PAR ;
+KW_OR : 'or' ;
+
+KW_AND : 'and' ;
+
+KW_TRUE : 'true' ;
+
+KW_FALSE : 'false' ;
 
 NAME : [-a-zA-Z_] [-a-zA-Z0-9_.]+ ;
 
@@ -289,13 +224,9 @@ INTEGER : [1-9] [0-9]+ ;
 
 SCHEME : 'http' 's'? ':' ;
 
-keyValuePair: key=NAME EQUAL value=NAME ;
+COMMA : ',' ;
 
-path : ('/' NAME) * ;
-
-url : SCHEME '//' (authority=NAME '@')? host=NAME (TYPESEP port=INTEGER)? path ('?' keyValuePair ('&' keyValuePair)* )? ('#' frag=NAME)? ;
-
-TOKEN : [-a-zA-Z0-9_]+ | '.' | ',' | '&' | ';' ;
+TOKEN : [-a-zA-Z0-9_]+ | '.' | COMMA | AMPERS | ';' ;
 
 TYPESEP : ':' ;
 
@@ -317,18 +248,6 @@ QUOT : '\'' ;
 
 STRING : '"' ( '\\' . | ~[\\\r\n\f"] )* '"' ;
 
-escapeSeq : ESCAPE . ;
-
-attribute :
-   STT_NAME CLOSE_PAR                           # NameAttr
-   | STT_ID NAME CLOSE_PAR                      # IdAttr
-   | STT_LANG '!' NAME CLOSE_PAR                # LanguageAttr
-   | '[' text ']'                               # Citation
-   | '[*' blockName=NAME '/' idName=NAME ']'    # Reference
-   ;
-
-text : ( NAME | TOKEN | INTEGER | STRING | '/' | escapeSeq | 'in' | 'not' | 'or' | 'and' | 'true' | 'false' | QUOT | '+' | ',' | OPEN_PAR | CLOSE_PAR ) + ;
-
 STT_COND : '(?' ;
 
 STT_NAME : '(#' ;
@@ -339,49 +258,13 @@ STT_LANG : '(!' ;
 
 STT_ANN : '(:' ;
 
-annotation : STT_ANN text CLOSE_PAR ;
-
-phrase : OPEN_PHR text CLOSE_PHR annotation* attribute* condition? ;
-
-localInsert : '>($' text CLOSE_PAR ;
+STT_REFR : '[*' ;
 
 APOSTR : '`' ;
-
-inlineCode : APOSTR text APOSTR ;
-
-flow : ( text | phrase | localInsert | url | inlineCode )+ ;
-
-paragraph : ( flow NEWLINE )+ NEWLINE ;
-
-headerRow : ( COLSEP NAME )+ NEWLINE ;
-
-recordRow : condition? ( COLSEP flow )+ NEWLINE ;
 
 EXTCODE : (~'\n')+ { processingCode }? { addCodeIndent(); };
 
 CODE_MARKER : '```(' { prepareProcessingCode = true; };
-
-externalCode : CODE_INDENT EXTCODE ;
-
-listElement : condition? paragraph+ ;
-
-block :
-     NAME TYPESEP attribute* condition? description=flow? NEWLINE+ INDENT block+ DEDENT        # TypedBlock
-   | NAME TYPESEP attribute* condition? value=flow NEWLINE                                     # Field
-   | paragraph                                                                         # PlainParagraph
-   | NAME RECSEP attribute* condition? description=flow NEWLINE+ INDENT headerRow (recordRow | NEWLINE)+ DEDENT     # RecordSet
-   | INDENT ((BULLET listElement) | NEWLINE)+ DEDENT                         # UnorderedList
-   | INDENT ((HASH listElement) | NEWLINE)+ DEDENT                           # OrderedList
-   | '!!!(' text ')' NEWLINE block                                                     # Remark
-   | '"""[' text ']' NEWLINE ( INDENT block+ DEDENT )                                  # CitationBlock
-   | '>>>(' NAME ')' attribute* condition?                                             # InsertFragment
-   | '~~~(' NAME ')' attribute* condition? NEWLINE+ INDENT block+ DEDENT               # DefineFragment
-   | '<<<(' reference=text ')' attribute* condition?    { parseFile($reference.text); }     # IncludeFile
-   | CODE_MARKER language=text ')' attribute* condition? NEWLINE+ INDENT (externalCode? NEWLINE)+ DEDENT     # CodeBlock
-   | NEWLINE                                                                           # Empty
-   ;
-
-declaration: '!' NAME TYPESEP description=flow NEWLINE ;
 
 UNICODE_BOM: (UTF8_BOM
     | UTF16_BOM
@@ -393,12 +276,41 @@ UTF8_BOM: '\uEFBBBF';
 UTF16_BOM: '\uFEFF';
 UTF32_BOM: '\u0000FEFF';
 
-document: declaration* block* EOF ;
-
 CLOSE_PAR : ')' ;
 
 OPEN_PAR : '(' ;
 
+OPEN_SQR : '[' ;
+
+CLOSE_SQR : ']' ;
+
 EQUAL : '=' ;
 
 NOT_EQ : '!=' ;
+
+SLASH : '/' ;
+
+SLASHSH : '//' ;
+
+ATSGN : '@' ;
+
+QUESTION : '?' ;
+
+AMPERS : '&' ;
+
+BANG : '!' ;
+
+PLUS : '+' ;
+
+STT_LOCIN : '>($' ;
+
+STT_RMK : '!!!(' ;
+
+STT_CIT : '"""[' ;
+
+STT_INFRG : '>>>(' ;
+
+STT_DEFRG : '~~~(' ;
+
+STT_INCL : '<<<(' ;
+
