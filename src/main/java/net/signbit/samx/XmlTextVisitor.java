@@ -270,8 +270,9 @@ public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
             }
          }
 
-         final String text = pt.getText();
-         append(text);
+         //final String text = pt.getText();
+         //append(text);
+         visit(pt);
          firstToken = false;
       }
 
@@ -751,6 +752,60 @@ public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
          visit(pt);
       }
 
+      return null;
+   }
+
+   @Override
+   public Object visitAmpersand(SamXParser.AmpersandContext ctx)
+   {
+      append("&amp;");
+      return null;
+   }
+
+   @Override
+   public Object visitLessThan(SamXParser.LessThanContext ctx)
+   {
+      append("&lt;");
+      return null;
+   }
+
+   @Override
+   public Object visitGreaterThan(SamXParser.GreaterThanContext ctx)
+   {
+      append("&gt;");
+      return null;
+   }
+
+   @Override
+   public Object visitQuote(SamXParser.QuoteContext ctx)
+   {
+      append("&apos;");
+      return null;
+   }
+
+   @Override
+   public Object visitLiteral(SamXParser.LiteralContext ctx)
+   {
+      append(ctx.getText());
+      return null;
+   }
+
+   @Override
+   public Object visitEscapeSeq(SamXParser.EscapeSeqContext ctx)
+   {
+      append(ctx.getText());
+      return null;
+   }
+
+   @Override
+   public Object visitString(SamXParser.StringContext ctx)
+   {
+      append("&quot;");
+
+      String text = ctx.getText();
+      append(text.substring(1, text.length() - 1));
+
+      append("&quot;");
       return null;
    }
 }

@@ -228,7 +228,11 @@ SCHEME : 'http' 's'? ':' ;
 
 COMMA : ',' ;
 
-TOKEN : [-a-zA-Z0-9_]+ | '.' | COMMA | AMPERS | ';' ;
+TOKEN : [-a-zA-Z0-9_]+ | '.' | COMMA | ';' ;
+
+LT : '<' ;
+
+GT : '>' ;
 
 TYPESEP : ':' ;
 

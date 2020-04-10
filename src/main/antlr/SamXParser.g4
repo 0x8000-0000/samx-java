@@ -117,7 +117,21 @@ attribute :
 
 declaration: BANG NAME TYPESEP description=flow NEWLINE ;
 
-text : ( NAME | TOKEN | INTEGER | STRING | SLASH | escapeSeq | KW_IN | KW_NOT | KW_OR | KW_AND | KW_TRUE | KW_FALSE | QUOT | PLUS | COMMA | OPEN_PAR | CLOSE_PAR | BANG | QUESTION ) + ;
+lessThan : LT ;
+
+greaterThan : GT ;
+
+ampersand : AMPERS ;
+
+quote : QUOT ;
+
+string : STRING ;
+
+literal : NAME | TOKEN | INTEGER | SLASH | KW_IN | KW_NOT | KW_OR | KW_AND | KW_TRUE | KW_FALSE | PLUS | COMMA | OPEN_PAR | CLOSE_PAR | BANG | QUESTION ;
+
+entity : escapeSeq | lessThan | greaterThan | ampersand | quote ;
+
+text : ( literal | entity | string ) + ;
 
 annotation : STT_ANN text CLOSE_PAR ;
 
