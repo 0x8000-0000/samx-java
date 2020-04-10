@@ -108,11 +108,11 @@ url : SCHEME SLASHSH (authority=NAME ATSGN)? host=NAME (TYPESEP port=INTEGER)? p
 escapeSeq : ESCAPE . ;
 
 attribute :
-   STT_NAME CLOSE_PAR                           # NameAttr
-   | STT_ID NAME CLOSE_PAR                      # IdAttr
+   STT_NAME CLOSE_PAR                       # NameAttr
+   | STT_ID NAME CLOSE_PAR                  # IdentifierAttr
    | STT_LANG NAME CLOSE_PAR                # LanguageAttr
-   | OPEN_SQR text CLOSE_SQR                               # Citation
-   | STT_REFR blockName=NAME SLASH idName=NAME CLOSE_SQR    # Reference
+   | OPEN_SQR text CLOSE_SQR                # CitationAttr
+   | STT_REFR NAME CLOSE_SQR                # ReferenceAttr
    ;
 
 declaration: BANG NAME TYPESEP description=flow NEWLINE ;

@@ -267,7 +267,16 @@ public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
          return null;
       }
 
-      append("<phrase>");
+      append("<phrase");
+      if (ctx.attribute().size() > 0)
+      {
+          append(' ');
+          for (SamXParser.AttributeContext ac : ctx.attribute())
+          {
+              visit(ac);
+          }
+      }
+      append('>');
       visit(ctx.text());
       append("</phrase>");
 
@@ -472,6 +481,14 @@ public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
       addIndent();
       append('<');
       append(typeText);
+      if (ctx.attribute().size() > 0)
+      {
+          append(' ');
+          for (SamXParser.AttributeContext ac : ctx.attribute())
+          {
+              visit(ac);
+          }
+      }
       append('>');
       appendNewline();
 
@@ -852,10 +869,32 @@ public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
    {
       append("&quot;");
 
-      String text = ctx.getText();
+      final String text = ctx.getText();
       append(text.substring(1, text.length() - 1));
 
       append("&quot;");
+      return null;
+   }
+
+   @Override
+   public Object visitReferenceAttr(SamXParser.ReferenceAttrContext ctx)
+   {
+      append("refid=\"");
+
+      append(ctx.NAME().getText());
+
+      append('"');
+      return null;
+   }
+
+   @Override
+   public Object visitIdentifierAttr(SamXParser.IdentifierAttrContext ctx)
+   {
+      append("id=\"");
+
+      append(ctx.NAME().getText());
+
+      append('"');
       return null;
    }
 }
