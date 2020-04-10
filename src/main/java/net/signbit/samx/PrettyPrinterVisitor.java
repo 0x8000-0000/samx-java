@@ -113,13 +113,13 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
    @Override
    public StringBuilder visitUnorderedList(SamXParser.UnorderedListContext ctx)
    {
-      return visitList("* ", ctx.listElement());
+      return visitList("*", ctx.listElement());
    }
 
    @Override
    public StringBuilder visitOrderedList(SamXParser.OrderedListContext ctx)
    {
-      return visitList("# ", ctx.listElement());
+      return visitList("#", ctx.listElement());
    }
 
    private StringBuilder visitList(String type, List<SamXParser.ListElementContext> elements)
@@ -138,7 +138,8 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
             indentLevel = thisIndent;
             addIndent(builder);
             indentLevel = 0;
-            builder.append("* ");
+            builder.append(type);
+            builder.append(' ');
             builder.append(childBuilder);
          }
       }

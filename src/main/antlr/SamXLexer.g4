@@ -142,7 +142,7 @@ tokens { INDENT, DEDENT, END, INVALID, CODE_INDENT }
 
 SPACES : [ \t]+ -> channel(WHITESPACE) ;
 
-COMMENT : '#' ~[\r\n\f]* -> channel(COMMENTS) ;
+COMMENT : '//' ~[\r\n\f]* -> channel(COMMENTS) ;
 
 NEWLINE
  : ( {atStartOfInput()}?   SPACES
