@@ -28,6 +28,8 @@ public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
    private boolean indentParagraph = true;
    private boolean writeXmlDeclaration = true;
    private boolean writeNewlines = true;
+   private boolean writeIndent = true;
+   private boolean forceWrapElement = false;
 
    private final HashMap<String, Parser.Result> includedDocuments;
    private final HashMap<String, IOException> includedExceptions;
@@ -61,11 +63,13 @@ public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
    public void setTopElement(String name)
    {
       topElement = name;
+      forceWrapElement = true;
    }
 
    public void setTopElementNamespace(String name)
    {
       topElementNamespace = name;
+      forceWrapElement = true;
    }
 
    public void setTopElementVersion(String name)
@@ -78,11 +82,16 @@ public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
       writeNewlines = false;
    }
 
+   public void skipIndent() { writeIndent = false; }
+
    private void addIndent()
    {
-      for (int ii = 0; ii < indentLevel; ++ii)
+      if (writeIndent)
       {
-         append("  ");
+         for (int ii = 0; ii < indentLevel; ++ii)
+         {
+            append("  ");
+         }
       }
    }
 
@@ -155,38 +164,53 @@ public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
       if (writeXmlDeclaration)
       {
          append("<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n");
-         append('<');
-         append(topElement);
+      }
 
-         if (topElementNamespace != null)
+      if ((ctx.block().size() > 1) || (forceWrapElement))
+      {
+         if (writeXmlDeclaration)
          {
-            append(" xmlns=\"");
-            append(topElementNamespace);
-            append('"');
+            append('<');
+            append(topElement);
 
-            if (topElementVersion != null)
+            if (topElementNamespace != null)
             {
-               append(" version=\"");
-               append(topElementVersion);
+               append(" xmlns=\"");
+               append(topElementNamespace);
                append('"');
+
+               if (topElementVersion != null)
+               {
+                  append(" version=\"");
+                  append(topElementVersion);
+                  append('"');
+               }
             }
+
+            append('>');
+            appendNewline();
+
+            indentLevel++;
          }
 
-         append('>');
-         appendNewline();
-      }
+         for (SamXParser.BlockContext bc : ctx.block())
+         {
+            visit(bc);
+         }
 
-      for (SamXParser.BlockContext bc : ctx.block())
-      {
-         visit(bc);
-      }
+         if (writeXmlDeclaration)
+         {
+            indentLevel--;
 
-      if (writeXmlDeclaration)
+            append("</");
+            append(topElement);
+            append('>');
+            appendNewline();
+         }
+      }
+      else
       {
-         append("</");
-         append(topElement);
-         append('>');
-         appendNewline();
+         visit(ctx.block(0));
       }
 
       return exception;
