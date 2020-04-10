@@ -793,7 +793,33 @@ public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
    @Override
    public Object visitEscapeSeq(SamXParser.EscapeSeqContext ctx)
    {
-      append(ctx.getText());
+      final String text = ctx.getText();
+      if (text.length() > 1)
+      {
+         final char escaped = text.charAt(1);
+         switch (escaped)
+         {
+            case '\'':
+               append("&apos;");
+               break;
+
+            case '>':
+               append("&gt;");
+               break;
+
+            case '<':
+               append("&lt;");
+               break;
+
+            case '&':
+               append("&amp;");
+               break;
+
+            default:
+               append(escaped);
+               break;
+         }
+      }
       return null;
    }
 
