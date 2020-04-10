@@ -16,6 +16,14 @@ A Java 1.8 compiler (tested with OpenJDK 11) and Antlr 4.8 (included as Gradle
 dependency)
 
 
+Building
+--------
+
+```shell script
+$ ./gradlew assembleDist
+```
+
+
 What's the difference between SAM and SAMx?
 -------------------------------------------
 
