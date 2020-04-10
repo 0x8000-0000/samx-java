@@ -665,7 +665,13 @@ public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
 
       if (configuredValue != null)
       {
-         if (configuredValue.equals(value))
+          final String operator = ctx.oper.getText();
+         if (configuredValue.equals(value) && (operator.charAt(0) == '='))
+         {
+            return Boolean.TRUE;
+         }
+
+         if ((!configuredValue.equals(value)) && (operator.charAt(0) == '!'))
          {
             return Boolean.TRUE;
          }

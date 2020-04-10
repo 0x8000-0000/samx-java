@@ -371,7 +371,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
    }
 
    @Override
-   public StringBuilder visitIdAttr(SamXParser.IdAttrContext ctx)
+   public StringBuilder visitIdentifierAttr(SamXParser.IdentifierAttrContext ctx)
    {
       return visitAttribute('*', ctx.NAME().getText());
    }
@@ -383,7 +383,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
    }
 
    @Override
-   public StringBuilder visitCitation(SamXParser.CitationContext ctx)
+   public StringBuilder visitCitationAttr(SamXParser.CitationAttrContext ctx)
    {
       StringBuilder builder = new StringBuilder();
 
