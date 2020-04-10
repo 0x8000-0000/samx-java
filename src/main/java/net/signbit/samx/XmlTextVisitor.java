@@ -253,28 +253,21 @@ public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
    @Override
    public Exception visitText(SamXParser.TextContext ctx)
    {
-      int offset = charactersWritten;
-
       boolean firstToken = true;
 
       for (ParseTree pt : ctx.children)
       {
-         if (offset != charactersWritten)
+         if (! firstToken)
          {
-            if (! firstToken)
+            final Interval pos = pt.getSourceInterval();
+            if (pos.a <= pos.b)
             {
-               final Interval pos = pt.getSourceInterval();
-               if (pos.a == pos.b)
+               final List<Token> precedingWhitespace = tokenStream.getHiddenTokensToLeft(pos.a, SamXLexer.WHITESPACE);
+               if ((precedingWhitespace != null) && (!precedingWhitespace.isEmpty()))
                {
-                  final List<Token> precedingTokens = tokenStream.getHiddenTokensToLeft(pos.a, SamXLexer.WHITESPACE);
-                  if ((precedingTokens != null) && (!precedingTokens.isEmpty()))
-                  {
-                     append(' ');
-                  }
+                  append(' ');
                }
             }
-
-            offset = charactersWritten;
          }
 
          final String text = pt.getText();

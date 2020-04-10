@@ -79,7 +79,7 @@ public final class Tokenize
 
             String tokenText = tok.getText().replace("\n", "\\n");
 
-            System.out.println(String.format("%3d:%3d  %s - >%s<", tok.getLine(), tok.getCharPositionInLine(), tokenName, tokenText));
+            System.out.println(String.format("%2d| %3d:%3d  %s - >%s<", tok.getChannel(), tok.getLine(), tok.getCharPositionInLine(), tokenName, tokenText));
          }
       }
       catch (IOException ioe)
