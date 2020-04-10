@@ -127,7 +127,7 @@ quote : QUOT ;
 
 string : STRING ;
 
-literal : NAME | TOKEN | INTEGER | SLASH | KW_IN | KW_NOT | KW_OR | KW_AND | KW_TRUE | KW_FALSE | PLUS | COMMA | OPEN_PAR | CLOSE_PAR | BANG | QUESTION ;
+literal : NAME | TOKEN | INTEGER | SLASH | KW_IN | KW_NOT | KW_OR | KW_AND | KW_TRUE | KW_FALSE | PLUS | COMMA | OPEN_PAR | CLOSE_PAR | BANG | QUESTION | EQUAL ;
 
 entity : escapeSeq | lessThan | greaterThan | ampersand | quote ;
 
