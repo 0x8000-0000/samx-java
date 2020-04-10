@@ -379,8 +379,7 @@ public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
 
       for (SamXParser.ListElementContext lec : elements)
       {
-         Object enabled = visit(lec.condition());
-         if (Boolean.TRUE.equals(enabled))
+         if ((lec.condition() == null) || Boolean.TRUE.equals(visit(lec.condition())))
          {
             addIndent();
 
