@@ -19,6 +19,7 @@ package net.signbit.samx;
 import java.util.List;
 
 import org.antlr.v4.runtime.BufferedTokenStream;
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.misc.Interval;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -482,15 +483,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
    {
       StringBuilder builder = new StringBuilder();
 
-      final Interval codeBlockPosition = ctx.getSourceInterval();
-      final List<Token> whitespacePrecedingBlockPosition = tokenStream.getHiddenTokensToLeft(codeBlockPosition.a, SamXLexer.INDENTS);
-      int codeBlockIndent = 0;
-      if ((whitespacePrecedingBlockPosition != null) && (! whitespacePrecedingBlockPosition.isEmpty()))
-      {
-         codeBlockIndent = whitespacePrecedingBlockPosition.get(0).getText().length();
-      }
-
-      codeBlockIndent += indentLevel * indentString.length();
+      final int codeBlockIndent = VisitorUtils.getTokenIndent(ctx, tokenStream) + indentLevel * indentString.length();
 
       addIndent(builder);
       builder.append("```(");
@@ -503,13 +496,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
       {
          addIndent(builder);
 
-         final Interval codeLinePosition = ecc.getSourceInterval();
-         final List<Token> whitespacePrecedingLinePosition = tokenStream.getHiddenTokensToLeft(codeLinePosition.a, SamXLexer.INDENTS);
-         int codeLineIndent = codeBlockIndent;
-         if ((whitespacePrecedingLinePosition != null) && (! whitespacePrecedingLinePosition.isEmpty()))
-         {
-            codeLineIndent = whitespacePrecedingLinePosition.get(0).getText().length();
-         }
+         final int codeLineIndent = VisitorUtils.getTokenIndent(ecc, tokenStream);
 
          for (int ii = codeBlockIndent; ii < codeLineIndent; ++ii)
          {

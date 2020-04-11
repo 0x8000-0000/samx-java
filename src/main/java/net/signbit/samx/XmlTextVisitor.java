@@ -1,3 +1,19 @@
+/*
+   Copyright 2020 Florin Iucha
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+*/
+
 package net.signbit.samx;
 
 import java.io.BufferedWriter;
@@ -5,6 +21,7 @@ import java.io.IOException;
 import java.util.*;
 
 import org.antlr.v4.runtime.BufferedTokenStream;
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.misc.Interval;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -907,13 +924,7 @@ public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
    @Override
    public Object visitCodeBlock(SamXParser.CodeBlockContext ctx)
    {
-      final Interval codeBlockPosition = ctx.getSourceInterval();
-      final List<Token> whitespacePrecedingBlockPosition = tokenStream.getHiddenTokensToLeft(codeBlockPosition.a, SamXLexer.INDENTS);
-      int codeBlockIndent = 0;
-      if ((whitespacePrecedingBlockPosition != null) && (! whitespacePrecedingBlockPosition.isEmpty()))
-      {
-         codeBlockIndent = whitespacePrecedingBlockPosition.get(0).getText().length();
-      }
+      final int codeBlockIndent = VisitorUtils.getTokenIndent(ctx, tokenStream);
 
       addIndent();
       append("<codeblock language=\"");
@@ -923,13 +934,7 @@ public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
 
       for (SamXParser.ExternalCodeContext ecc: ctx.externalCode())
       {
-         final Interval codeLinePosition = ecc.getSourceInterval();
-         final List<Token> whitespacePrecedingLinePosition = tokenStream.getHiddenTokensToLeft(codeLinePosition.a, SamXLexer.INDENTS);
-         int codeLineIndent = codeBlockIndent;
-         if ((whitespacePrecedingLinePosition != null) && (! whitespacePrecedingLinePosition.isEmpty()))
-         {
-            codeLineIndent = whitespacePrecedingLinePosition.get(0).getText().length();
-         }
+         final int codeLineIndent = VisitorUtils.getTokenIndent(ecc, tokenStream);
 
          for (int ii = codeBlockIndent; ii < codeLineIndent; ++ii)
          {
