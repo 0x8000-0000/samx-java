@@ -99,7 +99,7 @@ conditionExpr :
 
 condition : STT_COND conditionExpr CLOSE_PAR ;
 
-keyValuePair: key=NAME EQUAL value=NAME ;
+keyValuePair: key=NAME EQ_SGN value=NAME ;
 
 path : (SLASH NAME) * ;
 
@@ -127,7 +127,7 @@ quote : QUOT ;
 
 string : STRING ;
 
-literal : NAME | TOKEN | INTEGER | SLASH | KW_IN | KW_NOT | KW_OR | KW_AND | KW_TRUE | KW_FALSE | PLUS | COMMA | OPEN_PAR | CLOSE_PAR | BANG | QUESTION | EQUAL ;
+literal : NAME | TOKEN | INTEGER | SLASH | KW_IN | KW_NOT | KW_OR | KW_AND | KW_TRUE | KW_FALSE | PLUS | COMMA | OPEN_PAR | CLOSE_PAR | BANG | QUESTION | EQ_SGN ;
 
 entity : escapeSeq | lessThan | greaterThan | ampersand | quote ;
 

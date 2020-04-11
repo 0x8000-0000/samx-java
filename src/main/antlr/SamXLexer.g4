@@ -306,7 +306,9 @@ OPEN_SQR : '[' ;
 
 CLOSE_SQR : ']' ;
 
-EQUAL : '=' ;
+EQ_SGN : '=' ;
+
+EQUAL : '==' ;
 
 NOT_EQ : '!=' ;
 
