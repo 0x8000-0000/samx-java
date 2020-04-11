@@ -90,6 +90,7 @@ tokens { INDENT, DEDENT, END, INVALID, BOL }
    private void addIndent()
    {
       CommonToken indent = makeToken(SamXParser.INDENT, ">>>");
+      indent.setCharPositionInLine(0);
 
       tokens.add(indent);
    }

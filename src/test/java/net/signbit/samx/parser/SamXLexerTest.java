@@ -115,7 +115,7 @@ public class SamXLexerTest
       CommonTokenStream tokenStream = tokenizeString(simpleSentence);
       final List<Token> tokens = tokenStream.getTokens();
 
-      assertEquals(7, tokens.size());
+      assertEquals(11, tokens.size());
 
       assertEquals(2, countTokens(tokens, SamXParser.NEWLINE));
 
@@ -133,7 +133,7 @@ public class SamXLexerTest
       CommonTokenStream tokenStream = tokenizeString(simpleSentence);
       final List<Token> tokens = tokenStream.getTokens();
 
-      assertEquals(8, tokens.size());
+      assertEquals(10, tokens.size());
 
       assertEquals(1, countTokens(tokenStream.getTokens(), SamXParser.INDENT));
       assertEquals(1, countTokens(tokenStream.getTokens(), SamXParser.DEDENT));
@@ -153,7 +153,7 @@ public class SamXLexerTest
       CommonTokenStream tokenStream = tokenizeString(simpleSentence);
       final List<Token> tokens = tokenStream.getTokens();
 
-      assertEquals(12, tokens.size());
+      assertEquals(15, tokens.size());
 
       assertEquals(2, countTokens(tokens, SamXParser.INDENT));
       assertEquals(2, countTokens(tokens, SamXParser.DEDENT));
