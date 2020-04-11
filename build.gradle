@@ -22,7 +22,16 @@ dependencies {
 
 generateGrammarSource {
     maxHeapSize = "64m"
-    arguments += ["-visitor", "-long-messages"]
+    arguments += ["-visitor", "-long-messages" ]
+
+    doLast {
+    copy {
+      from 'build/generated-src/antlr/main/'
+      include '*.*'
+      into 'build/generated-src/antlr/main/net/signbit/samx/parser'
+    }
+    project.delete fileTree('build/generated-src/antlr/main').include('*.*')
+  }
 }
 
 application {
