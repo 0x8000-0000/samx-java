@@ -53,7 +53,6 @@ public class Parser
       }
    }
 
-
    public static Result parse(File inputFile) throws IOException
    {
       return parse(inputFile, new HashMap<>(), new HashMap<>());
@@ -63,20 +62,44 @@ public class Parser
    {
       CharStream input = CharStreams.fromFileName(inputFile.getPath());
 
-      SamXLexer lexer = new SamXLexer(input);
-
       Result result = new Result();
       result.inputFile = inputFile;
+      result.includedDocuments = includedDocuments;
+      result.includedExceptions = includedExceptions;
+
+      SamXLexer lexer = new SamXLexer(input);
+
       result.tokens = new CommonTokenStream(lexer);
 
       SamXParser parser = new SamXParser(result.tokens);
 
-      result.includedDocuments = includedDocuments;
-      result.includedExceptions = includedExceptions;
-
       parser.setBasePath(inputFile.getParentFile());
       parser.setIncludeDictionary(includedDocuments);
       parser.setIncludeExceptionsDictionary(includedExceptions);
+      result.document = parser.document();
+      result.referencePaths = parser.getReferencePaths();
+
+      return result;
+   }
+
+   public static Result parseString(String inputString)
+   {
+      CharStream input = CharStreams.fromString(inputString);
+
+      Result result = new Result();
+      result.inputFile = null;
+      result.includedDocuments = new HashMap<>();
+      result.includedExceptions = new HashMap<>();
+
+      SamXLexer lexer = new SamXLexer(input);
+
+      result.tokens = new CommonTokenStream(lexer);
+
+      SamXParser parser = new SamXParser(result.tokens);
+
+      parser.setBasePath(null);
+      parser.setIncludeDictionary(result.includedDocuments);
+      parser.setIncludeExceptionsDictionary(result.includedExceptions);
       result.document = parser.document();
       result.referencePaths = parser.getReferencePaths();
 

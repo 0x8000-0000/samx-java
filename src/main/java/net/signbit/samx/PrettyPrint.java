@@ -17,60 +17,9 @@
 package net.signbit.samx;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 
 public final class PrettyPrint
 {
-   private static void checkMatch(String originalFileName, String pretty) throws IOException
-   {
-      final String original = new String(Files.readAllBytes(Paths.get(originalFileName)));
-
-      if (original.equals(pretty))
-      {
-         System.err.println("OK: Prettified output matched input");
-      }
-      else
-      {
-         if (original.length() != pretty.length())
-         {
-            System.err.println(String.format("Input is %d characters, pretty is %d characters", original.length(), pretty.length()));
-         }
-
-         int compareLength = original.length();
-         if (compareLength > pretty.length())
-         {
-            compareLength = pretty.length();
-         }
-
-         int lineNumber = 1;
-         int columnNumber = 1;
-
-         int ii = 0;
-
-         while ((ii < compareLength) && (original.charAt(ii) == pretty.charAt(ii)))
-         {
-            if (original.charAt(ii) == '\n')
-            {
-               ++ lineNumber;
-               columnNumber = 0;
-            }
-            ++ columnNumber;
-
-            ++ ii;
-         }
-
-         if (ii == compareLength)
-         {
-            System.err.println(String.format("The smaller file is a prefix of the larger file, but the lengths differ: original %d vs pretty %d", original.length(), pretty.length()));
-         }
-         else
-         {
-            System.err.println(String.format("Mismatch at offset %d (line %d, column %d): input has '%c', pretty has '%c'", ii, lineNumber, columnNumber, original.charAt(ii), pretty.charAt(ii)));
-         }
-      }
-   }
-
    public static void main(String[] args) throws IOException
    {
       if (args.length < 1)
@@ -90,6 +39,6 @@ public final class PrettyPrint
 
       System.out.println(pretty);
 
-      checkMatch(args[0], pretty);
+      VisitorUtils.checkMatch(args[0], pretty);
    }
 }
