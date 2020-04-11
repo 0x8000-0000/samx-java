@@ -19,7 +19,6 @@ package net.signbit.samx;
 import java.util.List;
 
 import org.antlr.v4.runtime.BufferedTokenStream;
-import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.misc.Interval;
 import org.antlr.v4.runtime.tree.ParseTree;

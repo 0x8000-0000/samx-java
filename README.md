@@ -31,7 +31,7 @@ SAM is Mark Baker's original implementation, written in Python using a
 hand-written parser.
 
 SAMx-Java is a separate implementation in Java using a parser generator thus
-intending to formalize the grammar. Also this implementation will experiment
+intending to formalize the grammar. Also, this implementation will experiment
 with more complex conditions attached to various flows and other elements.
 
 
@@ -55,13 +55,13 @@ symbol '|' .
 'and'-ed together. SAMx allows for one condition on a flow, but allows that
 condition to be computed as a boolean expression of other conditions.
 
-* SAM annotations are in plain parentheses, attached without space to the
+* SAM's annotations are in plain parentheses, attached without space to the
 phrase they apply to. However since the SAMx parser ignores space, and
 allowing an arbitrary mix of attributes and annotations attached to a phrase,
 SAMx uses the '(:' syntax to introduce an annotation. This allows at this time
 for parentheses to be freely used in text without having to escape them.
 
-* SAM uses "p" for paragraph in the XML serialization while SAMx uses "para"
+* SAM uses "p" for a paragraph in the XML serialization while SAMx uses "para"
 for compatibility with DocBook.
 
 * SAMx has support for conditional blocks, where a top-level condition is

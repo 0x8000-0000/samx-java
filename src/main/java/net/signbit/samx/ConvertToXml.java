@@ -109,17 +109,17 @@ public final class ConvertToXml
 
    private static class SimpleErrorHandler implements ErrorHandler
    {
-      public void warning(SAXParseException e) throws SAXException
+      public void warning(SAXParseException e)
       {
          System.err.println(e.getMessage());
       }
 
-      public void error(SAXParseException e) throws SAXException
+      public void error(SAXParseException e)
       {
          System.err.println(e.getMessage());
       }
 
-      public void fatalError(SAXParseException e) throws SAXException
+      public void fatalError(SAXParseException e)
       {
          System.err.println(e.getMessage());
       }
@@ -141,17 +141,9 @@ public final class ConvertToXml
 
          System.err.println("XML output is well-formed");
       }
-      catch (ParserConfigurationException e)
+      catch (Exception ee)
       {
-         e.printStackTrace(System.err);
-      }
-      catch (SAXException e)
-      {
-         e.printStackTrace(System.err);
-      }
-      catch (IOException e)
-      {
-         e.printStackTrace();
+         ee.printStackTrace(System.err);
       }
 
    }

@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.util.*;
 
 import org.antlr.v4.runtime.BufferedTokenStream;
-import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.misc.Interval;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -279,7 +278,7 @@ public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
    @Override
    public Object visitPhrase(SamXParser.PhraseContext ctx)
    {
-      if (! isEnabled(ctx.condition()))
+      if (isDisabled(ctx.condition()))
       {
          return null;
       }
@@ -338,7 +337,7 @@ public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
    @Override
    public Object visitTypedBlock(SamXParser.TypedBlockContext ctx)
    {
-      if (! isEnabled(ctx.condition()))
+      if (isDisabled(ctx.condition()))
       {
          return null;
       }
@@ -472,23 +471,23 @@ public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
       return null;
    }
 
-   private boolean isEnabled(SamXParser.ConditionContext condition)
+   private boolean isDisabled(SamXParser.ConditionContext condition)
    {
       if (condition != null)
       {
          Object enabled = visit(condition);
-         return Boolean.TRUE.equals(enabled);
+         return !Boolean.TRUE.equals(enabled);
       }
       else
       {
-         return true;
+         return false;
       }
    }
 
    @Override
    public Object visitRecordSet(SamXParser.RecordSetContext ctx)
    {
-      if (! isEnabled(ctx.condition()))
+      if (isDisabled(ctx.condition()))
       {
          return null;
       }
@@ -515,7 +514,7 @@ public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
 
       for (SamXParser.RecordRowContext rrc : ctx.recordRow())
       {
-         if (! isEnabled(rrc.condition()))
+         if (isDisabled(rrc.condition()))
          {
             continue;
          }
@@ -564,7 +563,7 @@ public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
    @Override
    public Exception visitIncludeFile(SamXParser.IncludeFileContext ctx)
    {
-      if (! isEnabled(ctx.condition()))
+      if (isDisabled(ctx.condition()))
       {
          return null;
       }
@@ -806,7 +805,7 @@ public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
    @Override
    public Object visitConditionalBlock(SamXParser.ConditionalBlockContext ctx)
    {
-      if (! isEnabled(ctx.condition()))
+      if (isDisabled(ctx.condition()))
       {
          return null;
       }

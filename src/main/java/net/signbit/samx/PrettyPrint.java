@@ -20,8 +20,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-import net.signbit.samx.parser.SamXParser;
-
 public final class PrettyPrint
 {
    private static void checkMatch(String originalFileName, String pretty) throws IOException
