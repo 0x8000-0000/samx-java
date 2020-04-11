@@ -415,8 +415,8 @@ public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
 
    private void visitGenericList(String tagType, List<SamXParser.ListElementContext> elements)
    {
-      addIndent();
       appendNewline();
+      addIndent();
       append('<');
       append(tagType);
       append('>');
@@ -438,6 +438,23 @@ public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
             {
                visit(pc);
             }
+
+            if (lec.unorderedList() != null)
+            {
+               indentLevel ++;
+               visitGenericList("ul", lec.unorderedList().listElement());
+               indentLevel --;
+               addIndent();
+            }
+
+            if (lec.orderedList() != null)
+            {
+               indentLevel ++;
+               visitGenericList("ol", lec.orderedList().listElement());
+               indentLevel --;
+               addIndent();
+            }
+
             append("</li>");
 
             appendNewline();
@@ -458,7 +475,9 @@ public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
    @Override
    public Exception visitUnorderedList(SamXParser.UnorderedListContext ctx)
    {
+      indentLevel ++;
       visitGenericList("ul", ctx.listElement());
+      indentLevel --;
 
       return null;
    }
@@ -466,7 +485,9 @@ public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
    @Override
    public Object visitOrderedList(SamXParser.OrderedListContext ctx)
    {
+      indentLevel ++;
       visitGenericList("ol", ctx.listElement());
+      indentLevel --;
 
       return null;
    }

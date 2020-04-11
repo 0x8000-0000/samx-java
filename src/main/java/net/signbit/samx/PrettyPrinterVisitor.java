@@ -49,8 +49,6 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
    {
       StringBuilder builder = new StringBuilder();
 
-      addIndent(builder);
-
       boolean firstToken = true;
       for (SamXParser.FlowContext text : ctx.flow())
       {
@@ -103,6 +101,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
          StringBuilder childBuilder = visit(bc);
          if (childBuilder != null)
          {
+            addIndent(builder);
             builder.append(childBuilder);
          }
       }
@@ -128,25 +127,21 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
    {
       StringBuilder builder = new StringBuilder();
 
-      final int savedIndent = indentLevel;
-
-      final int thisIndent = savedIndent + 1;
+      indentLevel ++;
 
       for (SamXParser.ListElementContext lec: elements)
       {
          StringBuilder childBuilder = visit(lec);
          if (childBuilder != null)
          {
-            indentLevel = thisIndent;
             addIndent(builder);
-            indentLevel = 0;
             builder.append(type);
             builder.append(' ');
             builder.append(childBuilder);
          }
       }
 
-      indentLevel = savedIndent;
+      indentLevel --;
 
       return builder;
    }
@@ -166,6 +161,16 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
       for (SamXParser.ParagraphContext pc: ctx.paragraph())
       {
          builder.append(visit(pc));
+      }
+
+      if (ctx.unorderedList() != null)
+      {
+         builder.append(visitUnorderedList(ctx.unorderedList()));
+      }
+
+      if (ctx.orderedList() != null)
+      {
+         builder.append(visitOrderedList(ctx.orderedList()));
       }
 
       return builder;
@@ -439,6 +444,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
 
       for (SamXParser.BlockContext bc : ctx.block())
       {
+         indentLevel = 0;   // just in case
          StringBuilder childBuilder = visit(bc);
          if (childBuilder != null)
          {

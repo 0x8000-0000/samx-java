@@ -87,6 +87,8 @@ public class PrettyPrinterTest
    public void testLists()
    {
       testIsPretty("lists.samx");
+
+      testIsPretty("nested-lists.samx");
    }
 
    @Test

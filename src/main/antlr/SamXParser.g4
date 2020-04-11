@@ -151,7 +151,11 @@ recordRow : condition? ( COLSEP flow )+ NEWLINE ;
 
 externalCode : EXTCODE ;
 
-listElement : condition? paragraph+ ;
+listElement : condition? paragraph+ (unorderedList | orderedList) ? ;
+
+unorderedList : INDENT ((BULLET listElement) | NEWLINE)+ DEDENT ;
+
+orderedList : INDENT ((HASH listElement) | NEWLINE)+ DEDENT ;
 
 block :
      NAME TYPESEP attribute* condition? description=flow? NEWLINE+ INDENT block+ DEDENT         # TypedBlock
@@ -159,8 +163,8 @@ block :
    | condition NEWLINE+ INDENT block+ DEDENT                                                    # ConditionalBlock
    | paragraph                                                                                  # PlainParagraph
    | NAME RECSEP attribute* condition? description=flow NEWLINE+ INDENT headerRow (recordRow | NEWLINE)+ DEDENT     # RecordSet
-   | INDENT ((BULLET listElement) | NEWLINE)+ DEDENT                                            # UnorderedList
-   | INDENT ((HASH listElement) | NEWLINE)+ DEDENT                                              # OrderedList
+   | unorderedList                                                                              # UnorderedListBlock
+   | orderedList                                                                                # OrderedListBlock
    | STT_RMK text CLOSE_PAR NEWLINE block                                                       # Remark
    | STT_CIT text CLOSE_SQR NEWLINE ( INDENT block+ DEDENT )                                    # CitationBlock
    | STT_INFRG NAME CLOSE_PAR attribute* condition?                                             # InsertFragment
