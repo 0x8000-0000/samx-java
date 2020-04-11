@@ -37,7 +37,7 @@ public final class PrettyPrint
 
       final String pretty = builder.toString();
 
-      System.out.println(pretty);
+      System.out.print(pretty);
 
       VisitorUtils.checkMatch(args[0], pretty);
    }

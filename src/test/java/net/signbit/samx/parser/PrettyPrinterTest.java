@@ -52,6 +52,17 @@ public class PrettyPrinterTest
       assertEquals(original, pretty);
    }
 
+   private void testAsPretty(String resourceName, String prettifiedResource)
+   {
+      final String original = getResourceContents(resourceName);
+
+      final String pretty = prettify(original);
+
+      final String prettified = getResourceContents(prettifiedResource);
+
+      assertEquals(prettified, pretty);
+   }
+
    @Test
    public void test7()
    {
@@ -61,13 +72,7 @@ public class PrettyPrinterTest
    @Test
    public void test7_1()
    {
-      final String input = getResourceContents("7-2.samx");
-
-      final String prettified = getResourceContents("7-pretty.samx");
-
-      final String pretty = prettify(input);
-
-      assertEquals(prettified, pretty);
+      testAsPretty("7-2.samx", "7-pretty.samx");
    }
 
    @Test
@@ -86,5 +91,11 @@ public class PrettyPrinterTest
    public void testLists()
    {
       testIsPretty("lists.samx");
+   }
+
+   @Test
+   public void testStrings()
+   {
+      testAsPretty("strings.samx", "strings-pretty.samx");
    }
 }
