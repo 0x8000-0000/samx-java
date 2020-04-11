@@ -105,7 +105,7 @@ path : (SLASH NAME) * ;
 
 url : SCHEME SLASHSH (authority=NAME ATSGN)? host=NAME (TYPESEP port=INTEGER)? path (QUESTION keyValuePair (AMPERS keyValuePair)* )? (HASH frag=NAME)? ;
 
-escapeSeq : ESCAPE . ;
+escapeSeq : ESCAPE ;
 
 attribute :
    STT_NAME CLOSE_PAR                       # NameAttr

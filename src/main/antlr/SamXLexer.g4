@@ -35,6 +35,8 @@ tokens { INDENT, DEDENT, END, INVALID, BOL }
    private boolean processingCode = false;
    private boolean allowFreeIndent = false;
 
+   private boolean expectListStart = false;
+
    private Token lastToken;
 
    @Override
@@ -147,6 +149,8 @@ tokens { INDENT, DEDENT, END, INVALID, BOL }
    }
 }
 
+ESCAPE : '\\' . ;
+
 SPACES : [ \t]+ -> channel(WHITESPACE) ;
 
 COMMENT : '%' ~[\r\n\f]* -> channel(COMMENTS) ;
@@ -179,6 +183,11 @@ NEWLINE
       {
          // add an extra new line at the end of the file, to close out any pending paragraphs
          addNewLine();
+      }
+
+      if ((next == '*') || (next == '#'))
+      {
+         expectListStart = true;
       }
 
       final int currentIndent = indents.isEmpty() ? 0 : indents.peek();
@@ -245,7 +254,7 @@ SCHEME : 'http' 's'? ':' ;
 
 COMMA : ',' ;
 
-TOKEN : [-a-zA-Z0-9_]+ | '.' | COMMA | ';' ;
+TOKEN : [-a-zA-Z0-9_]+ | '.' | COMMA | ';' | BULLETT | HASHT ;
 
 LT : '<' ;
 
@@ -257,15 +266,17 @@ RECSEP : '::' { prepareFreeIndent = true; };
 
 COLSEP : '|' ;
 
-BULLET : '*' ;
+BULLET : { expectListStart }? '*' { expectListStart = false; } ;
 
-HASH : '#' ;
+BULLETT : { !expectListStart }? '*' ;
+
+HASH : { expectListStart }? '#' { expectListStart = false; } ;
+
+HASHT : { !expectListStart }? '#' ;
 
 OPEN_PHR : '{' ;
 
 CLOSE_PHR : '}' ;
-
-ESCAPE : '\\' ;
 
 QUOT : '\'' ;
 
