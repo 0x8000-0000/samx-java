@@ -16,12 +16,20 @@
 
 package net.signbit.samx;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Properties;
 
 import org.apache.commons.cli.*;
+import org.w3c.dom.Document;
+import org.xml.sax.ErrorHandler;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 
 public final class ConvertToXml
 {
@@ -64,12 +72,11 @@ public final class ConvertToXml
       {
          CommandLine cmd = cmdLine.parse(options, args);
 
-         Parser.Result result = Parser.parse(cmd.getOptionValue("input"));
-
          FileWriter fileWriter = new FileWriter(cmd.getOptionValue("output"));
 
          BufferedWriter writer = new BufferedWriter(fileWriter);
 
+         Parser.Result result = Parser.parse(cmd.getOptionValue("input"));
          XmlTextVisitor visitor = new XmlTextVisitor(writer, result.includedDocuments, result.includedExceptions, result.referencePaths);
 
          Properties props = cmd.getOptionProperties("V");
@@ -90,12 +97,63 @@ public final class ConvertToXml
 
          writer.close();
          fileWriter.close();
+
+         checkWellFormed(new InputSource(cmd.getOptionValue("output")));
       }
       catch (ParseException pe)
       {
          System.out.println(pe.getMessage());
          helpFmt.printHelp("ConvertToXml", options);
       }
+   }
+
+   private static class SimpleErrorHandler implements ErrorHandler
+   {
+      public void warning(SAXParseException e) throws SAXException
+      {
+         System.err.println(e.getMessage());
+      }
+
+      public void error(SAXParseException e) throws SAXException
+      {
+         System.err.println(e.getMessage());
+      }
+
+      public void fatalError(SAXParseException e) throws SAXException
+      {
+         System.err.println(e.getMessage());
+      }
+   }
+
+   private static void checkWellFormed(InputSource output)
+   {
+      DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+      factory.setValidating(false);
+      factory.setNamespaceAware(true);
+
+      try
+      {
+         DocumentBuilder builder = factory.newDocumentBuilder();
+
+         builder.setErrorHandler(new SimpleErrorHandler());
+
+         Document document = builder.parse(output);
+
+         System.err.println("XML output is well-formed");
+      }
+      catch (ParserConfigurationException e)
+      {
+         e.printStackTrace(System.err);
+      }
+      catch (SAXException e)
+      {
+         e.printStackTrace(System.err);
+      }
+      catch (IOException e)
+      {
+         e.printStackTrace();
+      }
+
    }
 
 }

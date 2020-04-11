@@ -39,7 +39,7 @@ public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
    private final Set<String> falseFlags = new HashSet<>();
 
    private String topElement = "document";
-   private String topElementNamespace = null;
+   private String topElementNamespace = "https://mbakeranalecta.github.io/sam/";
    private String topElementVersion = null;
 
    public XmlTextVisitor(BufferedWriter aWriter, HashMap<String, Parser.Result> docDict, HashMap<String, IOException> errDict, HashMap<String, String> referenceDict)
@@ -901,6 +901,49 @@ public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
       append(ctx.NAME().getText());
 
       append('"');
+      return null;
+   }
+
+   @Override
+   public Object visitCodeBlock(SamXParser.CodeBlockContext ctx)
+   {
+      final Interval codeBlockPosition = ctx.getSourceInterval();
+      final List<Token> whitespacePrecedingBlockPosition = tokenStream.getHiddenTokensToLeft(codeBlockPosition.a, SamXLexer.INDENTS);
+      int codeBlockIndent = 0;
+      if ((whitespacePrecedingBlockPosition != null) && (! whitespacePrecedingBlockPosition.isEmpty()))
+      {
+         codeBlockIndent = whitespacePrecedingBlockPosition.get(0).getText().length();
+      }
+
+      addIndent();
+      append("<codeblock language=\"");
+      append(ctx.language.getText());
+      append("\"><![CDATA[");
+      appendNewline();
+
+      for (SamXParser.ExternalCodeContext ecc: ctx.externalCode())
+      {
+         final Interval codeLinePosition = ecc.getSourceInterval();
+         final List<Token> whitespacePrecedingLinePosition = tokenStream.getHiddenTokensToLeft(codeLinePosition.a, SamXLexer.INDENTS);
+         int codeLineIndent = codeBlockIndent;
+         if ((whitespacePrecedingLinePosition != null) && (! whitespacePrecedingLinePosition.isEmpty()))
+         {
+            codeLineIndent = whitespacePrecedingLinePosition.get(0).getText().length();
+         }
+
+         for (int ii = codeBlockIndent; ii < codeLineIndent; ++ii)
+         {
+            append(' ');
+         }
+
+         append(ecc.EXTCODE().getText());
+         append('\n');
+      }
+
+      addIndent();
+      append("]]></codeblock>");
+      appendNewline();
+
       return null;
    }
 }
