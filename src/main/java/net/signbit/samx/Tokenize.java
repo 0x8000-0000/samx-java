@@ -67,19 +67,21 @@ public final class Tokenize
                   case SamXParser.INVALID:
                      tokenSymbol = "INVALID";
                      break;
-                  case SamXParser.CODE_INDENT:
-                     tokenSymbol = "CODE_IDT";
+                  case SamXParser.BOL:
+                     tokenSymbol = "BOL_SPC";
                      break;
                   default:
                      tokenSymbol = "¯\\_(ツ)_/¯";
                      break;
                }
             }
-            String tokenName = String.format("%-10s", tokenSymbol);
+            final String tokenName = String.format("%-12s", tokenSymbol);
 
-            String tokenText = tok.getText().replace("\n", "\\n");
+            final int tokenLength = tok.getText().length();
 
-            System.out.println(String.format("%2d| %3d:%3d  %s - >%s<", tok.getChannel(), tok.getLine(), tok.getCharPositionInLine(), tokenName, tokenText));
+            final String tokenText = tok.getText().replace("\n", "\\n");
+
+            System.out.println(String.format("%2d| %3d:%3d  %s - %3d >%s<", tok.getChannel(), tok.getLine(), tok.getCharPositionInLine(), tokenName, tokenLength, tokenText));
          }
       }
       catch (IOException ioe)

@@ -1,12 +1,17 @@
 markup:
-    section:(!es)[Mother McCree] Greeting
-        Feliz Navidad
+
+   section:(!es)[Mother McCree] Greeting
+
+      Feliz Navidad
 
 result:
-    ```(xml)
-        <section xml:lang="es">
-            <citation>Mother McCree</citation>
-            <title>Greeting</title>
-            <p>Feliz Navidad</p>
-        </section>
+
+   ```(xml)
+       <section xml:lang="es">
+          <citation>Mother McCree</citation>
+          <title>Greeting</title>
+          <p>Feliz Navidad</p>
+       </section>
+
+   More explanation follows...
 

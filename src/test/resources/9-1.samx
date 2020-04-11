@@ -1,21 +1,17 @@
 sample: alpha beta
 
-   some text. 0in; here
-   another entry
+   some text. 0in; here another entry
 
    subsection: Two
 
-      more paragraphs
-      follow
-
+      more paragraphs follow
 
    sales:: Vehicle Sales
 
-      | year | type  | quantity
+      | year | type | quantity
       | 2010 | sedan | 10000
-      | 2011 | SUV   | 2000
+      | 2011 | SUV | 2000
+      | 2020 | any | more
 
-      | 2020 | any   | more
-
-
+   Then more text
 

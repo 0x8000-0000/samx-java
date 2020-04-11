@@ -34,11 +34,13 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
    private int indentLevel = 0;
    private BufferedTokenStream tokenStream;
 
+   private static final String indentString = "   ";
+
    private void addIndent(StringBuilder builder)
    {
       for (int ii = 0; ii < indentLevel; ++ii)
       {
-         builder.append("   ");
+         builder.append(indentString);
       }
    }
 
@@ -207,6 +209,8 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
       }
 
       indentLevel--;
+
+      builder.append('\n');
 
       return builder;
    }
@@ -478,6 +482,16 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
    {
       StringBuilder builder = new StringBuilder();
 
+      final Interval codeBlockPosition = ctx.getSourceInterval();
+      final List<Token> whitespacePrecedingBlockPosition = tokenStream.getHiddenTokensToLeft(codeBlockPosition.a, SamXLexer.INDENTS);
+      int codeBlockIndent = 0;
+      if ((whitespacePrecedingBlockPosition != null) && (! whitespacePrecedingBlockPosition.isEmpty()))
+      {
+         codeBlockIndent = whitespacePrecedingBlockPosition.get(0).getText().length();
+      }
+
+      codeBlockIndent += indentLevel * indentString.length();
+
       addIndent(builder);
       builder.append("```(");
       builder.append(visit(ctx.language));
@@ -488,15 +502,26 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
       for (SamXParser.ExternalCodeContext ecc: ctx.externalCode())
       {
          addIndent(builder);
-         int codeIndent = Integer.valueOf(ecc.CODE_INDENT().getText());
-         for (int ii = 0; ii < codeIndent; ++ii)
+
+         final Interval codeLinePosition = ecc.getSourceInterval();
+         final List<Token> whitespacePrecedingLinePosition = tokenStream.getHiddenTokensToLeft(codeLinePosition.a, SamXLexer.INDENTS);
+         int codeLineIndent = codeBlockIndent;
+         if ((whitespacePrecedingLinePosition != null) && (! whitespacePrecedingLinePosition.isEmpty()))
+         {
+            codeLineIndent = whitespacePrecedingLinePosition.get(0).getText().length();
+         }
+
+         for (int ii = codeBlockIndent; ii < codeLineIndent; ++ii)
          {
             builder.append(' ');
          }
+
          builder.append(ecc.EXTCODE().getText());
          builder.append('\n');
       }
       indentLevel --;
+
+      builder.append('\n');
 
       return builder;
    }

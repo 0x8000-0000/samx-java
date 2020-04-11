@@ -20,9 +20,9 @@ lexer grammar SamXLexer;
 package net.signbit.samx.parser;
 }
 
-channels { WHITESPACE, COMMENTS }
+channels { WHITESPACE, COMMENTS, INDENTS }
 
-tokens { INDENT, DEDENT, END, INVALID, CODE_INDENT }
+tokens { INDENT, DEDENT, END, INVALID, BOL }
 
 @lexer::members 
 {
@@ -30,10 +30,10 @@ tokens { INDENT, DEDENT, END, INVALID, CODE_INDENT }
    private java.util.Stack<Integer> indents = new java.util.Stack<>();
 
    private boolean prepareProcessingCode = false;
-   private boolean processingCode = false;
+   private boolean prepareFreeIndent = false;
 
-   private int thisIndent = 0;
-   private int codeIndentBase = 0;
+   private boolean processingCode = false;
+   private boolean allowFreeIndent = false;
 
    private Token lastToken;
 
@@ -129,15 +129,21 @@ tokens { INDENT, DEDENT, END, INVALID, CODE_INDENT }
       }
    }
 
-   private void addCodeIndent()
+   private void addCodeIndent(int indentLevel)
    {
-      CommonToken codeIndent = makeToken(SamXParser.CODE_INDENT, java.lang.Integer.toString(thisIndent - codeIndentBase));
-      codeIndent.setLine(_tokenStartLine);
-      codeIndent.setCharPositionInLine(_tokenStartCharPositionInLine);
+      java.lang.StringBuilder builder = new java.lang.StringBuilder(indentLevel + 1);
+      for (int ii = 0; ii < indentLevel; ++ii)
+      {
+         builder.append(' ');
+      }
 
-      tokens.add(codeIndent);
+      final int start = this.getCharIndex();
+      CommonToken token = new CommonToken(this._tokenFactorySourcePair, SamXParser.BOL, INDENTS, start, start + indentLevel);
+      token.setText(builder.toString());
+      token.setLine(_tokenStartLine + 1);
+      token.setCharPositionInLine(0);
+      tokens.add(token);
    }
-
 }
 
 SPACES : [ \t]+ -> channel(WHITESPACE) ;
@@ -149,9 +155,11 @@ NEWLINE
    | ( '\r'? '\n' | '\r' | '\f' ) SPACES?
    )
    {
-      final char[] tokenText = getText().toCharArray();
-      thisIndent = 0;
-      for (char ch: tokenText)
+      final String tokenText = getText();
+
+      final char[] tokenTextBytes = tokenText.toCharArray();
+      int thisIndent = 0;
+      for (char ch: tokenTextBytes)
       {
          if (ch == ' ')
          {
@@ -160,7 +168,7 @@ NEWLINE
       }
 
       final int next = _input.LA(1);
-      if (next == '\n')
+      if ((next == '\n') || (next == '\r'))
       {
          // this is an empty line, ignore
          return;
@@ -177,25 +185,29 @@ NEWLINE
       if (thisIndent == currentIndent)
       {
          // nothing to do
+         addNewLine();
       }
       else if (thisIndent > currentIndent)
       {
          addNewLine();
 
-         if (! processingCode)
+         if (! allowFreeIndent)
          {
             indents.push(thisIndent);
             addIndent();
-
-            if (prepareProcessingCode)
-            {
-               processingCode = true;
-               prepareProcessingCode = false;
-               codeIndentBase = thisIndent;
-            }
          }
 
-         skip();
+         if (prepareProcessingCode)
+         {
+            prepareProcessingCode = false;
+            processingCode = true;
+         }
+
+         if (prepareFreeIndent)
+         {
+            prepareFreeIndent = false;
+            allowFreeIndent = true;
+         }
       }
       else
       {
@@ -203,9 +215,13 @@ NEWLINE
 
          popIndents(thisIndent);
 
+         allowFreeIndent = false;
          processingCode = false;
-         skip();
       }
+
+      skip();
+
+      addCodeIndent(thisIndent);
    } ;
 
 KW_NOT : 'not' ;
@@ -236,7 +252,7 @@ GT : '>' ;
 
 TYPESEP : ':' ;
 
-RECSEP : '::' ;
+RECSEP : '::' { prepareFreeIndent = true; };
 
 COLSEP : '|' ;
 
@@ -268,9 +284,9 @@ STT_REFR : '[*' ;
 
 APOSTR : '`' ;
 
-EXTCODE : (~'\n')+ { processingCode }? { addCodeIndent(); };
+EXTCODE : (~'\n')+ { processingCode }? ;
 
-CODE_MARKER : '```(' { prepareProcessingCode = true; };
+CODE_MARKER : '```(' { prepareProcessingCode = true; prepareFreeIndent = true; };
 
 UNICODE_BOM: (UTF8_BOM
     | UTF16_BOM

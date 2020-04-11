@@ -149,7 +149,7 @@ headerRow : ( COLSEP NAME )+ NEWLINE ;
 
 recordRow : condition? ( COLSEP flow )+ NEWLINE ;
 
-externalCode : CODE_INDENT EXTCODE ;
+externalCode : EXTCODE ;
 
 listElement : condition? paragraph+ ;
 
