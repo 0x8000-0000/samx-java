@@ -1,10 +1,8 @@
 package net.signbit.samx.parser;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.URISyntaxException;
 import java.util.stream.Collectors;
 
 import org.junit.Test;
@@ -16,7 +14,7 @@ import static org.junit.Assert.assertEquals;
 
 public class PrettyPrinterTest
 {
-   private void testParse(String resourceName) throws IOException, URISyntaxException
+   private static String getResourceContents(String resourceName)
    {
       ClassLoader classLoader = ClassLoader.getSystemClassLoader();
 
@@ -30,41 +28,63 @@ public class PrettyPrinterTest
       InputStreamReader isr = new InputStreamReader(is);
       BufferedReader reader = new BufferedReader(isr);
 
-      final String original = reader.lines().collect(Collectors.joining(System.lineSeparator())) + "\n";
+      return reader.lines().collect(Collectors.joining(System.lineSeparator())) + "\n";
+   }
 
-      Parser.Result result = Parser.parseString(original);
+   private static String prettify(String inputString)
+   {
+      Parser.Result result = Parser.parseString(inputString);
       PrettyPrinterVisitor printer = new PrettyPrinterVisitor();
 
       printer.setTokenStream(result.tokens);
 
       StringBuilder builder = printer.visit(result.document);
 
-      final String pretty = builder.toString();
+      return builder.toString();
+   }
+
+   private void testIsPretty(String resourceName)
+   {
+      final String original = getResourceContents(resourceName);
+
+      final String pretty = prettify(original);
 
       assertEquals(original, pretty);
    }
 
    @Test
-   public void test7() throws IOException, URISyntaxException
+   public void test7()
    {
-      testParse("7-pretty.samx");
+      testIsPretty("7-pretty.samx");
    }
 
    @Test
-   public void testTables() throws IOException, URISyntaxException
+   public void test7_1()
    {
-      testParse("9-1.samx");
+      final String input = getResourceContents("7-2.samx");
+
+      final String prettified = getResourceContents("7-pretty.samx");
+
+      final String pretty = prettify(input);
+
+      assertEquals(prettified, pretty);
    }
 
    @Test
-   public void testSpecialText() throws IOException, URISyntaxException
+   public void testTables()
    {
-      testParse("special_text.samx");
+      testIsPretty("9-1.samx");
    }
 
    @Test
-   public void testLists() throws IOException, URISyntaxException
+   public void testSpecialText()
    {
-      testParse("lists.samx");
+      testIsPretty("special_text.samx");
+   }
+
+   @Test
+   public void testLists()
+   {
+      testIsPretty("lists.samx");
    }
 }
