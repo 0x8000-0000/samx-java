@@ -54,6 +54,8 @@ public class PrettyPrinterTest
 
    private void testAsPretty(String resourceName, String prettifiedResource)
    {
+      testIsPretty(prettifiedResource);
+
       final String original = getResourceContents(resourceName);
 
       final String pretty = prettify(original);
@@ -65,12 +67,6 @@ public class PrettyPrinterTest
 
    @Test
    public void test7()
-   {
-      testIsPretty("7-pretty.samx");
-   }
-
-   @Test
-   public void test7_1()
    {
       testAsPretty("7-2.samx", "7-pretty.samx");
    }
