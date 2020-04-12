@@ -13,3 +13,6 @@ gradle-app.setting
 
 ### Gradle Patch ###
 **/build/
+
+src/main/antlr/SamXLexer.tokens
+src/main/gen
