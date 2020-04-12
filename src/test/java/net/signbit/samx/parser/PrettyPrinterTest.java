@@ -96,4 +96,12 @@ public class PrettyPrinterTest
    {
       testAsPretty("strings.samx", "strings-pretty.samx");
    }
+
+   @Test
+   public void testBlock()
+   {
+      testAsPretty("2-1.samx", "2-1-pretty.samx");
+
+      testAsPretty("5-1.samx", "5-1-pretty.samx");
+   }
 }
