@@ -370,14 +370,19 @@ public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
 
       indentLevel--;
 
+      appendCloseTag(typeText);
+
+      return null;
+   }
+
+   private void appendCloseTag(String typeText)
+   {
       addIndent();
       append('<');
       append('/');
       append(typeText);
       append('>');
-      append('\n');
-
-      return null;
+      appendNewline();
    }
 
    @Override
@@ -571,12 +576,7 @@ public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
 
       indentLevel--;
 
-      addIndent();
-      append('<');
-      append('/');
-      append(typeText);
-      append('>');
-      appendNewline();
+      appendCloseTag(typeText);
 
       return null;
    }

@@ -108,19 +108,8 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
       builder.append('\n');
       builder.append('\n');
 
-      indentLevel++;
-
-      for (SamXParser.BlockContext bc : ctx.block())
-      {
-         StringBuilder childBuilder = visit(bc);
-         if (childBuilder != null)
-         {
-            addIndent(builder);
-            builder.append(childBuilder);
-         }
-      }
-
-      indentLevel--;
+      final List<SamXParser.BlockContext> blocks = ctx.block();
+      visitNestedBlock(builder, blocks);
 
       return builder;
    }
@@ -815,8 +804,16 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
       builder.append(visit(ctx.condition()));
       builder.append('\n');
 
-      indentLevel ++;
-      for (SamXParser.BlockContext bc : ctx.block())
+      final List<SamXParser.BlockContext> blocks = ctx.block();
+      visitNestedBlock(builder, blocks);
+
+      return builder;
+   }
+
+   private void visitNestedBlock(StringBuilder builder, List<SamXParser.BlockContext> blocks)
+   {
+      indentLevel++;
+      for (SamXParser.BlockContext bc : blocks)
       {
          StringBuilder childBuilder = visit(bc);
          if (childBuilder != null)
@@ -825,9 +822,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
             builder.append(childBuilder);
          }
       }
-      indentLevel --;
-
-      return builder;
+      indentLevel--;
    }
 
    public void setLineWrapColumn(int column)
