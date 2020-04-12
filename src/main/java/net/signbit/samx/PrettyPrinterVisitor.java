@@ -534,6 +534,11 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
 
       builder.append(ctx.NAME().getText());
       builder.append(ctx.TYPESEP().getText());
+      final SamXParser.ConditionContext cond = ctx.condition();
+      if (cond != null)
+      {
+         builder.append(visit(cond));
+      }
       for (SamXParser.AttributeContext ac : ctx.attribute())
       {
          builder.append(visit(ac));
@@ -613,7 +618,6 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
 
       final int codeBlockIndent = VisitorUtils.getTokenIndent(ctx, tokenStream) + indentLevel * indentString.length();
 
-      addIndent(builder);
       builder.append("```(");
       builder.append(visit(ctx.language));
       builder.append(")");

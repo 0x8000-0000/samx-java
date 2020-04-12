@@ -114,4 +114,16 @@ public class PrettyPrinterTest
 
       testIsPretty("conditions/combined.samx");
    }
+
+   @Test
+   public void testCodeBlocks()
+   {
+      testIsPretty("sam/embedded_code.sam");
+   }
+
+   @Test
+   public void testFields()
+   {
+      testIsPretty("sam/fields.sam");
+   }
 }
