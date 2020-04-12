@@ -68,15 +68,15 @@ public class PrettyPrinterTest
    @Test
    public void test7()
    {
-      testAsPretty("7-2.samx", "7-pretty.samx");
+      testAsPretty("nested_typed_blocks.samx", "nested_typed_blocks-pretty.samx");
    }
 
    @Test
    public void testTables()
    {
-      testAsPretty("9-1.samx", "9-1-pretty.samx");
+      testAsPretty("record_set.samx", "record_set-pretty.samx");
 
-      testAsPretty("conditions/2.samx", "conditions/2-pretty.samx");
+      testAsPretty("conditions/conditional_rows.samx", "conditions/conditional_rows-pretty.samx");
    }
 
    @Test
@@ -88,6 +88,8 @@ public class PrettyPrinterTest
    @Test
    public void testLists()
    {
+      testIsPretty("simple_list.samx");
+
       testIsPretty("lists.samx");
 
       testIsPretty("nested-lists.samx");
@@ -102,9 +104,13 @@ public class PrettyPrinterTest
    @Test
    public void testBlock()
    {
-      testAsPretty("2-1.samx", "2-1-pretty.samx");
+      testAsPretty("single_paragraph.samx", "single_paragraph-pretty.samx");
 
-      testAsPretty("5-1.samx", "5-1-pretty.samx");
+      testAsPretty("simple_paragraphs.samx", "simple_paragraphs-pretty.samx");
+
+      testAsPretty("typed_block.samx", "typed_block-pretty.samx");
+
+      testAsPretty("ignore_repeated_empty_lines.samx", "ignore_repeated_empty_lines-pretty.samx");
    }
 
    @Test
@@ -113,6 +119,8 @@ public class PrettyPrinterTest
       testAsPretty("conditions/condblock.samx", "conditions/condblock-pretty.samx");
 
       testAsPretty("conditions/combined.samx", "conditions/combined-pretty.samx");
+
+      testAsPretty("conditions/mixed.samx", "conditions/mixed-pretty.samx");
    }
 
    @Test

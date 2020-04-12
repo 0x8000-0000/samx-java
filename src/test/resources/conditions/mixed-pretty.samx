@@ -1,4 +1,5 @@
-This cat is {dead}(?radiation in {detected, present}) {alive}(?radiation=absent) .
+This cat is {dead}(?radiation in {detected, present})
+{alive}(?radiation==absent) .
 
 {This phrase is not here.}(?missing)
 
@@ -16,5 +17,5 @@ The options are
 
    * (?radiation in {detected, present}) dead
 
-   * (?radiation=absent) alive
+   * (?radiation==absent) alive
 
