@@ -133,5 +133,7 @@ public class PrettyPrinterTest
       testAsPretty("wrap/long_text.samx", "wrap/long_text-pretty.samx");
 
       testAsPretty("wrap/long_phrase.samx", "wrap/long_phrase-pretty.samx");
+
+      testAsPretty("wrap/long_lists.samx", "wrap/long_lists-pretty.samx");
    }
 }

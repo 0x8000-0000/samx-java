@@ -24,6 +24,7 @@ import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.misc.Interval;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
+import org.apache.commons.text.StringTokenizer;
 import org.apache.commons.text.WordUtils;
 
 import net.signbit.samx.parser.SamXLexer;
@@ -47,8 +48,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
       }
    }
 
-   @Override
-   public StringBuilder visitParagraph(SamXParser.ParagraphContext ctx)
+   private StringBuilder visitParagraphDirect(SamXParser.ParagraphContext ctx)
    {
       StringBuilder builder = new StringBuilder();
 
@@ -66,16 +66,22 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
          builder.append(visit(text));
       }
 
-      final int wrapLength = wrapParagraphAtColumn - indentLevel * indentString.length() - 2;
+      return builder;
+   }
 
-      StringBuilder finalBuilder = new StringBuilder();
+   @Override
+   public StringBuilder visitParagraph(SamXParser.ParagraphContext ctx)
+   {
+      StringBuilder builder = new StringBuilder();
 
-      finalBuilder.append(WordUtils.wrap(builder.toString(), wrapLength));
+      final int wrapLength = wrapParagraphAtColumn - indentLevel * indentString.length();
 
-      finalBuilder.append('\n');
-      finalBuilder.append('\n');
+      builder.append(WordUtils.wrap(visitParagraphDirect(ctx).toString(), wrapLength));
 
-      return finalBuilder;
+      builder.append('\n');
+      builder.append('\n');
+
+      return builder;
    }
 
    @Override
@@ -139,7 +145,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
 
       for (SamXParser.ListElementContext lec: elements)
       {
-         StringBuilder childBuilder = visit(lec);
+         StringBuilder childBuilder = visitListElement(lec);
          if (childBuilder != null)
          {
             addIndent(builder);
@@ -159,16 +165,40 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
    {
       StringBuilder builder = new StringBuilder();
 
-      final SamXParser.ConditionContext cond = ctx.condition();
-      if (cond != null)
       {
-         builder.append(visit(cond));
-         builder.append(' ');
-      }
+         StringBuilder paragraphBuilder = new StringBuilder();
 
-      for (SamXParser.ParagraphContext pc: ctx.paragraph())
-      {
-         builder.append(visit(pc));
+         final SamXParser.ConditionContext cond = ctx.condition();
+         if (cond != null)
+         {
+            paragraphBuilder.append(visit(cond));
+            paragraphBuilder.append(' ');
+         }
+
+         for (SamXParser.ParagraphContext pc : ctx.paragraph())
+         {
+            paragraphBuilder.append(visitParagraphDirect(pc));
+         }
+
+         final int wrapLength = wrapParagraphAtColumn - indentLevel * indentString.length() - 2;
+         final String wrappedParagraphs = WordUtils.wrap(paragraphBuilder.toString(), wrapLength);
+         StringTokenizer tokenizer = new StringTokenizer(wrappedParagraphs, '\n');
+
+         boolean firstLine = true;
+         while (tokenizer.hasNext())
+         {
+            if (firstLine)
+            {
+               firstLine = false;
+            }
+            else
+            {
+               addIndent(builder);
+            }
+            builder.append(tokenizer.next());
+            builder.append('\n');
+         }
+         builder.append('\n');
       }
 
       if (ctx.unorderedList() != null)
