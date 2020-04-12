@@ -112,7 +112,7 @@ public class PrettyPrinterTest
    {
       testAsPretty("conditions/condblock.samx", "conditions/condblock-pretty.samx");
 
-      testIsPretty("conditions/combined.samx");
+      testAsPretty("conditions/combined.samx", "conditions/combined-pretty.samx");
    }
 
    @Test
@@ -125,5 +125,13 @@ public class PrettyPrinterTest
    public void testFields()
    {
       testIsPretty("sam/fields.sam");
+   }
+
+   @Test
+   public void textText()
+   {
+      testAsPretty("wrap/long_text.samx", "wrap/long_text-pretty.samx");
+
+      testAsPretty("wrap/long_phrase.samx", "wrap/long_phrase-pretty.samx");
    }
 }

@@ -37,6 +37,11 @@ tokens { INDENT, DEDENT, END, INVALID, BOL }
 
    private boolean expectListStart = false;
 
+   private boolean ignoreNewLinesInConditions = false;
+   private int nestedParenthesesLevel = 0;
+
+   private boolean ignoreNewLinesInPhrases = false;
+
    private Token lastToken;
 
    @Override
@@ -69,6 +74,16 @@ tokens { INDENT, DEDENT, END, INVALID, BOL }
       CommonToken token = new CommonToken(this._tokenFactorySourcePair, type, DEFAULT_TOKEN_CHANNEL, start, start);
       token.setText(text);
       return token;
+   }
+
+   private void addSpace()
+   {
+      final int start = this.getCharIndex();
+      CommonToken token = new CommonToken(this._tokenFactorySourcePair, SamXParser.SPACES, WHITESPACE, start, start + 1);
+      token.setText(" ");
+      token.setLine(_tokenStartLine + 1);
+      token.setCharPositionInLine(_tokenStartCharPositionInLine);
+      tokens.add(token);
    }
 
    private void addNewLine()
@@ -160,6 +175,19 @@ NEWLINE
    | ( '\r'? '\n' | '\r' | '\f' ) SPACES?
    )
    {
+      if (ignoreNewLinesInConditions)
+      {
+         skip();
+         return;
+      }
+
+      if (ignoreNewLinesInPhrases)
+      {
+         addSpace();
+         skip();
+         return;
+      }
+
       final String tokenText = getText();
 
       final char[] tokenTextBytes = tokenText.toCharArray();
@@ -282,15 +310,15 @@ HASH : { expectListStart }? '#' { expectListStart = false; } ;
 
 HASHT : { !expectListStart }? '#' ;
 
-OPEN_PHR : '{' ;
+OPEN_PHR : '{' { ignoreNewLinesInPhrases = true; };
 
-CLOSE_PHR : '}' ;
+CLOSE_PHR : '}' { ignoreNewLinesInPhrases = false; };
 
 QUOT : '\'' ;
 
 STRING : '"' ( '\\' . | ~[\\\r\n\f"] )* '"' ;
 
-STT_COND : '(?' ;
+STT_COND : '(?' { ignoreNewLinesInConditions = true; nestedParenthesesLevel = 1; } ;
 
 STT_NAME : '(#' ;
 
@@ -298,7 +326,7 @@ STT_ID : '(*' ;
 
 STT_LANG : '(!' ;
 
-STT_ANN : '(:' ;
+STT_ANN : '(:' { ignoreNewLinesInConditions = true; nestedParenthesesLevel = 1; } ;
 
 STT_REFR : '[*' ;
 
@@ -306,7 +334,7 @@ APOSTR : '`' ;
 
 EXTCODE : (~'\n')+ { processingCode }? ;
 
-CODE_MARKER : '```(' { prepareProcessingCode = true; prepareFreeIndent = true; };
+CODE_MARKER : '```(' { prepareProcessingCode = true; prepareFreeIndent = true; } ;
 
 UNICODE_BOM: (UTF8_BOM
     | UTF16_BOM
@@ -318,9 +346,20 @@ UTF8_BOM: '\uEFBBBF';
 UTF16_BOM: '\uFEFF';
 UTF32_BOM: '\u0000FEFF';
 
-CLOSE_PAR : ')' ;
+CLOSE_PAR : ')'
+   {
+      if (ignoreNewLinesInConditions)
+      {
+         nestedParenthesesLevel --;
 
-OPEN_PAR : '(' ;
+         if (nestedParenthesesLevel == 0)
+         {
+            ignoreNewLinesInConditions = false;
+         }
+      }
+   } ;
+
+OPEN_PAR : '(' { if ( ignoreNewLinesInConditions) { nestedParenthesesLevel ++; } } ;
 
 OPEN_SQR : '[' ;
 

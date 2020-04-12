@@ -24,6 +24,7 @@ import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.misc.Interval;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
+import org.apache.commons.text.WordUtils;
 
 import net.signbit.samx.parser.SamXLexer;
 import net.signbit.samx.parser.SamXParserBaseVisitor;
@@ -36,6 +37,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
    private BufferedTokenStream tokenStream;
 
    private static final String indentString = "   ";
+   private int wrapParagraphAtColumn = 72;
 
    private void addIndent(StringBuilder builder)
    {
@@ -64,10 +66,16 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
          builder.append(visit(text));
       }
 
-      builder.append('\n');
-      builder.append('\n');
+      final int wrapLength = wrapParagraphAtColumn - indentLevel * indentString.length() - 2;
 
-      return builder;
+      StringBuilder finalBuilder = new StringBuilder();
+
+      finalBuilder.append(WordUtils.wrap(builder.toString(), wrapLength));
+
+      finalBuilder.append('\n');
+      finalBuilder.append('\n');
+
+      return finalBuilder;
    }
 
    @Override
@@ -790,5 +798,10 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
       indentLevel --;
 
       return builder;
+   }
+
+   public void setLineWrapColumn(int column)
+   {
+      wrapParagraphAtColumn = column;
    }
 }
