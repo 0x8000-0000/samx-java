@@ -4,7 +4,10 @@ report:
 
    sales:: Vehicle Sales
 
-      | year | type | quantity
-      | 2010 | sedan | 10000
-      | 2011 | SUV | 2000
-      (?secret) | 2020 | any | more
+      | year | quantity | type
+      | 2010 | 10000 | sedan
+      | 2011 | 2000 | SUV
+      (?secret) | 2020 | 500 | any
+
+   Next line
+

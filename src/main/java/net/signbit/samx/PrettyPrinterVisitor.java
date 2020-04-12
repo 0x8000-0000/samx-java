@@ -16,6 +16,7 @@
 
 package net.signbit.samx;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.antlr.v4.runtime.BufferedTokenStream;
@@ -201,14 +202,93 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
 
       indentLevel++;
 
-      builder.append(visit(ctx.headerRow()));
-      for (SamXParser.RecordRowContext pt : ctx.recordRow())
+      int[] columnWidths = new int[ctx.headerRow().NAME().size() + 1];
+      boolean[] isInteger = new boolean[ctx.headerRow().NAME().size()];
+
+      ArrayList<String> headerElements = visitHeaderRowElements(ctx.headerRow());
+      for (int ii = 0; ii < headerElements.size(); ++ii)
       {
-         StringBuilder childBuilder = visit(pt);
-         if (childBuilder != null)
+         columnWidths[ii + 1] = headerElements.get(ii).length();
+         isInteger[ii] = true;
+      }
+
+      ArrayList<ArrayList<String>> rows = new ArrayList<>(ctx.recordRow().size());
+
+      for (SamXParser.RecordRowContext rrc : ctx.recordRow())
+      {
+         ArrayList<String> rowElements = visitRecordRowElements(rrc);
+         rows.add(rowElements);
+
          {
-            builder.append(childBuilder);
+            final int conditionLength = rowElements.get(0).length();
+            if (columnWidths[0] < conditionLength)
+            {
+               columnWidths[0] = conditionLength;
+            }
          }
+
+         for (int ii = 0; ii < headerElements.size(); ++ii)
+         {
+            final String value = rowElements.get(ii + 1);
+            final int length = value.length();
+            if (columnWidths[ii + 1] < length)
+            {
+               columnWidths[ii + 1] = length;
+            }
+
+            if (! VisitorUtils.isInteger(value))
+            {
+               isInteger[ii] = false;
+            }
+         }
+      }
+
+      addIndent(builder);
+      if (columnWidths[0] != 0)
+      {
+         builder.append(String.format("%1$-" + columnWidths[0] + "s", ""));
+      }
+      for (int ii = 0; ii < headerElements.size(); ++ii)
+      {
+         builder.append(" | ");
+         if (ii != (headerElements.size() - 1))
+         {
+            builder.append(String.format("%1$-" + columnWidths[ii + 1] + "s", headerElements.get(ii)));
+         }
+         else
+         {
+            builder.append(headerElements.get(headerElements.size() - 1));
+         }
+      }
+      builder.append('\n');
+
+      for (ArrayList<String> rowData: rows)
+      {
+         addIndent(builder);
+         if (columnWidths[0] != 0)
+         {
+            builder.append(String.format("%1$-" + columnWidths[0] + "s", rowData.get(0)));
+         }
+         for (int ii = 0; ii < headerElements.size(); ++ii)
+         {
+            builder.append(" | ");
+            if (isInteger[ii])
+            {
+               builder.append(String.format("%1$" + columnWidths[ii + 1] + "s", rowData.get(ii + 1)));
+            }
+            else
+            {
+               if (ii != (headerElements.size() - 1))
+               {
+                  builder.append(String.format("%1$-" + columnWidths[ii + 1] + "s", rowData.get(ii + 1)));
+               }
+               else
+               {
+                  builder.append(rowData.get(headerElements.size()));
+               }
+            }
+         }
+         builder.append('\n');
       }
 
       indentLevel--;
@@ -282,6 +362,49 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
       builder.append('\n');
       return builder;
    }
+
+   private ArrayList<String> visitHeaderRowElements(SamXParser.HeaderRowContext ctx)
+   {
+      ArrayList<String> result = new ArrayList<>(1 + ctx.NAME().size());
+
+      for (TerminalNode tc: ctx.NAME())
+      {
+         result.add(tc.getText());
+      }
+
+      return result;
+   }
+
+   private ArrayList<String> visitRecordRowElements(SamXParser.RecordRowContext ctx)
+   {
+      ArrayList<String> result = new ArrayList<>(1 + ctx.flow().size());
+
+      final SamXParser.ConditionContext cond = ctx.condition();
+      if (cond != null)
+      {
+         result.add(visit(cond).toString());
+      }
+      else
+      {
+         result.add("");
+      }
+
+      for (SamXParser.FlowContext tc: ctx.flow())
+      {
+         StringBuilder childBuilder = visit(tc);
+         if (childBuilder != null)
+         {
+            result.add(childBuilder.toString());
+         }
+         else
+         {
+            result.add("");
+         }
+      }
+
+      return result;
+   }
+
 
    @Override
    public StringBuilder visitText(SamXParser.TextContext ctx)
@@ -647,7 +770,6 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
    public StringBuilder visitConditionalBlock(SamXParser.ConditionalBlockContext ctx)
    {
       StringBuilder builder = new StringBuilder();
-      addIndent(builder);
       builder.append(visit(ctx.condition()));
       builder.append('\n');
 
@@ -657,6 +779,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
          StringBuilder childBuilder = visit(bc);
          if (childBuilder != null)
          {
+            addIndent(builder);
             builder.append(childBuilder);
          }
       }

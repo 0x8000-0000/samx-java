@@ -194,18 +194,19 @@ NEWLINE
 
       if (thisIndent == currentIndent)
       {
-         // nothing to do
          addNewLine();
+
+         if (allowFreeIndent)
+         {
+            addDedent();
+
+            allowFreeIndent = false;
+            processingCode = false;
+         }
       }
       else if (thisIndent > currentIndent)
       {
          addNewLine();
-
-         if (! allowFreeIndent)
-         {
-            indents.push(thisIndent);
-            addIndent();
-         }
 
          if (prepareProcessingCode)
          {
@@ -217,6 +218,13 @@ NEWLINE
          {
             prepareFreeIndent = false;
             allowFreeIndent = true;
+            addIndent();
+         }
+
+         if (! allowFreeIndent)
+         {
+            indents.push(thisIndent);
+            addIndent();
          }
       }
       else

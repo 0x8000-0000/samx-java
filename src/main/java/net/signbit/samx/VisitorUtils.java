@@ -34,9 +34,9 @@ public class VisitorUtils
    {
       final Interval blockPosition = ctx.getSourceInterval();
       final List<Token> whitespacePrecedingBlockPosition = tokenStream.getHiddenTokensToLeft(blockPosition.a, SamXLexer.INDENTS);
-      if ((whitespacePrecedingBlockPosition != null) && (! whitespacePrecedingBlockPosition.isEmpty()))
+      if ((whitespacePrecedingBlockPosition != null) && (!whitespacePrecedingBlockPosition.isEmpty()))
       {
-         return  whitespacePrecedingBlockPosition.get(0).getText().length();
+         return whitespacePrecedingBlockPosition.get(0).getText().length();
       }
       else
       {
@@ -74,12 +74,12 @@ public class VisitorUtils
          {
             if (original.charAt(ii) == '\n')
             {
-               ++ lineNumber;
+               ++lineNumber;
                columnNumber = 0;
             }
-            ++ columnNumber;
+            ++columnNumber;
 
-            ++ ii;
+            ++ii;
          }
 
          if (ii == compareLength)
@@ -91,5 +91,37 @@ public class VisitorUtils
             System.err.println(String.format("Mismatch at offset %d (line %d, column %d): input has '%c', pretty has '%c'", ii, lineNumber, columnNumber, original.charAt(ii), pretty.charAt(ii)));
          }
       }
+   }
+
+   public static boolean isInteger(String s)
+   {
+      return isInteger(s, 10);
+   }
+
+   public static boolean isInteger(String s, int radix)
+   {
+      if (s.isEmpty())
+      {
+         return false;
+      }
+      for (int i = 0; i < s.length(); i++)
+      {
+         if (i == 0 && s.charAt(i) == '-')
+         {
+            if (s.length() == 1)
+            {
+               return false;
+            }
+            else
+            {
+               continue;
+            }
+         }
+         if (Character.digit(s.charAt(i), radix) < 0)
+         {
+            return false;
+         }
+      }
+      return true;
    }
 }

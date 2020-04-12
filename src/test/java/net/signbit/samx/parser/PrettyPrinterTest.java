@@ -74,7 +74,9 @@ public class PrettyPrinterTest
    @Test
    public void testTables()
    {
-      testIsPretty("9-1.samx");
+      testAsPretty("9-1.samx", "9-1-pretty.samx");
+
+      testAsPretty("conditions/2.samx", "conditions/2-pretty.samx");
    }
 
    @Test
@@ -103,5 +105,13 @@ public class PrettyPrinterTest
       testAsPretty("2-1.samx", "2-1-pretty.samx");
 
       testAsPretty("5-1.samx", "5-1-pretty.samx");
+   }
+
+   @Test
+   public void testConditionals()
+   {
+      testAsPretty("conditions/condblock.samx", "conditions/condblock-pretty.samx");
+
+      testIsPretty("conditions/combined.samx");
    }
 }
