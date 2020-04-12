@@ -2,6 +2,8 @@ This is a simple
 text with just one
 paragraph.
 
+% This block fails to parse, because there is no reason for the indented paragraphs below
+
    This is an indented
    block.
 
