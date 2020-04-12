@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<document xmlns="https://mbakeranalecta.github.io/sam/">
+  <para>This is an unordered list:</para>
+  <ul>
+    <li><para>alpha</para></li>
+    <li><para>beta</para></li>
+    <li><para>gamma</para></li>
+  </ul>
+  <para>This is an * ordered * list:</para>
+  <ol>
+    <li><para>one</para></li>
+    <li><para>two, with more points</para>
+      <ul>
+        <li><para>such</para></li>
+        <li><para>as</para>
+          <ol>
+            <li><para>exceptionally</para></li>
+            <li><para>indeed</para></li>
+          </ol>
+        </li>
+        <li><para>this</para></li>
+      </ul>
+    </li>
+    <li><para>three</para></li>
+  </ol>
+</document>

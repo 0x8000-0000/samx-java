@@ -41,5 +41,7 @@ public class XmlConverterTest
    public void testLists()
    {
       testConversion("lists/multi_line.samx", "lists/multi_line.xml");
+
+      testConversion("lists/nested_lists.samx", "lists/nested_lists.xml");
    }
 }
