@@ -233,7 +233,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
          }
          else
          {
-            builder.append(" ");
+            builder.append(' ');
          }
 
          builder.append("| ");
@@ -250,14 +250,15 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
       StringBuilder builder = new StringBuilder();
       addIndent(builder);
 
+      boolean firstToken = true;
+
       final SamXParser.ConditionContext cond = ctx.condition();
       if (cond != null)
       {
          builder.append(visit(cond));
-         builder.append(" ");
+         builder.append(' ');
+         firstToken = false;
       }
-
-      boolean firstToken = true;
 
       for (SamXParser.FlowContext tc: ctx.flow())
       {
@@ -267,7 +268,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
          }
          else
          {
-            builder.append(" ");
+            builder.append(' ');
          }
 
          StringBuilder childBuilder = visit(tc);
@@ -277,6 +278,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
             builder.append(childBuilder);
          }
       }
+
       builder.append('\n');
       return builder;
    }
