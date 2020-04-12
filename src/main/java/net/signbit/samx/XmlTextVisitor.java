@@ -16,8 +16,8 @@
 
 package net.signbit.samx;
 
-import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.util.*;
 
 import org.antlr.v4.runtime.BufferedTokenStream;
@@ -32,7 +32,7 @@ import net.signbit.samx.parser.SamXParser;
 
 public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
 {
-   private final BufferedWriter writer;
+   private final Writer writer;
    private int charactersWritten = 0;
 
    private BufferedTokenStream tokenStream;
@@ -58,7 +58,7 @@ public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
    private String topElementNamespace = "https://mbakeranalecta.github.io/sam/";
    private String topElementVersion = null;
 
-   public XmlTextVisitor(BufferedWriter aWriter, HashMap<String, Parser.Result> docDict, HashMap<String, IOException> errDict, HashMap<String, String> referenceDict)
+   public XmlTextVisitor(Writer aWriter, HashMap<String, Parser.Result> docDict, HashMap<String, IOException> errDict, HashMap<String, String> referenceDict)
    {
       writer = aWriter;
       includedDocuments = docDict;
@@ -165,7 +165,7 @@ public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
       {
          if (writeNewlines)
          {
-            writer.newLine();
+            writer.append('\n');
          }
       }
       catch (IOException ioe)
@@ -250,8 +250,9 @@ public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
       closeTag.append('/');
       closeTag.append(ctx.NAME().getText());
       closeTag.append('>');
-      closeTag.append('\n');
+
       append(closeTag);
+      appendNewline();
 
       return null;
    }
@@ -347,7 +348,7 @@ public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
       append('<');
       append(typeText);
       append('>');
-      append('\n');
+      appendNewline();
 
       indentLevel++;
 
@@ -359,7 +360,8 @@ public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
             addIndent();
             append("<title>");
             visit(ctx.description);
-            append("</title>\n");
+            append("</title>");
+            appendNewline();
          }
       }
 
@@ -395,6 +397,20 @@ public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
 
       append("<para>");
 
+      visitParagraphContents(ctx);
+
+      append("</para>");
+
+      if (indentParagraph)
+      {
+         appendNewline();
+      }
+
+      return null;
+   }
+
+   private void visitParagraphContents(SamXParser.ParagraphContext ctx)
+   {
       int offset = charactersWritten;
 
       for (SamXParser.FlowContext fc : ctx.flow())
@@ -407,15 +423,6 @@ public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
 
          visit(fc);
       }
-
-      append("</para>");
-
-      if (indentParagraph)
-      {
-         appendNewline();
-      }
-
-      return null;
    }
 
    private void visitGenericList(String tagType, List<SamXParser.ListElementContext> elements)
@@ -438,9 +445,33 @@ public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
          {
             addIndent();
 
-            append("<li>");
+            append("<li><para>");
+            visit(lec.flow());
+            if (lec.skipped == null)
+            {
+               /* This means there is no empty line between the first and second lines in the
+                * bulleted list; by the rules of paragraph handling, we have to join them.
+                */
+               if (! lec.paragraph().isEmpty())
+               {
+                  append(' ');
+                  visitParagraphContents(lec.paragraph(0));
+               }
+            }
+            append("</para>");
+
+            boolean mergedFirstLine = false;
+            if (lec.skipped == null)
+            {
+               mergedFirstLine = true;
+            }
             for (SamXParser.ParagraphContext pc : lec.paragraph())
             {
+               if (mergedFirstLine)
+               {
+                  mergedFirstLine = false;
+                  continue;
+               }
                visit(pc);
             }
 
@@ -480,9 +511,7 @@ public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
    @Override
    public Exception visitUnorderedList(SamXParser.UnorderedListContext ctx)
    {
-      indentLevel ++;
       visitGenericList("ul", ctx.listElement());
-      indentLevel --;
 
       return null;
    }
@@ -490,9 +519,7 @@ public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
    @Override
    public Object visitOrderedList(SamXParser.OrderedListContext ctx)
    {
-      indentLevel ++;
       visitGenericList("ol", ctx.listElement());
-      indentLevel --;
 
       return null;
    }
@@ -962,7 +989,7 @@ public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
          }
 
          append(ecc.EXTCODE().getText());
-         append('\n');
+         appendNewline();
       }
 
       addIndent();

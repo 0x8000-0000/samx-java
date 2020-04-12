@@ -157,18 +157,31 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
       StringBuilder builder = new StringBuilder();
 
       {
-         StringBuilder flowBuilder = new StringBuilder();
+         StringBuilder firstLineBuilder = new StringBuilder();
 
          final SamXParser.ConditionContext cond = ctx.condition();
          if (cond != null)
          {
-            flowBuilder.append(visit(cond));
-            flowBuilder.append(' ');
+            firstLineBuilder.append(visit(cond));
+            firstLineBuilder.append(' ');
          }
 
-         flowBuilder.append(visitFlow(ctx.flow()));
+         firstLineBuilder.append(visitFlow(ctx.flow()));
 
-         final String wrappedFlow = WordUtils.wrap(flowBuilder.toString(), wrapLength);
+         if (ctx.skipped == null)
+         {
+            /* This means there is no empty line between the first and second lines in the
+             * bulleted list; by the rules of paragraph handling, we have to join them.
+             */
+
+            if (! ctx.paragraph().isEmpty())
+            {
+               firstLineBuilder.append(' ');
+               firstLineBuilder.append(visitParagraphDirect(ctx.paragraph(0)));
+            }
+         }
+
+         final String wrappedFlow = WordUtils.wrap(firstLineBuilder.toString(), wrapLength);
          StringTokenizer tokenizer = new StringTokenizer(wrappedFlow, '\n');
 
          boolean firstLine = true;
@@ -190,8 +203,21 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
 
       if (! ctx.paragraph().isEmpty())
       {
+         boolean mergedFirstLine = false;
+         if (ctx.skipped == null)
+         {
+            mergedFirstLine = true;
+         }
+         builder.append('\n');
+
          for (SamXParser.ParagraphContext pc : ctx.paragraph())
          {
+            if (mergedFirstLine)
+            {
+               mergedFirstLine = false;
+               continue;
+            }
+
             StringBuilder paragraphBuilder = new StringBuilder();
             paragraphBuilder.append(visitParagraphDirect(pc));
 

@@ -1,10 +1,5 @@
 package net.signbit.samx.parser;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.stream.Collectors;
-
 import org.junit.Test;
 
 import net.signbit.samx.Parser;
@@ -14,22 +9,6 @@ import static org.junit.Assert.assertEquals;
 
 public class PrettyPrinterTest
 {
-   private static String getResourceContents(String resourceName)
-   {
-      ClassLoader classLoader = ClassLoader.getSystemClassLoader();
-
-      InputStream is = classLoader.getResourceAsStream(resourceName);
-
-      if (is == null)
-      {
-         throw new RuntimeException("Resource not found");
-      }
-
-      InputStreamReader isr = new InputStreamReader(is);
-      BufferedReader reader = new BufferedReader(isr);
-
-      return reader.lines().collect(Collectors.joining(System.lineSeparator())) + "\n";
-   }
 
    private static String prettify(String inputString)
    {
@@ -45,7 +24,7 @@ public class PrettyPrinterTest
 
    private void testIsPretty(String resourceName)
    {
-      final String original = getResourceContents(resourceName);
+      final String original = TestUtils.getResourceContents(resourceName);
 
       final String pretty = prettify(original);
 
@@ -56,11 +35,11 @@ public class PrettyPrinterTest
    {
       testIsPretty(prettifiedResource);
 
-      final String original = getResourceContents(resourceName);
+      final String original = TestUtils.getResourceContents(resourceName);
 
       final String pretty = prettify(original);
 
-      final String prettified = getResourceContents(prettifiedResource);
+      final String prettified = TestUtils.getResourceContents(prettifiedResource);
 
       assertEquals(prettified, pretty);
    }
@@ -94,7 +73,7 @@ public class PrettyPrinterTest
 
       testIsPretty("lists/nested_lists.samx");
 
-      testIsPretty("lists/multi_line.samx");
+      testAsPretty("lists/multi_line.samx", "lists/multi_line-pretty.samx");
    }
 
    @Test
