@@ -88,11 +88,13 @@ public class PrettyPrinterTest
    @Test
    public void testLists()
    {
-      testIsPretty("simple_list.samx");
+      testIsPretty("lists/simple_list.samx");
 
-      testIsPretty("lists.samx");
+      testIsPretty("lists/lists.samx");
 
-      testIsPretty("nested-lists.samx");
+      testIsPretty("lists/nested_lists.samx");
+
+      testIsPretty("lists/multi_line.samx");
    }
 
    @Test

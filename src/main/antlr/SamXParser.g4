@@ -151,7 +151,7 @@ recordRow : condition? ( COLSEP flow )+ NEWLINE ;
 
 externalCode : EXTCODE ;
 
-listElement : condition? paragraph+ (unorderedList | orderedList) ? ;
+listElement : condition? flow NEWLINE ( INDENT (paragraph | NEWLINE)+ DEDENT )? ( NEWLINE (unorderedList | orderedList) ) ?;
 
 unorderedList : INDENT ((BULLET listElement) | NEWLINE)+ DEDENT ;
 
