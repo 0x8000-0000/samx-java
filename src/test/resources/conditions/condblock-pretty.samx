@@ -1,11 +1,13 @@
 section: One
 
    (?times==good)
+
       It begins
 
       It was the best of times...
 
    (?times==bad)
+
       Alternative text
 
       It was the worst of times... Sometimes

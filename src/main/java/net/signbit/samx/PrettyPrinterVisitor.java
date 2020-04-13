@@ -76,9 +76,23 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
 
       final int wrapLength = wrapParagraphAtColumn - indentLevel * indentString.length();
 
-      builder.append(WordUtils.wrap(visitParagraphDirect(ctx).toString(), wrapLength));
+      final String paragraphText = WordUtils.wrap(visitParagraphDirect(ctx).toString(), wrapLength);
+      StringTokenizer tokenizer = new StringTokenizer(paragraphText, '\n');
+      boolean firstLine = true;
+      while (tokenizer.hasNext())
+      {
+          if (firstLine)
+          {
+              firstLine = false;
+          }
+          else
+          {
+              addIndent(builder);
+          }
+          builder.append(tokenizer.next());
+          builder.append('\n');
+      }
 
-      builder.append('\n');
       builder.append('\n');
 
       return builder;
@@ -859,6 +873,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
    {
       StringBuilder builder = new StringBuilder();
       builder.append(visit(ctx.condition()));
+      builder.append('\n');
       builder.append('\n');
 
       final List<SamXParser.BlockContext> blocks = ctx.block();
