@@ -625,6 +625,18 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
    }
 
    @Override
+   public StringBuilder visitReferenceAttr(SamXParser.ReferenceAttrContext ctx)
+   {
+      StringBuilder builder = new StringBuilder();
+
+      builder.append("[*");
+      builder.append(ctx.NAME().getText());
+      builder.append(']');
+
+      return builder;
+   }
+
+   @Override
    public StringBuilder visitField(SamXParser.FieldContext ctx)
    {
       StringBuilder builder = new StringBuilder();
