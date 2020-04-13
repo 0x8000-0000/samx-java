@@ -174,7 +174,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
              * bulleted list; by the rules of paragraph handling, we have to join them.
              */
 
-            if (! ctx.paragraph().isEmpty())
+            if (!ctx.paragraph().isEmpty())
             {
                firstLineBuilder.append(' ');
                firstLineBuilder.append(visitParagraphDirect(ctx.paragraph(0)));
@@ -201,7 +201,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
          }
       }
 
-      if (! ctx.paragraph().isEmpty())
+      if (!ctx.paragraph().isEmpty())
       {
          boolean mergedFirstLine = false;
          if (ctx.skipped == null)
@@ -512,7 +512,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
          StringBuilder childBuilder = visit(tn);
          if (childBuilder != null)
          {
-            if (! firstToken)
+            if (!firstToken)
             {
                addSpaceIfPresentInInput(builder, tn);
             }

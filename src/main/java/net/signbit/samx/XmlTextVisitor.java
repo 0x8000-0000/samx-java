@@ -27,8 +27,8 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 import net.signbit.samx.parser.SamXLexer;
-import net.signbit.samx.parser.SamXParserBaseVisitor;
 import net.signbit.samx.parser.SamXParser;
+import net.signbit.samx.parser.SamXParserBaseVisitor;
 
 public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
 {
@@ -98,7 +98,10 @@ public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
       writeNewlines = false;
    }
 
-   public void skipIndent() { writeIndent = false; }
+   public void skipIndent()
+   {
+      writeIndent = false;
+   }
 
    private void addIndent()
    {
@@ -287,11 +290,11 @@ public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
       append("<phrase");
       if (ctx.attribute().size() > 0)
       {
-          append(' ');
-          for (SamXParser.AttributeContext ac : ctx.attribute())
-          {
-              visit(ac);
-          }
+         append(' ');
+         for (SamXParser.AttributeContext ac : ctx.attribute())
+         {
+            visit(ac);
+         }
       }
       append('>');
       visit(ctx.text());
@@ -307,7 +310,7 @@ public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
 
       for (ParseTree pt : ctx.children)
       {
-         if (! firstToken)
+         if (!firstToken)
          {
             final Interval pos = pt.getSourceInterval();
             if (pos.a <= pos.b)
@@ -451,7 +454,7 @@ public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
                /* This means there is no empty line between the first and second lines in the
                 * bulleted list; by the rules of paragraph handling, we have to join them.
                 */
-               if (! lec.paragraph().isEmpty())
+               if (!lec.paragraph().isEmpty())
                {
                   append(' ');
                   visitParagraphContents(lec.paragraph(0));
@@ -476,19 +479,19 @@ public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
 
             if (lec.unorderedList() != null)
             {
-               indentLevel ++;
+               indentLevel++;
                appendNewline();
                visitGenericList("ul", lec.unorderedList().listElement());
-               indentLevel --;
+               indentLevel--;
                addIndent();
             }
 
             if (lec.orderedList() != null)
             {
-               indentLevel ++;
+               indentLevel++;
                appendNewline();
                visitGenericList("ol", lec.orderedList().listElement());
-               indentLevel --;
+               indentLevel--;
                addIndent();
             }
 
@@ -553,11 +556,11 @@ public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
       append(typeText);
       if (ctx.attribute().size() > 0)
       {
-          append(' ');
-          for (SamXParser.AttributeContext ac : ctx.attribute())
-          {
-              visit(ac);
-          }
+         append(' ');
+         for (SamXParser.AttributeContext ac : ctx.attribute())
+         {
+            visit(ac);
+         }
       }
       append('>');
       appendNewline();
@@ -730,7 +733,7 @@ public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
 
       if (configuredValue != null)
       {
-          final String operator = ctx.oper.getText();
+         final String operator = ctx.oper.getText();
          if (configuredValue.equals(value) && (operator.charAt(0) == '='))
          {
             return Boolean.TRUE;
@@ -980,7 +983,7 @@ public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
       append("\"><![CDATA[");
       appendNewline();
 
-      for (SamXParser.ExternalCodeContext ecc: ctx.externalCode())
+      for (SamXParser.ExternalCodeContext ecc : ctx.externalCode())
       {
          final int codeLineIndent = VisitorUtils.getTokenIndent(ecc, tokenStream);
 

@@ -4,7 +4,6 @@ import org.junit.Test;
 
 import net.signbit.samx.Parser;
 import net.signbit.samx.PrettyPrinterVisitor;
-
 import static org.junit.Assert.assertEquals;
 
 public class PrettyPrinterTest
