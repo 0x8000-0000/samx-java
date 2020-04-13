@@ -55,7 +55,7 @@ public class SamXLexerTest
       return count;
    }
 
-   private boolean balancedIndentsDedents(List<Token> tokenStream)
+   public static boolean balancedIndentsDedents(List<Token> tokenStream)
    {
       int indentLevel = 0;
 
@@ -74,7 +74,7 @@ public class SamXLexerTest
       return indentLevel == 0;
    }
 
-   private boolean tokensInNaturalOrder(List<Token> tokenStream)
+   public static boolean tokensInNaturalOrder(List<Token> tokenStream)
    {
       int lastLine = 0;
       int lastColumn = 0;

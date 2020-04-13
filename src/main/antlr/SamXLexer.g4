@@ -41,6 +41,7 @@ tokens { INDENT, DEDENT, END, INVALID, BOL }
    private int nestedParenthesesLevel = 0;
 
    private boolean ignoreNewLinesInPhrases = false;
+   private int lastTokenPositionColumn = 0;
 
    private Token lastToken;
 
@@ -48,6 +49,7 @@ tokens { INDENT, DEDENT, END, INVALID, BOL }
    public void emit(Token t)
    {
       tokens.add(t);
+      lastTokenPositionColumn = t.getCharPositionInLine() + t.getText().length() + 1;
    }
 
    @Override
@@ -81,8 +83,8 @@ tokens { INDENT, DEDENT, END, INVALID, BOL }
       final int start = this.getCharIndex();
       CommonToken token = new CommonToken(this._tokenFactorySourcePair, SamXParser.SPACES, WHITESPACE, start, start + 1);
       token.setText(" ");
-      token.setLine(_tokenStartLine + 1);
-      token.setCharPositionInLine(_tokenStartCharPositionInLine);
+      token.setLine(_tokenStartLine);
+      token.setCharPositionInLine(lastTokenPositionColumn);
       tokens.add(token);
    }
 

@@ -5,6 +5,7 @@ import org.junit.Test;
 import net.signbit.samx.Parser;
 import net.signbit.samx.PrettyPrinterVisitor;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class PrettyPrinterTest
 {
@@ -13,6 +14,10 @@ public class PrettyPrinterTest
    {
       Parser.Result result = Parser.parseString(inputString);
       PrettyPrinterVisitor printer = new PrettyPrinterVisitor();
+
+      assertTrue(SamXLexerTest.balancedIndentsDedents(result.tokens.getTokens()));
+
+      assertTrue(SamXLexerTest.tokensInNaturalOrder(result.tokens.getTokens()));
 
       printer.setTokenStream(result.tokens);
 
