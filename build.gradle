@@ -1,12 +1,12 @@
 plugins {
-    id 'java'
+    id 'java-library'
     id 'antlr'
     id 'distribution'
     id 'application'
 }
 
 group 'net.signbit.samx'
-version '0.2.7'
+version '0.2.8'
 
 sourceCompatibility = 1.8
 
@@ -15,9 +15,9 @@ repositories {
 }
 
 dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.12'
-    compile 'commons-cli:commons-cli:1.4'
-    compile 'org.apache.commons:commons-text:1.8'
+    testImplementation group: 'junit', name: 'junit', version: '4.12'
+    implementation 'commons-cli:commons-cli:1.4'
+    implementation 'org.apache.commons:commons-text:1.8'
     antlr 'org.antlr:antlr4:4.8'
 }
 
@@ -58,11 +58,12 @@ scripts.each() { scriptName, className ->
         mainClassName = className
         applicationName = scriptName
         outputDir = new File(project.buildDir, 'scripts')
-        classpath = jar.outputs.files + project.configurations.runtime
+        classpath = jar.outputs.files + project.configurations.runtimeClasspath
     }
     applicationDistribution.into("bin") {
         from(t)
         fileMode = 0755
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     }
     createAllStartScripts.dependsOn(t)
 }
