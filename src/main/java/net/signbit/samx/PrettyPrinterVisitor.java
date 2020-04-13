@@ -493,15 +493,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
       {
          if (!firstToken)
          {
-            final Interval pos = tn.getSourceInterval();
-            if (pos.a <= pos.b)
-            {
-               final List<Token> precedingTokens = tokenStream.getHiddenTokensToLeft(pos.a, SamXLexer.WHITESPACE);
-               if ((precedingTokens != null) && (!precedingTokens.isEmpty()))
-               {
-                  builder.append(' ');
-               }
-            }
+            addSpaceIfPresentInInput(builder, tn);
          }
 
          builder.append(tn.getText());
@@ -514,19 +506,35 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
    public StringBuilder visitFlow(SamXParser.FlowContext ctx)
    {
       StringBuilder builder = new StringBuilder();
+      boolean firstToken = true;
       for (ParseTree tn : ctx.children)
       {
          StringBuilder childBuilder = visit(tn);
          if (childBuilder != null)
          {
-            if (builder.length() > 0)
+            if (! firstToken)
             {
-               builder.append(' ');
+               addSpaceIfPresentInInput(builder, tn);
             }
+
             builder.append(childBuilder);
+            firstToken = false;
          }
       }
       return builder;
+   }
+
+   private void addSpaceIfPresentInInput(StringBuilder builder, ParseTree tn)
+   {
+      final Interval pos = tn.getSourceInterval();
+      if (pos.a <= pos.b)
+      {
+         final List<Token> precedingTokens = tokenStream.getHiddenTokensToLeft(pos.a, SamXLexer.WHITESPACE);
+         if ((precedingTokens != null) && (!precedingTokens.isEmpty()))
+         {
+            builder.append(' ');
+         }
+      }
    }
 
    @Override
