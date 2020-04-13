@@ -620,7 +620,7 @@ public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
       StringBuilder builder = new StringBuilder();
 
       builder.append("<!-- ");
-      builder.append("include: ");
+      builder.append("begin include: ");
 
       final String reference = ctx.reference.getText();
 
@@ -661,7 +661,7 @@ public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
 
          StringBuilder endBuilder = new StringBuilder();
          endBuilder.append("<!-- ");
-         endBuilder.append("include: ");
+         endBuilder.append("end include: ");
          endBuilder.append(reference);
          endBuilder.append(" -->");
          append(endBuilder);

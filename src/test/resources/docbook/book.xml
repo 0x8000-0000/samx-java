@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<book xmlns="http://docbook.org/ns/docbook" version="5.1">
+  <info>
+    <title>My First Book</title>
+    <author>
+      <personname>
+        <firstname>Sign</firstname>
+        <surname>Bit</surname>
+      </personname>
+    </author>
+    <copyright>
+      <year>2020</year>
+      <holder>Sign Bit</holder>
+    </copyright>
+    <revhistory>
+      <revision>
+        <revnumber>0.1</revnumber>
+        <date>2020-04-07</date>
+        <authorinitials>sb</authorinitials>
+        <revremark>First draft</revremark>
+      </revision>
+    </revhistory>
+  </info>
+  <preface>
+    <title>Foreword</title>
+  </preface>
+<!-- begin include: chapter1.samx -->
+    <chapter>
+      <title>My First Chapter</title>
+      <para>Introductory paragraph, terminated with.</para>
+      <section>
+        <title>First Section</title>
+        <para>More paragraphs</para>
+      </section>
+    </chapter>
+<!-- end include: chapter1.samx -->
+<!-- begin include: chapter2.samx -->
+    <chapter>
+      <title>My Second Chapter</title>
+      <para>Introductory paragraph</para>
+      <section>
+        <title>First Section</title>
+        <para>More paragraphs indeed</para>
+      </section>
+    </chapter>
+<!-- end include: chapter2.samx -->
+</book>
