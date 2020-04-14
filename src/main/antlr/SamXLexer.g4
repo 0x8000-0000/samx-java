@@ -248,6 +248,15 @@ NEWLINE
          {
             prepareFreeIndent = false;
             allowFreeIndent = true;
+
+            /* Add indent token here to indicate the contained elements
+             * but do not record this particular indent since it might be
+             * deep inside the table due to the column alignment and
+             * conditions.
+             *
+             * Instead, record a level just after the table level.
+             */
+            indents.push(currentIndent + 1);
             addIndent();
          }
 

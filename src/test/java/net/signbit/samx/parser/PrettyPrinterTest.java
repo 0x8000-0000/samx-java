@@ -57,9 +57,19 @@ public class PrettyPrinterTest
    @Test
    public void testTables()
    {
-      testAsPretty("record_set.samx", "record_set-pretty.samx");
+      testAsPretty("recordsets/record_set.samx", "recordsets/record_set-pretty.samx");
+   }
 
+   @Test
+   public void testConditionalTables()
+   {
       testAsPretty("conditions/conditional_rows.samx", "conditions/conditional_rows-pretty.samx");
+   }
+
+   @Test
+   public void testTablesEOF()
+   {
+      testIsPretty("recordsets/record_set_end_of_file.samx");
    }
 
    @Test
