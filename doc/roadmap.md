@@ -3,15 +3,17 @@ Roadmap for SAMx
 
 To Do:
 
-* Add support for fragments.
-
 * Add more tests.
+
+In Progress:
 
 * Add HTML exporter / visitor / converter.
 
 * Convert exporter visitors to use StringTemplate instead of hard-coding.
 
-Done
+Done:
+
+* [0.2.9] Add support for fragments.
 
 * [0.1.9] Add DocBook exporter / visitor / converter.
 
