@@ -1002,4 +1002,31 @@ public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
 
       return null;
    }
+
+   private HashMap<String, SamXParser.DefineFragmentContext> fragments = new HashMap<>();
+
+   @Override
+   public Object visitDefineFragment(SamXParser.DefineFragmentContext ctx)
+   {
+      fragments.put(ctx.name.getText(), ctx);
+      return null;
+   }
+
+   @Override
+   public Object visitInsertFragment(SamXParser.InsertFragmentContext ctx)
+   {
+      if (isDisabled(ctx.condition()))
+      {
+         return null;
+      }
+
+      SamXParser.DefineFragmentContext defineCtx = fragments.get(ctx.name.getText());
+
+      for (SamXParser.BlockContext bc : defineCtx.block())
+      {
+         visit(bc);
+      }
+
+      return null;
+   }
 }

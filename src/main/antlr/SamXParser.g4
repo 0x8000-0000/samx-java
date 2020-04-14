@@ -167,8 +167,8 @@ block :
    | orderedList                                                                                # OrderedListBlock
    | STT_RMK text CLOSE_PAR NEWLINE block                                                       # Remark
    | STT_CIT text CLOSE_SQR NEWLINE ( INDENT block+ DEDENT )                                    # CitationBlock
-   | STT_INFRG NAME CLOSE_PAR attribute* condition?                                             # InsertFragment
-   | STT_DEFRG NAME CLOSE_PAR attribute* condition? NEWLINE+ INDENT block+ DEDENT               # DefineFragment
+   | STT_INFRG name=NAME CLOSE_PAR attribute* condition?                                        # InsertFragment
+   | STT_DEFRG name=NAME CLOSE_PAR attribute* condition? NEWLINE+ INDENT block+ DEDENT          # DefineFragment
    | STT_INCL reference=text CLOSE_PAR attribute* condition?    { parseFile($reference.text); } # IncludeFile
    | CODE_MARKER language=text CLOSE_PAR attribute* condition? NEWLINE+ INDENT (externalCode? NEWLINE)+ DEDENT     # CodeBlock
    | NEWLINE                                                                                    # Empty

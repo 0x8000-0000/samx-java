@@ -68,6 +68,12 @@ public class XmlConverterTest
    }
 
    @Test
+   public void testFragments()
+   {
+      testConversion("fragments/simple.samx", "fragments/simple.xml");
+   }
+
+   @Test
    public void testDocBook() throws IOException
    {
       final File inputFile = new File("build/resources/test/docbook/main.samx");

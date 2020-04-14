@@ -141,4 +141,10 @@ public class PrettyPrinterTest
 
       testIsPretty("annotations.samx");
    }
+
+   @Test
+   public void testFragments()
+   {
+      testIsPretty("fragments/simple.samx");
+   }
 }

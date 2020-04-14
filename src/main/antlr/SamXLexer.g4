@@ -402,9 +402,9 @@ STT_RMK : '!!!(' ;
 
 STT_CIT : '"""[' ;
 
-STT_INFRG : '>>>(' ;
+STT_INFRG : '>>>(*' ;
 
-STT_DEFRG : '~~~(' ;
+STT_DEFRG : '~~~(*' ;
 
 STT_INCL : '<<<(' ;
 

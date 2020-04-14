@@ -913,4 +913,50 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
    {
       wrapParagraphAtColumn = column;
    }
+
+   @Override
+   public StringBuilder visitDefineFragment(SamXParser.DefineFragmentContext ctx)
+   {
+      StringBuilder builder = new StringBuilder();
+      builder.append("~~~(*");
+      builder.append(ctx.name.getText());
+      builder.append(")");
+      for (SamXParser.AttributeContext ac : ctx.attribute())
+      {
+         builder.append(visit(ac));
+      }
+      final SamXParser.ConditionContext cond = ctx.condition();
+      if (cond != null)
+      {
+         builder.append(visit(cond));
+      }
+      builder.append('\n');
+      builder.append('\n');
+
+      visitNestedBlock(builder, ctx.block());
+
+      return builder;
+   }
+
+   @Override
+   public StringBuilder visitInsertFragment(SamXParser.InsertFragmentContext ctx)
+   {
+      StringBuilder builder = new StringBuilder();
+      builder.append(">>>(*");
+      builder.append(ctx.name.getText());
+      builder.append(")");
+      for (SamXParser.AttributeContext ac : ctx.attribute())
+      {
+         builder.append(visit(ac));
+      }
+      final SamXParser.ConditionContext cond = ctx.condition();
+      if (cond != null)
+      {
+         builder.append(visit(cond));
+      }
+      builder.append('\n');
+      builder.append('\n');
+
+      return builder;
+   }
 }

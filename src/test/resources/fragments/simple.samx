@@ -1,0 +1,18 @@
+This paragraph is before the fragment definition.
+
+~~~(*my-fragment)
+
+   This paragraph is inside the fragment.
+
+This paragraph is after the fragment definition.
+
+section: one
+
+   Now we'll include the fragment, once\:
+
+   >>>(*my-fragment)
+
+   and then again\:
+
+   >>>(*my-fragment)
+
