@@ -1,0 +1,25 @@
+group html ;
+delimiters "$", "$"
+
+document(title, block) ::= <<
+<html>
+   <head>
+      <title>$title$</title>
+   </head>
+   <body>
+      $block$</body>
+</html>
+
+>>
+
+paragraph(text) ::= <<
+<p>$text; separator=" "$</p>
+
+>>
+
+typed_block(type, description, block) ::= <<
+<div class="type">
+   <span class="description">$description$</span>
+   $block$</div>
+
+>>

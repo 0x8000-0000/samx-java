@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.*;
 
-import org.antlr.v4.runtime.BufferedTokenStream;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.misc.Interval;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -28,31 +27,12 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 
 import net.signbit.samx.parser.SamXLexer;
 import net.signbit.samx.parser.SamXParser;
-import net.signbit.samx.parser.SamXParserBaseVisitor;
 
-public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
+public class XmlTextVisitor extends RendererVisitor
 {
-   private final Writer writer;
-   private int charactersWritten = 0;
-
-   private BufferedTokenStream tokenStream;
-
-   private Exception exception = null;
-
-   private int indentLevel = 0;
-
    private boolean indentParagraph = true;
    private boolean writeXmlDeclaration = true;
-   private boolean writeNewlines = true;
-   private boolean writeIndent = true;
    private boolean forceWrapElement = false;
-
-   private final HashMap<String, Parser.Result> includedDocuments;
-   private final HashMap<String, IOException> includedExceptions;
-   private final HashMap<String, String> referencePaths;
-   private Properties properties = new Properties();
-   private final Set<String> trueFlags = new HashSet<>();
-   private final Set<String> falseFlags = new HashSet<>();
 
    private String topElement = "document";
    private String topElementNamespace = "https://mbakeranalecta.github.io/sam/";
@@ -60,10 +40,7 @@ public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
 
    public XmlTextVisitor(Writer aWriter, HashMap<String, Parser.Result> docDict, HashMap<String, IOException> errDict, HashMap<String, String> referenceDict)
    {
-      writer = aWriter;
-      includedDocuments = docDict;
-      includedExceptions = errDict;
-      referencePaths = referenceDict;
+      super(aWriter, docDict, errDict, referenceDict);
    }
 
    public void skipXmlDeclaration()
@@ -93,89 +70,7 @@ public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
       topElementVersion = name;
    }
 
-   public void skipNewLines()
-   {
-      writeNewlines = false;
-   }
 
-   public void skipIndent()
-   {
-      writeIndent = false;
-   }
-
-   private void addIndent()
-   {
-      if (writeIndent)
-      {
-         for (int ii = 0; ii < indentLevel; ++ii)
-         {
-            append("  ");
-         }
-      }
-   }
-
-   private void addIndent(StringBuilder builder)
-   {
-      for (int ii = 0; ii < indentLevel; ++ii)
-      {
-         builder.append("  ");
-      }
-   }
-
-   private void append(StringBuilder aBuilder)
-   {
-      try
-      {
-         final String aString = aBuilder.toString();
-         writer.write(aString);
-         charactersWritten += aString.length();
-      }
-      catch (IOException ioe)
-      {
-         exception = ioe;
-      }
-   }
-
-   private void append(String aString)
-   {
-      try
-      {
-         writer.write(aString);
-         charactersWritten += aString.length();
-      }
-      catch (IOException ioe)
-      {
-         exception = ioe;
-      }
-   }
-
-   private void append(char aChar)
-   {
-      try
-      {
-         writer.write(aChar);
-         charactersWritten++;
-      }
-      catch (IOException ioe)
-      {
-         exception = ioe;
-      }
-   }
-
-   private void appendNewline()
-   {
-      try
-      {
-         if (writeNewlines)
-         {
-            writer.append('\n');
-         }
-      }
-      catch (IOException ioe)
-      {
-         exception = ioe;
-      }
-   }
 
    @Override
    public Exception visitDocument(SamXParser.DocumentContext ctx)
@@ -528,19 +423,6 @@ public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
       return null;
    }
 
-   private boolean isDisabled(SamXParser.ConditionContext condition)
-   {
-      if (condition != null)
-      {
-         Object enabled = visit(condition);
-         return !Boolean.TRUE.equals(enabled);
-      }
-      else
-      {
-         return false;
-      }
-   }
-
    @Override
    public Object visitRecordSet(SamXParser.RecordSetContext ctx)
    {
@@ -674,11 +556,6 @@ public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
       return null;
    }
 
-   public void setProperties(Properties inputProperties)
-   {
-      properties = inputProperties;
-   }
-
    @Override
    public Object visitCondition(SamXParser.ConditionContext ctx)
    {
@@ -746,22 +623,6 @@ public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
       }
 
       return Boolean.FALSE;
-   }
-
-   public void setTrueFlags(String[] trueFlagInput)
-   {
-      if (trueFlagInput != null)
-      {
-         trueFlags.addAll(Arrays.asList(trueFlagInput));
-      }
-   }
-
-   public void setFalseFlags(String[] falseFlagInput)
-   {
-      if (falseFlagInput != null)
-      {
-         falseFlags.addAll(Arrays.asList(falseFlagInput));
-      }
    }
 
    @SuppressWarnings("unchecked")
@@ -847,11 +708,6 @@ public class XmlTextVisitor extends SamXParserBaseVisitor<Object>
       {
          return visit(ctx.secondCond);
       }
-   }
-
-   public void setTokenStream(BufferedTokenStream tokens)
-   {
-      tokenStream = tokens;
    }
 
    @Override
