@@ -161,4 +161,10 @@ public class PrettyPrinterTest
          // expected
       }
    }
+
+   @Test
+   public void testInserts()
+   {
+      testIsPretty("insert/simple.samx");
+   }
 }

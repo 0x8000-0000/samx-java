@@ -885,4 +885,29 @@ public class XmlTextVisitor extends RendererVisitor
 
       return null;
    }
+
+   @Override
+   public Object visitInsertImage(SamXParser.InsertImageContext ctx)
+   {
+      if (isDisabled(ctx.condition()))
+      {
+         return null;
+      }
+
+      addIndent();
+      append("<imagedata fileref=\"");
+      visitText(ctx.text());
+      append("\" />");
+      appendNewline();
+
+      return null;
+   }
+
+   @Override
+   public StringBuilder visitLocalInsert(SamXParser.LocalInsertContext ctx)
+   {
+      visitText(ctx.text());
+
+      return null;
+   }
 }

@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.antlr.v4.runtime.BufferedTokenStream;
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.misc.Interval;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -944,19 +945,48 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
       StringBuilder builder = new StringBuilder();
       builder.append(">>>(*");
       builder.append(ctx.name.getText());
-      builder.append(")");
-      for (SamXParser.AttributeContext ac : ctx.attribute())
-      {
-         builder.append(visit(ac));
-      }
-      final SamXParser.ConditionContext cond = ctx.condition();
-      if (cond != null)
-      {
-         builder.append(visit(cond));
-      }
+      builder.append(')');
+      insertAttributeAndCondition(builder, ctx);
       builder.append('\n');
       builder.append('\n');
 
+      return builder;
+   }
+
+   private void insertAttributeAndCondition(StringBuilder builder, ParserRuleContext ctx)
+   {
+      for (SamXParser.AttributeContext ac : ctx.getRuleContexts(SamXParser.AttributeContext.class))
+      {
+         builder.append(visit(ac));
+      }
+      final SamXParser.ConditionContext cond = ctx.getRuleContext(SamXParser.ConditionContext.class, 0);
+      if (cond != null)
+      {
+         builder.append(visitCondition(cond));
+      }
+   }
+
+   @Override
+   public StringBuilder visitInsertImage(SamXParser.InsertImageContext ctx)
+   {
+      StringBuilder builder = new StringBuilder();
+      builder.append(">>>(image ");
+      builder.append(visitText(ctx.text()));
+      builder.append(')');
+      insertAttributeAndCondition(builder, ctx);
+      builder.append('\n');
+      builder.append('\n');
+
+      return builder;
+   }
+
+   @Override
+   public StringBuilder visitLocalInsert(SamXParser.LocalInsertContext ctx)
+   {
+      StringBuilder builder = new StringBuilder();
+      builder.append(">($");
+      builder.append(visitText(ctx.text()));
+      builder.append(')');
       return builder;
    }
 }

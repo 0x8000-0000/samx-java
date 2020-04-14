@@ -84,4 +84,10 @@ public class XmlConverterTest
 
       assertEquals(expected, converted);
    }
+
+   @Test
+   public void testInserts()
+   {
+      testConversion("insert/simple.samx", "insert/simple.xml");
+   }
 }

@@ -404,6 +404,8 @@ STT_CIT : '"""[' ;
 
 STT_INFRG : '>>>(*' ;
 
+STT_IMAGE : '>>>(image' ;
+
 STT_DEFRG : '~~~(*' ;
 
 STT_INCL : '<<<(' ;

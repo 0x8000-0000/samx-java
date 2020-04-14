@@ -185,6 +185,7 @@ block :
    | STT_INFRG name=NAME CLOSE_PAR attribute* condition?                                        # InsertFragment
    | STT_DEFRG name=NAME CLOSE_PAR attribute* condition? NEWLINE+ INDENT block+ DEDENT          # DefineFragment
    | STT_INCL reference=text CLOSE_PAR attribute* condition?    { parseFile($reference.text); } # IncludeFile
+   | STT_IMAGE text CLOSE_PAR attribute* condition?                                             # InsertImage
    | CODE_MARKER language=text CLOSE_PAR attribute* condition? NEWLINE+ INDENT (externalCode? NEWLINE)+ DEDENT     # CodeBlock
    | NEWLINE                                                                                    # Empty
    ;
