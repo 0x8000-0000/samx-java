@@ -1,0 +1,9 @@
+% This record set is invalid because the middle row is missing a value.
+
+sales:: Vehicle Sales
+
+   | year | type | quantity
+   | 2010 | sedan | 10000
+   | 2011 | SUV
+   | 2020 | any | 500
+

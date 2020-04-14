@@ -31,6 +31,8 @@ package net.signbit.samx.parser;
    private java.util.HashMap<String, String> referencePaths = new java.util.HashMap<>();
    private java.io.File basePath = null;
 
+   private int currentHeaderLength = 0;
+
    public void setBasePath(java.io.File aPath)
    {
       basePath = aPath;
@@ -145,9 +147,22 @@ flow : ( text | phrase | localInsert | url | inlineCode )+ ;
 
 paragraph : ( flow NEWLINE )+ NEWLINE ;
 
-headerRow : ( COLSEP NAME )+ NEWLINE ;
+headerRow
+   locals [ int columnCount = 0; ]
+   : ( COLSEP NAME { $ctx.columnCount ++; } )+ NEWLINE { currentHeaderLength = $ctx.columnCount; };
 
-recordRow : condition? ( COLSEP flow )+ NEWLINE ;
+recordRow
+   locals [ int columnCount = 0; ]
+   : condition? ( COLSEP flow { $ctx.columnCount ++; } )+ NEWLINE
+   {
+      if (currentHeaderLength != $ctx.columnCount)
+      {
+         throw new ParseCancellationException("line " + $start.getLine() +
+            ":" + $start.getCharPositionInLine() +
+            " incorrect number of columns; expected " + currentHeaderLength +
+            " but observed " + $ctx.columnCount);
+      }
+   };
 
 externalCode : EXTCODE ;
 
