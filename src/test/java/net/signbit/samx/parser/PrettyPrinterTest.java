@@ -1,11 +1,11 @@
 package net.signbit.samx.parser;
 
+import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.junit.Test;
 
 import net.signbit.samx.Parser;
 import net.signbit.samx.PrettyPrinterVisitor;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class PrettyPrinterTest
 {
@@ -146,5 +146,19 @@ public class PrettyPrinterTest
    public void testFragments()
    {
       testIsPretty("fragments/simple.samx");
+   }
+
+   @Test
+   public void testInvalidData()
+   {
+      try
+      {
+         testIsPretty("recordsets/invalid_record_set.samx");
+         fail();
+      }
+      catch (ParseCancellationException pce)
+      {
+         // expected
+      }
    }
 }
