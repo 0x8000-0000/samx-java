@@ -66,6 +66,123 @@ public class RendererVisitor extends SamXParserBaseVisitor<Object>
       tokenStream = tokens;
    }
 
+   @Override
+   public Object visitCondition(SamXParser.ConditionContext ctx)
+   {
+      return visit(ctx.conditionExpr());
+   }
+
+   @Override
+   public Object visitBooleanTrueCondition(SamXParser.BooleanTrueConditionContext ctx)
+   {
+      final String variable = ctx.variable.getText();
+
+      if (trueFlags.contains(variable))
+      {
+         return Boolean.TRUE;
+      }
+
+      final Object val = properties.get(variable);
+      if ("true".equals(val))
+      {
+         return Boolean.TRUE;
+      }
+
+      return Boolean.FALSE;
+   }
+
+   @Override
+   public Object visitBooleanFalseCondition(SamXParser.BooleanFalseConditionContext ctx)
+   {
+      final String variable = ctx.variable.getText();
+
+      if (falseFlags.contains(variable))
+      {
+         return Boolean.TRUE;
+      }
+
+      final Object val = properties.get(variable);
+      if ("false".equals(val))
+      {
+         return Boolean.TRUE;
+      }
+
+      return Boolean.FALSE;
+   }
+
+   @Override
+   public Object visitComparisonCondition(SamXParser.ComparisonConditionContext ctx)
+   {
+      final String variable = ctx.variable.getText();
+      final String value = ctx.value.getText();
+
+      final String configuredValue = (String) properties.get(variable);
+
+      Boolean result = Boolean.FALSE;
+
+      if (configuredValue != null)
+      {
+         final String operator = ctx.oper.getText();
+         if (configuredValue.equals(value) && (operator.charAt(0) == '='))
+         {
+            result = Boolean.TRUE;
+         }
+
+         if ((!configuredValue.equals(value)) && (operator.charAt(0) == '!'))
+         {
+            result = Boolean.TRUE;
+         }
+      }
+
+      //System.err.println(String.format("%s %s %s (%s) -> %s", ctx.variable.getText(), ctx.oper.getText(), ctx.value.getText(), configuredValue, result));
+
+      return result;
+   }
+
+   @SuppressWarnings("unchecked")
+   @Override
+   public Object visitBelongsToSetCondition(SamXParser.BelongsToSetConditionContext ctx)
+   {
+      final String variable = ctx.variable.getText();
+      final String configuredValue = (String) properties.get(variable);
+
+      if (configuredValue != null)
+      {
+         HashSet<String> potentialValues = (HashSet<String>) visit(ctx.nameList());
+         if (potentialValues != null)
+         {
+            if (potentialValues.contains(configuredValue))
+            {
+               return Boolean.TRUE;
+            }
+         }
+      }
+
+      return Boolean.FALSE;
+   }
+
+   @SuppressWarnings("unchecked")
+   @Override
+   public Object visitNotBelongsToSetCondition(SamXParser.NotBelongsToSetConditionContext ctx)
+   {
+      final String variable = ctx.variable.getText();
+      final String configuredValue = (String) properties.get(variable);
+
+      if (configuredValue != null)
+      {
+         HashSet<String> potentialValues = (HashSet<String>) visit(ctx.nameList());
+         if (potentialValues != null)
+         {
+            if (!potentialValues.contains(configuredValue))
+            {
+               return Boolean.TRUE;
+            }
+         }
+      }
+
+      return Boolean.FALSE;
+   }
+
    boolean isDisabled(SamXParser.ConditionContext condition)
    {
       if (condition != null)
