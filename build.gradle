@@ -50,6 +50,7 @@ task createAllStartScripts() {
 
 def scripts = ['tokenize'    : 'net.signbit.samx.Tokenize',
                'to_xml'      : 'net.signbit.samx.ConvertToXml',
+               'to_html'     : 'net.signbit.samx.ConvertToHtml',
                'pretty_print': 'net.signbit.samx.PrettyPrint',
 ]
 
