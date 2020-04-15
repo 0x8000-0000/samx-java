@@ -9,9 +9,7 @@ import java.util.List;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.misc.Interval;
 import org.antlr.v4.runtime.tree.ParseTree;
-import org.stringtemplate.v4.ST;
-import org.stringtemplate.v4.STGroup;
-import org.stringtemplate.v4.STGroupFile;
+import org.stringtemplate.v4.*;
 
 import net.signbit.samx.parser.SamXLexer;
 import net.signbit.samx.parser.SamXParser;
@@ -152,5 +150,16 @@ public class HtmlPrinterVisitor extends RendererVisitor
    public String visitLiteral(SamXParser.LiteralContext ctx)
    {
       return ctx.getText();
+   }
+
+   @Override
+   public String visitField(SamXParser.FieldContext ctx)
+   {
+      ST template = htmlGroup.getInstanceOf("/field");
+
+      template.add("name", ctx.NAME().getText());
+      template.add("value", visitFlow(ctx.flow()).toString());
+
+      return template.render();
    }
 }

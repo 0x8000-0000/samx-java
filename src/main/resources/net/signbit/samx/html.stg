@@ -18,8 +18,13 @@ paragraph(text) ::= <<
 >>
 
 typed_block(type, description, block) ::= <<
-<div class="type">
+<div class="$type$">
    <span class="description">$description$</span>
    $block$</div>
+
+>>
+
+field(name, value) ::= <<
+<div class="$name$">$value$</div>
 
 >>
