@@ -3,11 +3,11 @@ plugins {
     id 'antlr'
     id 'distribution'
     id 'application'
-    id 'maven'
+    id 'maven-publish'
 }
 
 group 'net.signbit.samx'
-version '0.3.2'
+version '0.3.3'
 
 sourceCompatibility = 1.8
 
@@ -69,4 +69,16 @@ scripts.each() { scriptName, className ->
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     }
     createAllStartScripts.dependsOn(t)
+}
+
+ publishing {
+	publications {
+		maven(MavenPublication) {
+			groupId = group
+			artifactId = 'samxj'
+			version = version
+
+			from components.java
+		}
+	}
 }
