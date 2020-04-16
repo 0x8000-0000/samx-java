@@ -71,13 +71,13 @@ applies to several sub-blocks at once.
 which is an asterisk. SAMx also supports a class attribute introduced by a dot.
 
 
-License for sam
+License for SAM
 ---------------
 
 [Original SAM code is available](https://github.com/mbakeranalecta/sam/blob/master/license.txt)
 under Apache 2.0 license or Eclipse Public License v1.0.
 
-License for samx
+License for SAMx
 ----------------
 
 Copyright 2020 Florin Iucha
