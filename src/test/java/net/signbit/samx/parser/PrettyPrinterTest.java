@@ -165,4 +165,10 @@ public class PrettyPrinterTest
    {
       testIsPretty("insert/simple.samx");
    }
+
+   @Test
+   public void testGrids()
+   {
+      testAsPretty("grids/simple.samx", "grids/simple-pretty.samx");
+   }
 }

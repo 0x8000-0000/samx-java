@@ -402,7 +402,7 @@ AMPERS : '&' ;
 
 BANG : '!' ;
 
-STT_GRID: '+++' ;
+STT_GRID: '+++' { prepareFreeIndent = true; } ;
 
 PLUS : '+' ;
 

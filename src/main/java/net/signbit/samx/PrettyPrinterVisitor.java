@@ -988,4 +988,159 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
       builder.append(')');
       return builder;
    }
+
+
+   private String renderGridElement(SamXParser.GridElementContext gec)
+   {
+      StringBuilder builder = new StringBuilder();
+
+      builder.append(visitFlow(gec.flow()));
+
+      return builder.toString();
+   }
+
+   private ArrayList<String> renderGridElementList(SamXParser.ConditionContext condition, List<SamXParser.AttributeContext> attributes, List<SamXParser.GridElementContext> elements)
+   {
+      ArrayList<String> result = new ArrayList<>(1 + elements.size());
+
+      StringBuilder builder = new StringBuilder();
+      if (condition != null)
+      {
+         builder.append(visit(condition));
+      }
+      for (SamXParser.AttributeContext ac : attributes)
+      {
+         builder.append(visit(ac));
+      }
+      result.add(builder.toString());
+
+      for (SamXParser.GridElementContext gec : elements)
+      {
+         result.add(renderGridElement(gec));
+      }
+
+      return result;
+   }
+
+   @Override
+   public StringBuilder visitGrid(SamXParser.GridContext ctx)
+   {
+      StringBuilder builder = new StringBuilder();
+
+      builder.append("+++");
+      final SamXParser.ConditionContext cond = ctx.condition();
+      if (cond != null)
+      {
+         builder.append(visit(cond));
+      }
+      for (SamXParser.AttributeContext ac : ctx.attribute())
+      {
+         builder.append(visit(ac));
+      }
+      if (ctx.description != null)
+      {
+         builder.append(' ');
+         builder.append(visit(ctx.description));
+      }
+      builder.append('\n');
+      builder.append('\n');
+
+      indentLevel++;
+
+      int[] columnWidths = new int[ctx.gridHeaderRow().gridElement().size() + 1];
+      boolean[] isInteger = new boolean[ctx.gridHeaderRow().gridElement().size() + 1];
+
+      final SamXParser.GridHeaderRowContext ghrc = ctx.gridHeaderRow();
+      ArrayList<String> headerElements = renderGridElementList(null, ghrc.attribute(), ghrc.gridElement());
+      for (int ii = 0; ii < headerElements.size(); ++ii)
+      {
+         columnWidths[ii] = headerElements.get(ii).length();
+         isInteger[ii] = true;
+      }
+
+      ArrayList<ArrayList<String>> rows = new ArrayList<>(ctx.gridRecordRow().size());
+
+      for (SamXParser.GridRecordRowContext rrc : ctx.gridRecordRow())
+      {
+         ArrayList<String> rowElements = renderGridElementList(rrc.condition(), rrc.attribute(), rrc.gridElement());
+         rows.add(rowElements);
+
+         {
+            final int conditionLength = rowElements.get(0).length();
+            if (columnWidths[0] < conditionLength)
+            {
+               columnWidths[0] = conditionLength;
+            }
+         }
+
+         for (int ii = 0; ii < headerElements.size(); ++ii)
+         {
+            final String value = rowElements.get(ii);
+            final int length = value.length();
+            if (columnWidths[ii] < length)
+            {
+               columnWidths[ii] = length;
+            }
+
+            if (!VisitorUtils.isInteger(value))
+            {
+               isInteger[ii] = false;
+            }
+         }
+      }
+
+      addIndent(builder);
+      if (columnWidths[0] != 0)
+      {
+         builder.append(String.format("%1$-" + columnWidths[0] + "s", headerElements.get(0)));
+      }
+      for (int ii = 1; ii < headerElements.size(); ++ii)
+      {
+         builder.append(" | ");
+         if (ii != (headerElements.size() - 1))
+         {
+            builder.append(String.format("%1$-" + columnWidths[ii] + "s", headerElements.get(ii)));
+         }
+         else
+         {
+            builder.append(headerElements.get(headerElements.size() - 1));
+         }
+      }
+      builder.append('\n');
+
+      for (ArrayList<String> rowData : rows)
+      {
+         addIndent(builder);
+         if (columnWidths[0] != 0)
+         {
+            builder.append(String.format("%1$-" + columnWidths[0] + "s", rowData.get(0)));
+         }
+         for (int ii = 1; ii < headerElements.size(); ++ii)
+         {
+            builder.append(" | ");
+            if (isInteger[ii])
+            {
+               builder.append(String.format("%1$" + columnWidths[ii] + "s", rowData.get(ii)));
+            }
+            else
+            {
+               if (ii != (headerElements.size() - 1))
+               {
+                  builder.append(String.format("%1$-" + columnWidths[ii] + "s", rowData.get(ii)));
+               }
+               else
+               {
+                  builder.append(rowData.get(headerElements.size() - 1));
+               }
+            }
+         }
+         builder.append('\n');
+      }
+
+      indentLevel--;
+
+      builder.append('\n');
+
+      return builder;
+   }
 }
