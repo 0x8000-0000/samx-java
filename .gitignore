@@ -16,3 +16,5 @@ gradle-app.setting
 
 src/main/antlr/SamXLexer.tokens
 src/main/gen
+
+.idea/dictionaries/*
