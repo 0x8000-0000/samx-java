@@ -3,6 +3,7 @@ plugins {
     id 'antlr'
     id 'distribution'
     id 'application'
+    id 'maven'
 }
 
 group 'net.signbit.samx'
@@ -12,6 +13,7 @@ sourceCompatibility = 1.8
 
 repositories {
     mavenCentral()
+    mavenLocal()
 }
 
 dependencies {
