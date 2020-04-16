@@ -301,7 +301,13 @@ SCHEME : 'http' 's'? ':' ;
 
 COMMA : ',' ;
 
-TOKEN : [-a-zA-Z0-9_]+ | '.' | COMMA | ';' | BULLETT | HASHT ;
+SEMI : ';' ;
+
+PERIOD : '.' ;
+
+DOLLAR : '$' ;
+
+TOKEN : [-a-zA-Z0-9_]+ ;
 
 LT : '<' ;
 
@@ -315,11 +321,11 @@ COLSEP : '|' ;
 
 BULLET : { expectListStart }? '*' { expectListStart = false; } ;
 
-BULLETT : { !expectListStart }? '*' ;
+BULL_T : { !expectListStart }? '*' ;
 
 HASH : { expectListStart }? '#' { expectListStart = false; } ;
 
-HASHT : { !expectListStart }? '#' ;
+HASH_T : { !expectListStart }? '#' ;
 
 OPEN_PHR : '{' { ignoreNewLinesInPhrases = true; };
 
