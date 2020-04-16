@@ -18,8 +18,11 @@ package net.signbit.samx;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 
+import org.antlr.v4.runtime.BufferedTokenStream;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.misc.Interval;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -38,9 +41,9 @@ public class XmlTextVisitor extends RendererVisitor
    private String topElementNamespace = "https://mbakeranalecta.github.io/sam/";
    private String topElementVersion = null;
 
-   public XmlTextVisitor(Writer aWriter, HashMap<String, Parser.Result> docDict, HashMap<String, IOException> errDict, HashMap<String, String> referenceDict)
+   public XmlTextVisitor(Writer aWriter, HashMap<String, Parser.Result> docDict, HashMap<String, IOException> errDict, HashMap<String, String> referenceDict, BufferedTokenStream tokenStream)
    {
-      super(aWriter, docDict, errDict, referenceDict);
+      super(aWriter, docDict, errDict, referenceDict, tokenStream);
    }
 
    public void skipXmlDeclaration()
@@ -69,7 +72,6 @@ public class XmlTextVisitor extends RendererVisitor
    {
       topElementVersion = name;
    }
-
 
 
    @Override
@@ -537,10 +539,9 @@ public class XmlTextVisitor extends RendererVisitor
 
       if (includedResult != null)
       {
-         XmlTextVisitor visitor = new XmlTextVisitor(writer, includedDocuments, includedExceptions, includedResult.referencePaths);
+         XmlTextVisitor visitor = new XmlTextVisitor(writer, includedDocuments, includedExceptions, includedResult.referencePaths, includedResult.tokens);
          visitor.skipXmlDeclaration();
          visitor.setIndentLevel(indentLevel + 1);
-         visitor.setTokenStream(includedResult.tokens);
 
          visitor.visit(includedResult.document);
 

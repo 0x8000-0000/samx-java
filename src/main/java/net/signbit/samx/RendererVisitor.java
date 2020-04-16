@@ -5,14 +5,14 @@ import java.io.Writer;
 import java.util.*;
 
 import org.antlr.v4.runtime.BufferedTokenStream;
-import org.antlr.v4.runtime.CommonTokenStream;
 
 import net.signbit.samx.parser.SamXParser;
 import net.signbit.samx.parser.SamXParserBaseVisitor;
 
 public class RendererVisitor extends SamXParserBaseVisitor<Object>
 {
-   BufferedTokenStream tokenStream;
+   final BufferedTokenStream tokenStream;
+   private final PlainTextVisitor plainTextVisitor;
 
    final Writer writer;
    final HashMap<String, Parser.Result> includedDocuments;
@@ -32,12 +32,15 @@ public class RendererVisitor extends SamXParserBaseVisitor<Object>
    int indentLevel = 0;
 
 
-   public RendererVisitor(Writer aWriter, HashMap<String, Parser.Result> docDict, HashMap<String, IOException> errDict, HashMap<String, String> referenceDict)
+   public RendererVisitor(Writer aWriter, HashMap<String, Parser.Result> docDict, HashMap<String, IOException> errDict, HashMap<String, String> referenceDict, BufferedTokenStream tokenStream)
    {
       writer = aWriter;
       includedDocuments = docDict;
       includedExceptions = errDict;
       referencePaths = referenceDict;
+      this.tokenStream = tokenStream;
+
+      plainTextVisitor = new PlainTextVisitor(tokenStream);
    }
 
    public void setProperties(Properties inputProperties)
@@ -59,11 +62,6 @@ public class RendererVisitor extends SamXParserBaseVisitor<Object>
       {
          falseFlags.addAll(Arrays.asList(falseFlagInput));
       }
-   }
-
-   public void setTokenStream(BufferedTokenStream tokens)
-   {
-      tokenStream = tokens;
    }
 
    @Override

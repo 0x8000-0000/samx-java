@@ -44,13 +44,12 @@ public class ConvertToHtml
          BufferedWriter writer = new BufferedWriter(fileWriter);
 
          Parser.Result result = Parser.parse(cmd.getOptionValue("input"));
-         HtmlPrinterVisitor visitor = new HtmlPrinterVisitor(writer, result.includedDocuments, result.includedExceptions, result.referencePaths);
+         HtmlPrinterVisitor visitor = new HtmlPrinterVisitor(writer, result.includedDocuments, result.includedExceptions, result.referencePaths, result.tokens);
 
          Properties props = cmd.getOptionProperties("V");
          visitor.setProperties(props);
          visitor.setTrueFlags(cmd.getOptionValues("T"));
          visitor.setFalseFlags(cmd.getOptionValues("F"));
-         visitor.setTokenStream(result.tokens);
 
          visitor.visit(result.document);
 

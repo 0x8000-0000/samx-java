@@ -19,8 +19,7 @@ public class XmlConverterTest
 
       StringWriter writer = new StringWriter();
 
-      XmlTextVisitor visitor = new XmlTextVisitor(writer, result.includedDocuments, result.includedExceptions, result.referencePaths);
-      visitor.setTokenStream(result.tokens);
+      XmlTextVisitor visitor = new XmlTextVisitor(writer, result.includedDocuments, result.includedExceptions, result.referencePaths, result.tokens);
 
       visitor.visit(result.document);
       writer.flush();
@@ -36,8 +35,7 @@ public class XmlConverterTest
 
       StringWriter writer = new StringWriter();
 
-      XmlTextVisitor visitor = new XmlTextVisitor(writer, result.includedDocuments, result.includedExceptions, result.referencePaths);
-      visitor.setTokenStream(result.tokens);
+      XmlTextVisitor visitor = new XmlTextVisitor(writer, result.includedDocuments, result.includedExceptions, result.referencePaths, result.tokens);
       visitor.setTopElement(root);
       visitor.setTopElementNamespace(namespace);
       visitor.setTopElementVersion(version);

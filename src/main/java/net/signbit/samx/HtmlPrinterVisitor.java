@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.antlr.v4.runtime.BufferedTokenStream;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.misc.Interval;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -18,9 +19,9 @@ public class HtmlPrinterVisitor extends RendererVisitor
 {
    private STGroup htmlGroup;
 
-   public HtmlPrinterVisitor(Writer aWriter, HashMap<String, Parser.Result> docDict, HashMap<String, IOException> errDict, HashMap<String, String> referenceDict)
+   public HtmlPrinterVisitor(Writer aWriter, HashMap<String, Parser.Result> docDict, HashMap<String, IOException> errDict, HashMap<String, String> referenceDict, BufferedTokenStream tokenStream)
    {
-      super(aWriter, docDict, errDict, referenceDict);
+      super(aWriter, docDict, errDict, referenceDict, tokenStream);
 
       htmlGroup = new STGroupFile("net/signbit/samx/html.stg");
    }
