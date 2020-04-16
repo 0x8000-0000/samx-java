@@ -157,18 +157,31 @@ public class XmlTextVisitor extends RendererVisitor
       return null;
    }
 
+   private void addSpaceIfPresentInInput(ParseTree tn)
+   {
+      final Interval pos = tn.getSourceInterval();
+      if (pos.a <= pos.b)
+      {
+         final List<Token> precedingTokens = tokenStream.getHiddenTokensToLeft(pos.a, SamXLexer.WHITESPACE);
+         if ((precedingTokens != null) && (!precedingTokens.isEmpty()))
+         {
+            append(' ');
+         }
+      }
+   }
+
    @Override
    public Object visitFlow(SamXParser.FlowContext ctx)
    {
-      int offset = charactersWritten;
+      boolean firstElement = true;
 
       for (ParseTree pt : ctx.children)
       {
-         if (offset != charactersWritten)
+         if (!firstElement)
          {
-            append(' ');
-            offset = charactersWritten;
+            addSpaceIfPresentInInput(pt);
          }
+         firstElement = false;
 
          visit(pt);
       }
@@ -184,16 +197,7 @@ public class XmlTextVisitor extends RendererVisitor
          return null;
       }
 
-      append("<phrase");
-      if (ctx.attribute().size() > 0)
-      {
-         append(' ');
-         for (SamXParser.AttributeContext ac : ctx.attribute())
-         {
-            visit(ac);
-         }
-      }
-      append('>');
+      renderElementWithAttributes("phrase", ctx.attribute());
       visit(ctx.text());
       append("</phrase>");
 
@@ -768,6 +772,101 @@ public class XmlTextVisitor extends RendererVisitor
    public StringBuilder visitLocalInsert(SamXParser.LocalInsertContext ctx)
    {
       visitText(ctx.text());
+
+      return null;
+   }
+
+   private void renderGridElementDirect(String tagType, SamXParser.GridElementContext gec)
+   {
+      append('<');
+      append(tagType);
+      append('>');
+
+      visitFlow(gec.flow());
+
+      append('<');
+      append('/');
+      append(tagType);
+      append('>');
+   }
+
+   private void renderElementWithAttributes(String tagType, List<SamXParser.AttributeContext> attributes)
+   {
+      append('<');
+      append(tagType);
+
+      AttributeVisitor attributeVisitor = new AttributeVisitor();
+
+      for (SamXParser.AttributeContext ac: attributes)
+      {
+         attributeVisitor.visit(ac);
+      }
+
+      append(attributeVisitor.toString());
+
+      append('>');
+   }
+
+   @Override
+   public Object visitGrid(SamXParser.GridContext ctx)
+   {
+      if (isDisabled(ctx.condition()))
+      {
+         return null;
+      }
+
+      addIndent();
+      renderElementWithAttributes("table", ctx.attribute());
+      appendNewline();
+
+      indentLevel++;
+
+      addIndent();
+      renderElementWithAttributes("tr", ctx.gridHeaderRow().attribute());
+      appendNewline();
+
+      final SamXParser.GridHeaderRowContext header = ctx.gridHeaderRow();
+      for (SamXParser.GridElementContext gec : header.gridElement())
+      {
+         addIndent();
+         renderGridElementDirect("th", gec);
+         appendNewline();
+      }
+
+      addIndent();
+      append("</tr>");
+      appendNewline();
+
+      for (SamXParser.GridRecordRowContext rrc : ctx.gridRecordRow())
+      {
+         if (isDisabled(rrc.condition()))
+         {
+            continue;
+         }
+
+         addIndent();
+         renderElementWithAttributes("tr", rrc.attribute());
+         appendNewline();
+
+         indentLevel++;
+
+         for (SamXParser.GridElementContext gec : rrc.gridElement())
+         {
+            addIndent();
+            renderGridElementDirect("td", gec);
+            appendNewline();
+         }
+
+         indentLevel--;
+
+         addIndent();
+         append("</tr>");
+         appendNewline();
+      }
+
+      indentLevel--;
+
+      appendCloseTag("table");
 
       return null;
    }

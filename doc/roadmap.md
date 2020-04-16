@@ -13,6 +13,8 @@ In Progress:
 
 Done:
 
+* [0.3.1] Add support for grids.
+
 * [0.2.9] Add support for fragments.
 
 * [0.1.9] Add DocBook exporter / visitor / converter.

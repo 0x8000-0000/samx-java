@@ -293,6 +293,20 @@ KW_TRUE : 'true' ;
 
 KW_FALSE : 'false' ;
 
+STT_COND : '(?' { ignoreNewLinesInConditions = true; nestedParenthesesLevel = 1; } ;
+
+STT_NAME : '(*' ;
+
+STT_CLASS : '(.' ;
+
+STT_ID : '(#' ;
+
+STT_LANG : '(!' ;
+
+STT_ANN : '(:' { ignoreNewLinesInConditions = true; nestedParenthesesLevel = 1; } ;
+
+STT_REFR : '[*' ;
+
 NAME : [-a-zA-Z_] [-a-zA-Z0-9_.]+ ;
 
 INTEGER : [1-9] [0-9]+ ;
@@ -334,20 +348,6 @@ CLOSE_PHR : '}' { ignoreNewLinesInPhrases = false; };
 QUOT : '\'' ;
 
 STRING : '"' ( '\\' . | ~[\\\r\n\f"] )* '"' ;
-
-STT_COND : '(?' { ignoreNewLinesInConditions = true; nestedParenthesesLevel = 1; } ;
-
-STT_NAME : '(*' ;
-
-STT_CLASS : '(.' ;
-
-STT_ID : '(#' ;
-
-STT_LANG : '(!' ;
-
-STT_ANN : '(:' { ignoreNewLinesInConditions = true; nestedParenthesesLevel = 1; } ;
-
-STT_REFR : '[*' ;
 
 APOSTR : '`' ;
 
@@ -401,6 +401,8 @@ QUESTION : '?' ;
 AMPERS : '&' ;
 
 BANG : '!' ;
+
+STT_GRID: '+++' ;
 
 PLUS : '+' ;
 

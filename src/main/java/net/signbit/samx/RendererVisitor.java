@@ -12,7 +12,7 @@ import net.signbit.samx.parser.SamXParserBaseVisitor;
 public class RendererVisitor extends SamXParserBaseVisitor<Object>
 {
    final BufferedTokenStream tokenStream;
-   private final PlainTextVisitor plainTextVisitor;
+   final PlainTextVisitor plainTextVisitor;
 
    final Writer writer;
    final HashMap<String, Parser.Result> includedDocuments;

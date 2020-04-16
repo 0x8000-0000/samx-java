@@ -110,7 +110,7 @@ url : SCHEME SLASHSH (authority=NAME ATSGN)? host=NAME (TYPESEP port=INTEGER)? p
 escapeSeq : ESCAPE ;
 
 attribute :
-   STT_NAME CLOSE_PAR                       # NameAttr
+   STT_NAME NAME CLOSE_PAR                  # NameAttr
    | STT_ID NAME CLOSE_PAR                  # IdentifierAttr
    | STT_CLASS NAME CLOSE_PAR               # ClassAttr
    | STT_LANG NAME CLOSE_PAR                # LanguageAttr
@@ -169,6 +169,25 @@ recordRow
       }
    };
 
+gridElement : COLSEP attribute* flow ;
+
+gridHeaderRow
+   locals [ int columnCount = 0; ]
+   : attribute* ( gridElement { $ctx.columnCount ++; } )+ NEWLINE { currentHeaderLength = $ctx.columnCount; };
+
+gridRecordRow
+   locals [ int columnCount = 0; ]
+   : attribute* condition? ( gridElement { $ctx.columnCount ++; } )+ NEWLINE
+   {
+      if (currentHeaderLength != $ctx.columnCount)
+      {
+         throw new ParseCancellationException("line " + $start.getLine() +
+            ":" + $start.getCharPositionInLine() +
+            " incorrect number of columns; expected " + currentHeaderLength +
+            " but observed " + $ctx.columnCount);
+      }
+   };
+
 externalCode : EXTCODE ;
 
 listElement : condition? flow NEWLINE skipped=NEWLINE? ( INDENT (paragraph | NEWLINE)+ DEDENT )? ( NEWLINE (unorderedList | orderedList) ) ?;
@@ -192,6 +211,7 @@ block :
    | STT_INCL reference=text CLOSE_PAR attribute* condition?    { parseFile($reference.text); } # IncludeFile
    | STT_IMAGE text CLOSE_PAR attribute* condition?                                             # InsertImage
    | CODE_MARKER language=text CLOSE_PAR attribute* condition? NEWLINE+ INDENT (externalCode? NEWLINE)+ DEDENT     # CodeBlock
+   | STT_GRID attribute* condition? description=flow? NEWLINE+ INDENT gridHeaderRow (gridRecordRow | NEWLINE) + DEDENT # Grid
    | NEWLINE                                                                                    # Empty
    ;
 

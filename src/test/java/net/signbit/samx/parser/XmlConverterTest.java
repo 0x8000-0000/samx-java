@@ -88,4 +88,10 @@ public class XmlConverterTest
    {
       testConversion("insert/simple.samx", "insert/simple.xml");
    }
+
+   @Test
+   public void testGrids()
+   {
+      testConversion("grids/simple.samx", "grids/simple.xml");
+   }
 }
