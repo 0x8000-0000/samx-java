@@ -760,9 +760,29 @@ public class XmlTextVisitor extends RendererVisitor
       }
 
       addIndent();
-      append("<imagedata fileref=\"");
+      append("<imagedata");
+      AttributeVisitor attributeVisitor = new AttributeVisitor();
+      for (SamXParser.AttributeContext ac: ctx.attribute())
+      {
+         attributeVisitor.visit(ac);
+      }
+      append(attributeVisitor.toString());
+
+      append(" fileref=\"");
       visitText(ctx.text());
-      append("\" />");
+      append("\"");
+      if (ctx.description != null)
+      {
+         append(">");
+         append("<title>");
+         visitFlow(ctx.description);
+         append("</title>");
+         append("</imagedata>");
+      }
+      else
+      {
+         append(" />");
+      }
       appendNewline();
 
       return null;
@@ -796,12 +816,10 @@ public class XmlTextVisitor extends RendererVisitor
       append(tagType);
 
       AttributeVisitor attributeVisitor = new AttributeVisitor();
-
       for (SamXParser.AttributeContext ac: attributes)
       {
          attributeVisitor.visit(ac);
       }
-
       append(attributeVisitor.toString());
 
       append('>');

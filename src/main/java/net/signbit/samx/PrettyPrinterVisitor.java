@@ -595,9 +595,15 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
    }
 
    @Override
+   public StringBuilder visitClassAttr(SamXParser.ClassAttrContext ctx)
+   {
+      return visitAttribute('.', ctx.NAME().getText());
+   }
+
+   @Override
    public StringBuilder visitIdentifierAttr(SamXParser.IdentifierAttrContext ctx)
    {
-      return visitAttribute('*', ctx.NAME().getText());
+      return visitAttribute('#', ctx.NAME().getText());
    }
 
    @Override
@@ -962,6 +968,11 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
       builder.append(visitText(ctx.text()));
       builder.append(')');
       insertAttributeAndCondition(builder, ctx);
+      if (ctx.description != null)
+      {
+         builder.append(' ');
+         builder.append(visitFlow(ctx.description));
+      }
       builder.append('\n');
       builder.append('\n');
 
