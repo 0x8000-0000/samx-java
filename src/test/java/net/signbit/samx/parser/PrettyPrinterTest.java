@@ -13,13 +13,11 @@ public class PrettyPrinterTest
    private static String prettify(String inputString)
    {
       Parser.Result result = Parser.parseString(inputString);
-      PrettyPrinterVisitor printer = new PrettyPrinterVisitor();
+      PrettyPrinterVisitor printer = new PrettyPrinterVisitor(result.tokens);
 
       assertTrue(SamXLexerTest.balancedIndentsDedents(result.tokens.getTokens()));
 
       assertTrue(SamXLexerTest.tokensInNaturalOrder(result.tokens.getTokens()));
-
-      printer.setTokenStream(result.tokens);
 
       StringBuilder builder = printer.visit(result.document);
 

@@ -36,10 +36,18 @@ import net.signbit.samx.parser.SamXParserBaseVisitor;
 public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
 {
    private int indentLevel = 0;
-   private BufferedTokenStream tokenStream;
+   private final BufferedTokenStream tokenStream;
+
+   private final PlainTextVisitor plainTextVisitor;
 
    private static final String indentString = "   ";
    private int wrapParagraphAtColumn = 72;
+
+   public PrettyPrinterVisitor(BufferedTokenStream tokenStream)
+   {
+      this.tokenStream = tokenStream;
+      plainTextVisitor = new PlainTextVisitor(tokenStream);
+   }
 
    private void addIndent(StringBuilder builder)
    {
@@ -82,16 +90,16 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
       boolean firstLine = true;
       while (tokenizer.hasNext())
       {
-          if (firstLine)
-          {
-              firstLine = false;
-          }
-          else
-          {
-              addIndent(builder);
-          }
-          builder.append(tokenizer.next());
-          builder.append('\n');
+         if (firstLine)
+         {
+            firstLine = false;
+         }
+         else
+         {
+            addIndent(builder);
+         }
+         builder.append(tokenizer.next());
+         builder.append('\n');
       }
 
       builder.append('\n');
@@ -496,25 +504,10 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
       return result;
    }
 
-
    @Override
    public StringBuilder visitText(SamXParser.TextContext ctx)
    {
-      StringBuilder builder = new StringBuilder();
-
-      boolean firstToken = true;
-
-      for (ParseTree tn : ctx.children)
-      {
-         if (!firstToken)
-         {
-            addSpaceIfPresentInInput(builder, tn);
-         }
-
-         builder.append(tn.getText());
-         firstToken = false;
-      }
-      return builder;
+      return plainTextVisitor.visitText(ctx);
    }
 
    @Override
@@ -874,11 +867,6 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
    public StringBuilder visitCombinedCondition(SamXParser.CombinedConditionContext ctx)
    {
       return visitConditionWithOperator("and", ctx.firstCond, ctx.secondCond);
-   }
-
-   public void setTokenStream(BufferedTokenStream tokens)
-   {
-      tokenStream = tokens;
    }
 
    @Override

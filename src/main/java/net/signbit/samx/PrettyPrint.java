@@ -30,8 +30,7 @@ public final class PrettyPrint
 
       Parser.Result parsingResult = Parser.parse(args[0]);
 
-      PrettyPrinterVisitor printer = new PrettyPrinterVisitor();
-      printer.setTokenStream(parsingResult.tokens);
+      PrettyPrinterVisitor printer = new PrettyPrinterVisitor(parsingResult.tokens);
 
       StringBuilder builder = printer.visit(parsingResult.document);
 
