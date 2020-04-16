@@ -331,9 +331,11 @@ STRING : '"' ( '\\' . | ~[\\\r\n\f"] )* '"' ;
 
 STT_COND : '(?' { ignoreNewLinesInConditions = true; nestedParenthesesLevel = 1; } ;
 
-STT_NAME : '(#' ;
+STT_NAME : '(*' ;
 
-STT_ID : '(*' ;
+STT_CLASS : '(.' ;
+
+STT_ID : '(#' ;
 
 STT_LANG : '(!' ;
 

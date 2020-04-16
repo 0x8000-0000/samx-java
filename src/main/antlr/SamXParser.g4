@@ -112,6 +112,7 @@ escapeSeq : ESCAPE ;
 attribute :
    STT_NAME CLOSE_PAR                       # NameAttr
    | STT_ID NAME CLOSE_PAR                  # IdentifierAttr
+   | STT_CLASS NAME CLOSE_PAR               # ClassAttr
    | STT_LANG NAME CLOSE_PAR                # LanguageAttr
    | OPEN_SQR text CLOSE_SQR                # CitationAttr
    | STT_REFR NAME CLOSE_SQR                # ReferenceAttr

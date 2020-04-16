@@ -64,8 +64,11 @@ for parentheses to be freely used in text without having to escape them.
 * SAM uses "p" for a paragraph in the XML serialization while SAMx uses "para"
 for compatibility with DocBook.
 
-* SAMx has support for conditional blocks, where a top-level condition is
-applied to several sub-blocks at once.
+* SAMx has support for conditional blocks, where a top-level condition 
+applies to several sub-blocks at once.
+
+* SAMx is using the CSS sigil for selecting name (hash mark) instead of SAM's
+which is an asterisk. SAMx also supports a class attribute introduced by a dot.
 
 
 License for sam
