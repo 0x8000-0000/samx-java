@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.Writer;
 
 import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
 import net.signbit.samx.Parser;
@@ -42,7 +43,8 @@ public class GenerateHeader extends Renderer
    @Override
    protected void addCustomOptions(Options options)
    {
-
+      Option namespace = new Option("n", "namespace", true, "namespace");
+      options.addOption(namespace);
    }
 
    @Override
@@ -55,7 +57,8 @@ public class GenerateHeader extends Renderer
    @Override
    protected void addCustomOptions(CommandLine cmd)
    {
-
+      visitor.setNamespace(cmd.getOptionValue("namespace"));
+      visitor.setOutputName(cmd.getOptionValue("output"));
    }
 
    @Override

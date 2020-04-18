@@ -5,6 +5,7 @@ import java.io.Writer;
 import java.util.*;
 
 import org.antlr.v4.runtime.BufferedTokenStream;
+import org.antlr.v4.runtime.ParserRuleContext;
 
 import net.signbit.samx.parser.SamXParser;
 import net.signbit.samx.parser.SamXParserBaseVisitor;
@@ -308,4 +309,25 @@ public class RendererVisitor extends SamXParserBaseVisitor<Object>
       return null;
    }
 
+   public String getPlainText(SamXParser.FlowContext fc)
+   {
+      if (fc == null)
+      {
+         return "";
+      }
+      else
+      {
+         return plainTextVisitor.visitFlow(fc).toString();
+      }
+   }
+
+   public static AttributeVisitor getAttributes(ParserRuleContext prc)
+   {
+      AttributeVisitor attributeVisitor = new AttributeVisitor();
+      for (SamXParser.AttributeContext ac: prc.getRuleContexts(SamXParser.AttributeContext.class))
+      {
+         attributeVisitor.visit(ac);
+      }
+      return attributeVisitor;
+   }
 }

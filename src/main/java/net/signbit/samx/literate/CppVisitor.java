@@ -22,10 +22,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.antlr.v4.runtime.BufferedTokenStream;
+import org.apache.commons.io.FilenameUtils;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 import org.stringtemplate.v4.STGroupFile;
 
+import net.signbit.samx.AttributeVisitor;
 import net.signbit.samx.Parser;
 import net.signbit.samx.RendererVisitor;
 import net.signbit.samx.parser.SamXParser;
@@ -36,6 +38,8 @@ public class CppVisitor extends RendererVisitor
 
    private ArrayList<String> enumerations = new ArrayList<>();
    private ArrayList<String> structures = new ArrayList<>();
+   private String namespace = "";
+   private String outputName;
 
    public CppVisitor(Writer aWriter, HashMap<String, Parser.Result> docDict, HashMap<String, IOException> errDict, HashMap<String, String> referenceDict, BufferedTokenStream tokenStream)
    {
@@ -54,6 +58,9 @@ public class CppVisitor extends RendererVisitor
          visit(bc);
       }
 
+      document.add("namespace", namespace);
+      document.add("filename", FilenameUtils.getBaseName(outputName));
+      document.add("guard", FilenameUtils.getBaseName(outputName).toUpperCase());
       document.add("enumerations", enumerations);
       document.add("structures", structures);
       append(document.render());
@@ -75,7 +82,33 @@ public class CppVisitor extends RendererVisitor
    @Override
    public Object visitRecordSet(SamXParser.RecordSetContext ctx)
    {
+      final String recordType = ctx.NAME().getText();
+      if (recordType.equals("structure"))
+      {
+         renderStructure(ctx);
+      }
 
       return null;
+   }
+
+   private void renderStructure(SamXParser.RecordSetContext ctx)
+   {
+      ST structure = cppGroup.getInstanceOf("/structure");
+      AttributeVisitor attributes = getAttributes(ctx);
+
+      structure.add("name", attributes.getId());
+      structure.add("description", getPlainText(ctx.description));
+
+      structures.add(structure.render());
+   }
+
+   public void setNamespace(String namespace)
+   {
+      this.namespace = namespace;
+   }
+
+   public void setOutputName(String output)
+   {
+      this.outputName = output;
    }
 }

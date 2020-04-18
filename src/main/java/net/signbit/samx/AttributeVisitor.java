@@ -18,12 +18,25 @@ package net.signbit.samx;
 
 import java.util.HashSet;
 
+import org.antlr.v4.runtime.ParserRuleContext;
+
 import net.signbit.samx.parser.SamXParser;
 import net.signbit.samx.parser.SamXParserBaseVisitor;
 
 public class AttributeVisitor extends SamXParserBaseVisitor<Void>
 {
    private HashSet<String> classAttributes = new HashSet<>();
+
+   public String getId()
+   {
+      return idAttribute;
+   }
+
+   public String getName()
+   {
+      return nameAttribute;
+   }
+
    private String idAttribute = null;
    private String nameAttribute = null;
 

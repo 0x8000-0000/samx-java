@@ -1,12 +1,33 @@
 group cpp ;
 
-document(enumerations, structures) ::= <<
-/*
- * Generated header
+document(filename, guard, namespace, enumerations, structures) ::= <<
+/**
+ * \file <filename>.h
+ * \note This file is generated
  */
+
+#ifndef <guard>_H_INCLUDED
+#define <guard>_H_INCLUDED
+
+namespace <namespace>
+{
 
 <enumerations>
 
 <structures>
+
+}  // namespace <namespace>
+
+#endif // <guard>_H_INCLUDED
+
+>>
+
+structure(name, description) ::= <<
+
+/** <description>
+ */
+class <name>
+{
+};
 
 >>
