@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<document xmlns="https://mbakeranalecta.github.io/sam/">
+  <para>This document contains a grid with some missing values.</para>
+  <table class="fancy" id="the-grid">
+    <tr class="header">
+    <th>Name</th>
+    <th>Position</th>
+    <th><phrase class="location">Office</phrase></th>
+    <th><phrase class="numeric">Age</phrase></th>
+    <th>Start date</th>
+    <th>Salary</th>
+    </tr>
+    <tr>
+      <td>Airi Satou</td>
+      <td>Accountant</td>
+      <td>Tokyo</td>
+      <td>33</td>
+      <td>2008/11/28</td>
+      <td>$162,700</td>
+    </tr>
+    <tr class="highlight">
+      <td>Angelica Ramos</td>
+      <td/>
+      <td>London</td>
+      <td>47</td>
+      <td>2009/10/09</td>
+      <td>$1,200,000</td>
+    </tr>
+    <tr>
+      <td>Ashton Cox</td>
+      <td/>
+      <td>San Francisco</td>
+      <td>66</td>
+      <td>2009/01/12</td>
+      <td>$86,000</td>
+    </tr>
+    <tr>
+      <td>Bradley Greer</td>
+      <td>Software Engineer</td>
+      <td><phrase class="expensive">London</phrase></td>
+      <td>41</td>
+      <td>2012/10/13</td>
+      <td>$132,000</td>
+    </tr>
+  </table>
+</document>

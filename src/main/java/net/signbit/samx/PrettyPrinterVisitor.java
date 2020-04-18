@@ -439,7 +439,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
          firstToken = false;
       }
 
-      for (SamXParser.FlowContext tc : ctx.flow())
+      for (SamXParser.OptionalFlowContext tc : ctx.optionalFlow())
       {
          if (firstToken)
          {
@@ -450,11 +450,14 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
             builder.append(' ');
          }
 
-         StringBuilder childBuilder = visit(tc);
-         if (childBuilder != null)
+         builder.append("| ");
+         if (tc.flow() != null)
          {
-            builder.append("| ");
-            builder.append(childBuilder);
+            StringBuilder childBuilder = visit(tc.flow());
+            if (childBuilder != null)
+            {
+               builder.append(childBuilder);
+            }
          }
       }
 
@@ -476,7 +479,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
 
    private ArrayList<String> visitRecordRowElements(SamXParser.RecordRowContext ctx)
    {
-      ArrayList<String> result = new ArrayList<>(1 + ctx.flow().size());
+      ArrayList<String> result = new ArrayList<>(1 + ctx.optionalFlow().size());
 
       final SamXParser.ConditionContext cond = ctx.condition();
       if (cond != null)
@@ -488,12 +491,19 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
          result.add("");
       }
 
-      for (SamXParser.FlowContext tc : ctx.flow())
+      for (SamXParser.OptionalFlowContext tc : ctx.optionalFlow())
       {
-         StringBuilder childBuilder = visit(tc);
-         if (childBuilder != null)
+         if (tc.flow() != null)
          {
-            result.add(childBuilder.toString());
+            StringBuilder childBuilder = visitFlow(tc.flow());
+            if (childBuilder != null)
+            {
+               result.add(childBuilder.toString());
+            }
+            else
+            {
+               result.add("");
+            }
          }
          else
          {
@@ -992,11 +1002,19 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
 
    private String renderGridElement(SamXParser.GridElementContext gec)
    {
-      StringBuilder builder = new StringBuilder();
+      final SamXParser.FlowContext fc = gec.optionalFlow().flow();
+      if (fc == null)
+      {
+         return "";
+      }
+      else
+      {
+         StringBuilder builder = new StringBuilder();
 
-      builder.append(visitFlow(gec.flow()));
+         builder.append(visitFlow(fc));
 
-      return builder.toString();
+         return builder.toString();
+      }
    }
 
    private ArrayList<String> renderGridElementList(SamXParser.ConditionContext condition, List<SamXParser.AttributeContext> attributes, List<SamXParser.GridElementContext> elements)

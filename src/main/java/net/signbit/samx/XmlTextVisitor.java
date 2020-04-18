@@ -475,13 +475,20 @@ public class XmlTextVisitor extends RendererVisitor
             addIndent();
             append('<');
             append(header.NAME(ii).getText());
-            append('>');
 
-            visitFlow(rrc.flow(ii));
+            if (rrc.optionalFlow(ii).flow() != null)
+            {
+               append('>');
+               visitFlow(rrc.optionalFlow(ii).flow());
+               append('<');
+               append('/');
+               append(header.NAME(ii).getText());
+            }
+            else
+            {
+               append('/');
+            }
 
-            append('<');
-            append('/');
-            append(header.NAME(ii).getText());
             append('>');
             appendNewline();
          }
@@ -798,15 +805,23 @@ public class XmlTextVisitor extends RendererVisitor
 
    private void renderGridElementDirect(String tagType, SamXParser.GridElementContext gec)
    {
-      append('<');
-      append(tagType);
-      append('>');
-
-      visitFlow(gec.flow());
+      final SamXParser.FlowContext fc = gec.optionalFlow().flow();
 
       append('<');
-      append('/');
       append(tagType);
+
+      if (fc != null)
+      {
+         append('>');
+         visitFlow(fc);
+         append('<');
+         append('/');
+         append(tagType);
+      }
+      else
+      {
+         append('/');
+      }
       append('>');
    }
 

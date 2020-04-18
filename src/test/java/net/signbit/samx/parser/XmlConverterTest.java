@@ -93,5 +93,7 @@ public class XmlConverterTest
    public void testGrids()
    {
       testConversion("grids/simple.samx", "grids/simple.xml");
+
+      testConversion("grids/missing_cells.samx", "grids/missing_cells.xml");
    }
 }

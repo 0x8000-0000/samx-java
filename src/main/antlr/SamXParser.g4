@@ -156,9 +156,11 @@ headerRow
    locals [ int columnCount = 0; ]
    : ( COLSEP NAME { $ctx.columnCount ++; } )+ NEWLINE { currentHeaderLength = $ctx.columnCount; };
 
+optionalFlow : flow? ;
+
 recordRow
    locals [ int columnCount = 0; ]
-   : condition? ( COLSEP flow { $ctx.columnCount ++; } )+ NEWLINE
+   : condition? ( COLSEP optionalFlow { $ctx.columnCount ++; } )+ NEWLINE
    {
       if (currentHeaderLength != $ctx.columnCount)
       {
@@ -169,7 +171,7 @@ recordRow
       }
    };
 
-gridElement : COLSEP attribute* flow ;
+gridElement : COLSEP attribute* optionalFlow ;
 
 gridHeaderRow
    locals [ int columnCount = 0; ]

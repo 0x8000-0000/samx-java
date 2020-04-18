@@ -170,5 +170,7 @@ public class PrettyPrinterTest
    public void testGrids()
    {
       testAsPretty("grids/simple.samx", "grids/simple-pretty.samx");
+
+      testIsPretty("grids/missing_cells.samx");
    }
 }
