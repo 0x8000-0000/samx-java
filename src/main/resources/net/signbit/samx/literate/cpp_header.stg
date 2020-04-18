@@ -1,0 +1,12 @@
+group cpp ;
+
+document(enumerations, structures) ::= <<
+/*
+ * Generated header
+ */
+
+<enumerations>
+
+<structures>
+
+>>

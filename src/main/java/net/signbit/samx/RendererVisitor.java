@@ -208,7 +208,7 @@ public class RendererVisitor extends SamXParserBaseVisitor<Object>
       }
    }
 
-   void append(String aString)
+   public void append(String aString)
    {
       try
       {
