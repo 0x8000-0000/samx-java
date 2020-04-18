@@ -10,7 +10,9 @@ import org.antlr.v4.runtime.BufferedTokenStream;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.misc.Interval;
 import org.antlr.v4.runtime.tree.ParseTree;
-import org.stringtemplate.v4.*;
+import org.stringtemplate.v4.ST;
+import org.stringtemplate.v4.STGroup;
+import org.stringtemplate.v4.STGroupFile;
 
 import net.signbit.samx.parser.SamXLexer;
 import net.signbit.samx.parser.SamXParser;
@@ -33,7 +35,7 @@ public class HtmlPrinterVisitor extends RendererVisitor
 
       ArrayList<String> renderedBlocks = new ArrayList<>();
 
-      for (SamXParser.BlockContext bc: ctx.block())
+      for (SamXParser.BlockContext bc : ctx.block())
       {
          Object rendered = visit(bc);
          if (rendered != null)

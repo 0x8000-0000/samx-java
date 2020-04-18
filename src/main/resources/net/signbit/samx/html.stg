@@ -2,12 +2,13 @@ group html ;
 delimiters "$", "$"
 
 document(title, block) ::= <<
-<html>
+<!DOCTYPE html>
+<html lang="en">
    <head>
       <title>$title$</title>
    </head>
    <body>
-      $block$</body>
+      $block$   </body>
 </html>
 
 >>

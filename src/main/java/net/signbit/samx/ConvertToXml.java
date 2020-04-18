@@ -18,31 +18,32 @@ package net.signbit.samx;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Properties;
+import java.io.Writer;
 
-import org.apache.commons.cli.*;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
 import org.w3c.dom.Document;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXParseException;
 
-public final class ConvertToXml
+public final class ConvertToXml extends Renderer
 {
+
+   private XmlTextVisitor visitor;
+
    public static void main(String[] args) throws IOException
    {
-      Options options = new Options();
+      ConvertToXml converter = new ConvertToXml();
 
-      Option input = new Option("i", "input", true, "input file path");
-      input.setRequired(true);
-      options.addOption(input);
+      converter.render(args);
+   }
 
-      Option output = new Option("o", "output", true, "output file path");
-      output.setRequired(true);
-      options.addOption(output);
-
+   @Override
+   protected void addCustomOptions(Options options)
+   {
       Option rootElement = new Option("r", "root", true, "root element tag (default document)");
       options.addOption(rootElement);
 
@@ -51,57 +52,31 @@ public final class ConvertToXml
 
       Option rootElementVersion = new Option("v", "version", true, "root element version (default null)");
       options.addOption(rootElementVersion);
+   }
 
-      Option property = new Option("V", true, "variables");
-      property.setArgs(2);
-      property.setValueSeparator('=');
-      options.addOption(property);
+   @Override
+   protected RendererVisitor makeVisitor(Writer writer, Parser.Result result)
+   {
+      visitor = new XmlTextVisitor(writer, result.includedDocuments, result.includedExceptions, result.referencePaths, result.tokens);
+      return visitor;
+   }
 
-      Option trueFlags = new Option("T", "true", true, "flags with true values");
-      options.addOption(trueFlags);
-
-      Option falseFlags = new Option("F", "false", true, "flags with false values");
-      options.addOption(falseFlags);
-
-      CommandLineParser cmdLine = new DefaultParser();
-      HelpFormatter helpFmt = new HelpFormatter();
-
-      try
+   @Override
+   protected void addCustomOptions(CommandLine cmd)
+   {
+      if (cmd.getOptionValue("r") != null)
       {
-         CommandLine cmd = cmdLine.parse(options, args);
+         visitor.setTopElement(cmd.getOptionValue("r"));
 
-         FileWriter fileWriter = new FileWriter(cmd.getOptionValue("output"));
-
-         BufferedWriter writer = new BufferedWriter(fileWriter);
-
-         Parser.Result result = Parser.parse(cmd.getOptionValue("input"));
-         XmlTextVisitor visitor = new XmlTextVisitor(writer, result.includedDocuments, result.includedExceptions, result.referencePaths, result.tokens);
-
-         Properties props = cmd.getOptionProperties("V");
-         visitor.setProperties(props);
-         visitor.setTrueFlags(cmd.getOptionValues("T"));
-         visitor.setFalseFlags(cmd.getOptionValues("F"));
-
-         if (cmd.getOptionValue("r") != null)
-         {
-            visitor.setTopElement(cmd.getOptionValue("r"));
-
-            visitor.setTopElementNamespace(cmd.getOptionValue("n"));
-            visitor.setTopElementVersion(cmd.getOptionValue("v"));
-         }
-
-         visitor.visit(result.document);
-
-         writer.close();
-         fileWriter.close();
-
-         checkWellFormed(new InputSource(cmd.getOptionValue("output")));
+         visitor.setTopElementNamespace(cmd.getOptionValue("n"));
+         visitor.setTopElementVersion(cmd.getOptionValue("v"));
       }
-      catch (ParseException pe)
-      {
-         System.out.println(pe.getMessage());
-         helpFmt.printHelp("ConvertToXml", options);
-      }
+   }
+
+   @Override
+   protected void performCheck(CommandLine cmd)
+   {
+      checkWellFormed(new InputSource(cmd.getOptionValue("output")));
    }
 
    private static class SimpleErrorHandler implements ErrorHandler
