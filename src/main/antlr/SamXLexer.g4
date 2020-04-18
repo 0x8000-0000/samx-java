@@ -166,6 +166,8 @@ tokens { INDENT, DEDENT, END, INVALID, BOL }
    }
 }
 
+EXTCODE : (~'\n')+ { processingCode }? ;
+
 ESCAPE : '\\' . ;
 
 SPACES : [ \t]+ -> channel(WHITESPACE) ;
@@ -350,8 +352,6 @@ QUOT : '\'' ;
 STRING : '"' ( '\\' . | ~[\\\r\n\f"] )* '"' ;
 
 APOSTR : '`' ;
-
-EXTCODE : (~'\n')+ { processingCode }? ;
 
 CODE_MARKER : '```(' { prepareProcessingCode = true; prepareFreeIndent = true; } ;
 
