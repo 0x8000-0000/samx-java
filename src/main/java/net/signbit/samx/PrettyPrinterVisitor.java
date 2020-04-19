@@ -114,15 +114,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
 
       builder.append(ctx.NAME().getText());
       builder.append(ctx.TYPESEP().getText());
-      final SamXParser.ConditionContext cond = ctx.condition();
-      if (cond != null)
-      {
-         builder.append(visit(cond));
-      }
-      for (SamXParser.AttributeContext ac : ctx.attribute())
-      {
-         builder.append(visit(ac));
-      }
+      renderConditionAndAttributes(ctx, builder);
       if (ctx.description != null)
       {
          builder.append(' ');
@@ -241,10 +233,9 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
                continue;
             }
 
-            StringBuilder paragraphBuilder = new StringBuilder();
-            paragraphBuilder.append(visitParagraphDirect(pc));
+            final String paragraph = visitParagraphDirect(pc).toString();
 
-            final String wrappedParagraphs = WordUtils.wrap(paragraphBuilder.toString(), wrapLength);
+            final String wrappedParagraphs = WordUtils.wrap(paragraph, wrapLength);
             StringTokenizer tokenizer = new StringTokenizer(wrappedParagraphs, '\n');
 
             while (tokenizer.hasNext())
@@ -282,15 +273,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
 
       builder.append(ctx.NAME().getText());
       builder.append(ctx.RECSEP().getText());
-      final SamXParser.ConditionContext cond = ctx.condition();
-      if (cond != null)
-      {
-         builder.append(visit(cond));
-      }
-      for (SamXParser.AttributeContext ac : ctx.attribute())
-      {
-         builder.append(visit(ac));
-      }
+      renderConditionAndAttributes(ctx, builder);
       if (ctx.description != null)
       {
          builder.append(' ');
@@ -563,18 +546,10 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
       builder.append('{');
       builder.append(visit(ctx.text()));
       builder.append('}');
+      renderConditionAndAttributes(ctx, builder);
       for (SamXParser.AnnotationContext ac : ctx.annotation())
       {
          builder.append(visit(ac));
-      }
-      for (SamXParser.AttributeContext ac : ctx.attribute())
-      {
-         builder.append(visit(ac));
-      }
-      final SamXParser.ConditionContext cond = ctx.condition();
-      if (cond != null)
-      {
-         builder.append(visit(cond));
       }
 
       return builder;
@@ -654,15 +629,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
 
       builder.append(ctx.NAME().getText());
       builder.append(ctx.TYPESEP().getText());
-      final SamXParser.ConditionContext cond = ctx.condition();
-      if (cond != null)
-      {
-         builder.append(visit(cond));
-      }
-      for (SamXParser.AttributeContext ac : ctx.attribute())
-      {
-         builder.append(visit(ac));
-      }
+      renderConditionAndAttributes(ctx, builder);
       builder.append(' ');
       builder.append(visit(ctx.flow()));
       builder.append('\n');
@@ -926,15 +893,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
       builder.append("~~~(*");
       builder.append(ctx.name.getText());
       builder.append(")");
-      for (SamXParser.AttributeContext ac : ctx.attribute())
-      {
-         builder.append(visit(ac));
-      }
-      final SamXParser.ConditionContext cond = ctx.condition();
-      if (cond != null)
-      {
-         builder.append(visit(cond));
-      }
+      renderConditionAndAttributes(ctx, builder);
       builder.append('\n');
       builder.append('\n');
 
@@ -950,24 +909,11 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
       builder.append(">>>(*");
       builder.append(ctx.name.getText());
       builder.append(')');
-      insertAttributeAndCondition(builder, ctx);
+      renderConditionAndAttributes(ctx, builder);
       builder.append('\n');
       builder.append('\n');
 
       return builder;
-   }
-
-   private void insertAttributeAndCondition(StringBuilder builder, ParserRuleContext ctx)
-   {
-      for (SamXParser.AttributeContext ac : ctx.getRuleContexts(SamXParser.AttributeContext.class))
-      {
-         builder.append(visit(ac));
-      }
-      final SamXParser.ConditionContext cond = ctx.getRuleContext(SamXParser.ConditionContext.class, 0);
-      if (cond != null)
-      {
-         builder.append(visitCondition(cond));
-      }
    }
 
    @Override
@@ -977,7 +923,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
       builder.append(">>>(image ");
       builder.append(visitText(ctx.text()));
       builder.append(')');
-      insertAttributeAndCondition(builder, ctx);
+      renderConditionAndAttributes(ctx, builder);
       if (ctx.description != null)
       {
          builder.append(' ');
@@ -1009,11 +955,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
       }
       else
       {
-         StringBuilder builder = new StringBuilder();
-
-         builder.append(visitFlow(fc));
-
-         return builder.toString();
+         return visitFlow(fc).toString();
       }
    }
 
@@ -1040,21 +982,26 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
       return result;
    }
 
+   private void renderConditionAndAttributes(ParserRuleContext prc, StringBuilder builder)
+   {
+      final SamXParser.ConditionContext cond = prc.getRuleContext(SamXParser.ConditionContext.class, 0);
+      if (cond != null)
+      {
+         builder.append(visit(cond));
+      }
+      for (SamXParser.AttributeContext ac : prc.getRuleContexts(SamXParser.AttributeContext.class))
+      {
+         builder.append(visit(ac));
+      }
+   }
+
    @Override
    public StringBuilder visitGrid(SamXParser.GridContext ctx)
    {
       StringBuilder builder = new StringBuilder();
 
       builder.append("+++");
-      final SamXParser.ConditionContext cond = ctx.condition();
-      if (cond != null)
-      {
-         builder.append(visit(cond));
-      }
-      for (SamXParser.AttributeContext ac : ctx.attribute())
-      {
-         builder.append(visit(ac));
-      }
+      renderConditionAndAttributes(ctx, builder);
       if (ctx.description != null)
       {
          builder.append(' ');

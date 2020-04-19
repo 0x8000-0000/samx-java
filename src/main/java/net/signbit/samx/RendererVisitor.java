@@ -282,7 +282,7 @@ public class RendererVisitor extends SamXParserBaseVisitor<Object>
    /*
     * fragment support
     */
-   private HashMap<String, SamXParser.DefineFragmentContext> fragments = new HashMap<>();
+   private final HashMap<String, SamXParser.DefineFragmentContext> fragments = new HashMap<>();
 
    @Override
    public Object visitDefineFragment(SamXParser.DefineFragmentContext ctx)
@@ -324,7 +324,7 @@ public class RendererVisitor extends SamXParserBaseVisitor<Object>
    public static AttributeVisitor getAttributes(ParserRuleContext prc)
    {
       AttributeVisitor attributeVisitor = new AttributeVisitor();
-      for (SamXParser.AttributeContext ac: prc.getRuleContexts(SamXParser.AttributeContext.class))
+      for (SamXParser.AttributeContext ac : prc.getRuleContexts(SamXParser.AttributeContext.class))
       {
          attributeVisitor.visit(ac);
       }

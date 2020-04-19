@@ -19,7 +19,7 @@ import net.signbit.samx.parser.SamXParser;
 
 public class HtmlPrinterVisitor extends RendererVisitor
 {
-   private STGroup htmlGroup;
+   private final STGroup htmlGroup;
 
    public HtmlPrinterVisitor(Writer aWriter, HashMap<String, Parser.Result> docDict, HashMap<String, IOException> errDict, HashMap<String, String> referenceDict, BufferedTokenStream tokenStream)
    {

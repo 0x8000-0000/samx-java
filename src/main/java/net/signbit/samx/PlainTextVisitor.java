@@ -29,7 +29,7 @@ import net.signbit.samx.parser.SamXParserBaseVisitor;
 
 public class PlainTextVisitor extends SamXParserBaseVisitor<StringBuilder>
 {
-   private BufferedTokenStream tokenStream;
+   private final BufferedTokenStream tokenStream;
 
    public PlainTextVisitor(BufferedTokenStream tokenStream)
    {

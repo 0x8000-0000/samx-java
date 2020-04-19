@@ -769,7 +769,7 @@ public class XmlTextVisitor extends RendererVisitor
       addIndent();
       append("<imagedata");
       AttributeVisitor attributeVisitor = new AttributeVisitor();
-      for (SamXParser.AttributeContext ac: ctx.attribute())
+      for (SamXParser.AttributeContext ac : ctx.attribute())
       {
          attributeVisitor.visit(ac);
       }
@@ -831,7 +831,7 @@ public class XmlTextVisitor extends RendererVisitor
       append(tagType);
 
       AttributeVisitor attributeVisitor = new AttributeVisitor();
-      for (SamXParser.AttributeContext ac: attributes)
+      for (SamXParser.AttributeContext ac : attributes)
       {
          attributeVisitor.visit(ac);
       }

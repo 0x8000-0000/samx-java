@@ -37,22 +37,22 @@ import net.signbit.samx.parser.SamXParser;
 
 public class CppVisitor extends RendererVisitor
 {
-   private STGroup cppGroup;
+   private final STGroup cppGroup;
 
-   private ArrayList<String> enumerations = new ArrayList<>();
-   private ArrayList<String> structures = new ArrayList<>();
+   private final ArrayList<String> enumerations = new ArrayList<>();
+   private final ArrayList<String> structures = new ArrayList<>();
    private String namespace = "";
    private String outputName;
 
    private class StructureMember
    {
-      int DWord;
-      int width;
-      int bitOffset;
-      String type;
-      String field;
-      String name;
-      String description;
+      final int DWord;
+      final int width;
+      final int bitOffset;
+      final String type;
+      final String field;
+      final String name;
+      final String description;
 
       private int getInt(SamXParser.RecordRowContext rrc, int index)
       {
@@ -166,7 +166,7 @@ public class CppVisitor extends RendererVisitor
    @Override
    public Object visitTypedBlock(SamXParser.TypedBlockContext ctx)
    {
-      for (SamXParser.BlockContext bc: ctx.block())
+      for (SamXParser.BlockContext bc : ctx.block())
       {
          visit(bc);
       }
@@ -193,7 +193,7 @@ public class CppVisitor extends RendererVisitor
       int dwordCount = 0;
       int bitOffset = 0;
 
-      for (SamXParser.RecordRowContext rrc: ctx.recordRow())
+      for (SamXParser.RecordRowContext rrc : ctx.recordRow())
       {
          if (isDisabled(rrc.condition()))
          {
