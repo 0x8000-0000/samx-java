@@ -40,6 +40,7 @@ public class CppVisitor extends RendererVisitor
    private final STGroup cppGroup;
 
    private final ArrayList<String> enumerations = new ArrayList<>();
+   private final ArrayList<String> bitFields = new ArrayList<>();
    private final ArrayList<String> structures = new ArrayList<>();
    private String namespace = "";
    private String outputName;
@@ -121,9 +122,14 @@ public class CppVisitor extends RendererVisitor
          return name;
       }
 
+      public boolean isNative()
+      {
+         return "unsigned".equals(type);
+      }
+
       public String getType()
       {
-         if ("unsigned".equals(type))
+         if (isNative())
          {
             return String.format("uint%d_t", unitWidth);
          }
@@ -191,6 +197,7 @@ public class CppVisitor extends RendererVisitor
       document.add("filename", FilenameUtils.getBaseName(outputName));
       document.add("guard", FilenameUtils.getBaseName(outputName).toUpperCase());
       document.add("enumerations", enumerations);
+      document.add("bitFields", bitFields);
       document.add("structures", structures);
       document.add("trueFlags", trueFlags);
       document.add("falseFlags", falseFlags);
@@ -214,9 +221,13 @@ public class CppVisitor extends RendererVisitor
    public Object visitRecordSet(SamXParser.RecordSetContext ctx)
    {
       final String recordType = ctx.NAME().getText();
-      if (recordType.equals("structure"))
+      if ("structure".equals(recordType))
       {
          renderStructure(ctx);
+      }
+      else if ("bitfield".equals(recordType))
+      {
+         renderBitfield(ctx);
       }
 
       return null;
@@ -267,7 +278,23 @@ public class CppVisitor extends RendererVisitor
       structure.add("fields", structureMembers);
       structure.add("size", dwordCount + 1);
 
-      structures.add(structure.render(72));
+      structures.add(structure.render());
+   }
+
+   private void renderBitfield(SamXParser.RecordSetContext ctx)
+   {
+      final String unitWidthHeader = ctx.headerRow().NAME(0).getText();
+      final int unitWidth = unitWidths.getOrDefault(unitWidthHeader, 0);
+
+      ST template = cppGroup.getInstanceOf("/bitField");
+      AttributeVisitor attributes = getAttributes(ctx);
+
+      template.add("name", attributes.getId());
+      template.add("unitWidth", unitWidth);
+      template.add("description", getPlainText(ctx.description));
+      template.add("fields", structureMembers);
+
+      bitFields.add(template.render());
    }
 
    public void setNamespace(String namespace)

@@ -1,6 +1,6 @@
 group cpp ;
 
-document(filename, guard, namespace, enumerations, structures, trueFlags, falseFlags) ::= <<
+document(filename, guard, namespace, enumerations, bitFields, structures, trueFlags, falseFlags) ::= <<
 /**
  * \file <filename>.h
  * \note This file is generated
@@ -20,6 +20,8 @@ document(filename, guard, namespace, enumerations, structures, trueFlags, falseF
 namespace <namespace>
 {
 
+<bitFields>
+
 <enumerations>
 
 <structures>
@@ -30,12 +32,39 @@ namespace <namespace>
 
 >>
 
+bitField(name, description, fields, unitWidth) ::= <<
+
+/** <description>
+ */
+class <name>
+{
+public:
+
+   constexpr explicit <name>(uint<unitWidth>_t data) : m_data{data}
+   {
+   }
+
+   constexpr operator uint<unitWidth>_t() const
+   {
+      return m_data;
+   }
+
+   <fields:fieldDecl()>
+
+private:
+   uint<unitWidth>_t m_data;
+};
+
+>>
+
 structure(name, description, fields, unitWidth, size) ::= <<
 
 /** <description>
  */
 class <name>
 {
+public:
+
    <fields:fieldDecl()>
 
 private:
@@ -53,11 +82,11 @@ fieldDecl(field) ::= <<
    constexpr void set<field.field>(<field.type> val)
    {
       const auto mask = (uint<unitWidth>_t(1U) \<\< <field.width>U) - uint<unitWidth>_t(1U);
-      assert(val \<= mask);
+      assert(<if(field.native)>val<else>uint<unitWidth>_t(val)<endif> \<= mask);
 
       const auto shiftedMask = mask \<\< <field.bitOffset>U;
 
-      m_data[<field.unitOffset>] = (m_data[<field.unitOffset>] & (~shiftedMask)) | (val \<\< <field.bitOffset>U);
+      m_data[<field.unitOffset>] = (m_data[<field.unitOffset>] & (~shiftedMask)) | (<if(field.native)>val<else>uint<unitWidth>_t(val)<endif> \<\< <field.bitOffset>U);
    }
 
    constexpr <field.type> get<field.field>() const

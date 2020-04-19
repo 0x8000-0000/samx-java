@@ -21,7 +21,7 @@ document: Internet Data Structures
          |                    Options                    |    Padding    |
          +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-      bitfield::(#tos) Type of Service
+      bitfield::(#ip_tos) Type of Service
 
           | _8_bit | Offset | Width | Field       | Value | Name | Description
           +--------+--------+-------+-------------+-------+------+-------------------------
@@ -45,7 +45,7 @@ document: Internet Data Structures
           +--------+--------+-------+-------------+-------+------+-------------------------
           |      0 |      6 |     2 | Reserved    | 0     |      | Reserved for Future Use
 
-      bitfield::(#flags) Various Control Flags
+      bitfield::(#ip_flags) Various Control Flags
 
           | _8_bit | Offset | Width | Field    | Value | Name | Description
           |      0 |      0 |     1 | reserved |     0 |      | must be zero
@@ -58,21 +58,21 @@ document: Internet Data Structures
 
       structure::(#ip_header) Internet Header Format
 
-          | _32_bit | Width | Type               | Field    | Name                   | Description
-          |       0 |     4 | unsigned           | version  | Version                | The Version field indicates the format of the internet header. This document describes version 4.
-          |       0 |     4 | unsigned           | ihl      | Internet Header Length | Internet Header Length is the length of the internet header in 32 bit words, and thus points to the beginning of the data. Note that the minimum value for a correct header is 5.
-          |       0 |     8 | {bitfield}[*tos]   | tos      | Type of Service        | The Type of Service provides an indication of the abstract parameters of the quality of service desired.
-          |       0 |    16 | unsigned           | tot_len  | Total Length           | Total Length is the length of the datagram, measured in octets, including internet header and data. This field allows the length of a datagram to be up to 65,535 octets.
-          |       1 |    16 | unsigned           | id       | Identification         | An identifying value assigned by the sender to aid in assembling the fragments of a datagram.
-          |       1 |     3 | {bitfield}[*flags] | flags    | Flags                  | Various Control Flags
-          |       1 |    13 | unsigned           | frag_off | Fragment Offset        | This field indicates where in the datagram this fragment belongs. The fragment offset is measured in units of 8 octets (64 bits). The first fragment has offset zero.
-          |       2 |     8 | unsigned           | ttl      | Time to Live           | This field indicates the maximum time the datagram is allowed to remain in the internet system. If this field contains the value zero, then the datagram must be destroyed.
-          |       2 |     8 | unsigned           | protocol | Protocol               | This field indicates the next level protocol used in the data portion of the internet datagram. The values for various protocols are specified in "Assigned Numbers"
-          |       2 |    16 | unsigned           | check    | Header Checksum        | A checksum on the header only. Since some header fields change (e.g., time to live), this is recomputed and verified at each point that the internet header is processed.
-          |       3 |    32 | unsigned           | saddr    | Source Address         | The source address.
-          |       4 |    32 | unsigned           | daddr    | Destination Address    | The destination address.
-          |       5 |    24 | unsigned           | options  | Options                | The options may appear or not in datagrams. They must be implemented by all IP modules (host and gateways). What is optional is their transmission in any particular datagram, not their implementation.
-          |       5 |     8 | unsigned           | padding  | Padding                | The internet header Padding field is used to ensure that the data begins on 32 bit word boundary. The padding is zero.
+          | _32_bit | Width | Type                  | Field    | Name                   | Description
+          |       0 |     4 | unsigned              | version  | Version                | The Version field indicates the format of the internet header. This document describes version 4.
+          |       0 |     4 | unsigned              | ihl      | Internet Header Length | Internet Header Length is the length of the internet header in 32 bit words, and thus points to the beginning of the data. Note that the minimum value for a correct header is 5.
+          |       0 |     8 | {bitfield}[*ip_tos]   | tos      | Type of Service        | The Type of Service provides an indication of the abstract parameters of the quality of service desired.
+          |       0 |    16 | unsigned              | tot_len  | Total Length           | Total Length is the length of the datagram, measured in octets, including internet header and data. This field allows the length of a datagram to be up to 65,535 octets.
+          |       1 |    16 | unsigned              | id       | Identification         | An identifying value assigned by the sender to aid in assembling the fragments of a datagram.
+          |       1 |     3 | {bitfield}[*ip_flags] | flags    | Flags                  | Various Control Flags
+          |       1 |    13 | unsigned              | frag_off | Fragment Offset        | This field indicates where in the datagram this fragment belongs. The fragment offset is measured in units of 8 octets (64 bits). The first fragment has offset zero.
+          |       2 |     8 | unsigned              | ttl      | Time to Live           | This field indicates the maximum time the datagram is allowed to remain in the internet system. If this field contains the value zero, then the datagram must be destroyed.
+          |       2 |     8 | unsigned              | protocol | Protocol               | This field indicates the next level protocol used in the data portion of the internet datagram. The values for various protocols are specified in "Assigned Numbers"
+          |       2 |    16 | unsigned              | check    | Header Checksum        | A checksum on the header only. Since some header fields change (e.g., time to live), this is recomputed and verified at each point that the internet header is processed.
+          |       3 |    32 | unsigned              | saddr    | Source Address         | The source address.
+          |       4 |    32 | unsigned              | daddr    | Destination Address    | The destination address.
+          |       5 |    24 | unsigned              | options  | Options                | The options may appear or not in datagrams. They must be implemented by all IP modules (host and gateways). What is optional is their transmission in any particular datagram, not their implementation.
+          |       5 |     8 | unsigned              | padding  | Padding                | The internet header Padding field is used to ensure that the data begins on 32 bit word boundary. The padding is zero.
 
    section: User Datagram Protocol
 
