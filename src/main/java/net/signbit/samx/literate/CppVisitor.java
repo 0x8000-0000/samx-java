@@ -54,9 +54,9 @@ public class CppVisitor extends RendererVisitor
       final String name;
       final String description;
 
-      private int getInt(SamXParser.RecordRowContext rrc, int index)
+      private int getInt(SamXParser.RecordDataContext rdc, int index)
       {
-         final SamXParser.FlowContext fc = rrc.optionalFlow(index).flow();
+         final SamXParser.FlowContext fc = rdc.optionalFlow(index).flow();
          if (fc != null)
          {
             return Integer.parseInt(fc.getText());
@@ -67,9 +67,9 @@ public class CppVisitor extends RendererVisitor
          }
       }
 
-      private String getString(SamXParser.RecordRowContext rrc, int index)
+      private String getString(SamXParser.RecordDataContext rdc, int index)
       {
-         final SamXParser.FlowContext fc = rrc.optionalFlow(index).flow();
+         final SamXParser.FlowContext fc = rdc.optionalFlow(index).flow();
          if (fc != null)
          {
             return getPlainText(fc);
@@ -80,14 +80,14 @@ public class CppVisitor extends RendererVisitor
          }
       }
 
-      public StructureMember(SamXParser.RecordRowContext rrc, int bitOffset)
+      public StructureMember(SamXParser.RecordDataContext rdc, int bitOffset)
       {
-         DWord = getInt(rrc, 0);
-         width = getInt(rrc, 1);
-         type = getString(rrc, 2);
-         field = getString(rrc, 3);
-         name = getString(rrc, 4);
-         description = getString(rrc, 5);
+         DWord = getInt(rdc, 0);
+         width = getInt(rdc, 1);
+         type = getString(rdc, 2);
+         field = getString(rdc, 3);
+         name = getString(rdc, 4);
+         description = getString(rdc, 5);
 
          this.bitOffset = bitOffset;
       }
@@ -195,23 +195,27 @@ public class CppVisitor extends RendererVisitor
 
       for (SamXParser.RecordRowContext rrc : ctx.recordRow())
       {
-         if (isDisabled(rrc.condition()))
+         final SamXParser.RecordDataContext rdc = rrc.recordData();
+         if (rdc != null)
          {
-            continue;
-         }
+            if (isDisabled(rdc.condition()))
+            {
+               continue;
+            }
 
-         StructureMember sm = new StructureMember(rrc, bitOffset);
+            StructureMember sm = new StructureMember(rdc, bitOffset);
 
-         bitOffset += sm.width;
-         if (bitOffset == 32)
-         {
-            bitOffset = 0;
-         }
+            bitOffset += sm.width;
+            if (bitOffset == 32)
+            {
+               bitOffset = 0;
+            }
 
-         structureMembers.add(sm);
-         if (sm.DWord > dwordCount)
-         {
-            dwordCount = sm.DWord;
+            structureMembers.add(sm);
+            if (sm.DWord > dwordCount)
+            {
+               dwordCount = sm.DWord;
+            }
          }
       }
 

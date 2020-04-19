@@ -457,47 +457,80 @@ public class XmlTextVisitor extends RendererVisitor
 
       final SamXParser.HeaderRowContext header = ctx.headerRow();
 
+      SamXParser.RecordDataContext lastRecordData = null;
+
       for (SamXParser.RecordRowContext rrc : ctx.recordRow())
       {
-         if (isDisabled(rrc.condition()))
+         final SamXParser.RecordDataContext rdc = rrc.recordData();
+         if (rdc != null)
          {
-            continue;
-         }
+            if (isDisabled(rdc.condition()))
+            {
+               continue;
+            }
 
-         addIndent();
-         append("<record>");
-         appendNewline();
-
-         indentLevel++;
-
-         for (int ii = 0; ii < header.NAME().size(); ii++)
-         {
             addIndent();
-            append('<');
-            append(header.NAME(ii).getText());
-
-            if (rrc.optionalFlow(ii).flow() != null)
-            {
-               append('>');
-               visitFlow(rrc.optionalFlow(ii).flow());
-               append('<');
-               append('/');
-               append(header.NAME(ii).getText());
-            }
-            else
-            {
-               append('/');
-            }
-
-            append('>');
+            append("<record>");
             appendNewline();
+
+            indentLevel++;
+
+            for (int ii = 0; ii < header.NAME().size(); ii++)
+            {
+               addIndent();
+               append('<');
+               append(header.NAME(ii).getText());
+
+               final SamXParser.FlowContext thisFlow = rdc.optionalFlow(ii).flow();
+               if (thisFlow != null)
+               {
+                  append('>');
+                  visitFlow(thisFlow);
+                  append('<');
+                  append('/');
+                  append(header.NAME(ii).getText());
+               }
+               else
+               {
+                  if (lastRecordData != null)
+                  {
+                     final SamXParser.FlowContext previousFlow = lastRecordData.optionalFlow(ii).flow();
+                     if (previousFlow != null)
+                     {
+                        append('>');
+                        visitFlow(previousFlow);
+                        append('<');
+                        append('/');
+                        append(header.NAME(ii).getText());
+                     }
+                     else
+                     {
+                        append('/');
+                     }
+                  }
+                  else
+                  {
+                     append('/');
+                  }
+               }
+
+               append('>');
+               appendNewline();
+            }
+
+            indentLevel--;
+
+            addIndent();
+            append("</record>");
+            appendNewline();
+
+            lastRecordData = rdc;
          }
 
-         indentLevel--;
-
-         addIndent();
-         append("</record>");
-         appendNewline();
+         if (rrc.recordSep() != null)
+         {
+            lastRecordData = null;
+         }
       }
 
       indentLevel--;

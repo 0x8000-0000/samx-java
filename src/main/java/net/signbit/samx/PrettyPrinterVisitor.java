@@ -298,29 +298,32 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
 
       for (SamXParser.RecordRowContext rrc : ctx.recordRow())
       {
-         ArrayList<String> rowElements = visitRecordRowElements(rrc);
-         rows.add(rowElements);
-
+         if (rrc.recordData() != null)
          {
-            final int conditionLength = rowElements.get(0).length();
-            if (columnWidths[0] < conditionLength)
-            {
-               columnWidths[0] = conditionLength;
-            }
-         }
+            ArrayList<String> rowElements = visitRecordDataElements(rrc.recordData());
+            rows.add(rowElements);
 
-         for (int ii = 0; ii < headerElements.size(); ++ii)
-         {
-            final String value = rowElements.get(ii + 1);
-            final int length = value.length();
-            if (columnWidths[ii + 1] < length)
             {
-               columnWidths[ii + 1] = length;
+               final int conditionLength = rowElements.get(0).length();
+               if (columnWidths[0] < conditionLength)
+               {
+                  columnWidths[0] = conditionLength;
+               }
             }
 
-            if (!VisitorUtils.isInteger(value))
+            for (int ii = 0; ii < headerElements.size(); ++ii)
             {
-               isInteger[ii] = false;
+               final String value = rowElements.get(ii + 1);
+               final int length = value.length();
+               if (columnWidths[ii + 1] < length)
+               {
+                  columnWidths[ii + 1] = length;
+               }
+
+               if (!VisitorUtils.isInteger(value))
+               {
+                  isInteger[ii] = false;
+               }
             }
          }
       }
@@ -406,48 +409,6 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
       return builder;
    }
 
-   @Override
-   public StringBuilder visitRecordRow(SamXParser.RecordRowContext ctx)
-   {
-      StringBuilder builder = new StringBuilder();
-      addIndent(builder);
-
-      boolean firstToken = true;
-
-      final SamXParser.ConditionContext cond = ctx.condition();
-      if (cond != null)
-      {
-         builder.append(visit(cond));
-         builder.append(' ');
-         firstToken = false;
-      }
-
-      for (SamXParser.OptionalFlowContext tc : ctx.optionalFlow())
-      {
-         if (firstToken)
-         {
-            firstToken = false;
-         }
-         else
-         {
-            builder.append(' ');
-         }
-
-         builder.append("| ");
-         if (tc.flow() != null)
-         {
-            StringBuilder childBuilder = visit(tc.flow());
-            if (childBuilder != null)
-            {
-               builder.append(childBuilder);
-            }
-         }
-      }
-
-      builder.append('\n');
-      return builder;
-   }
-
    private ArrayList<String> visitHeaderRowElements(SamXParser.HeaderRowContext ctx)
    {
       ArrayList<String> result = new ArrayList<>(1 + ctx.NAME().size());
@@ -460,7 +421,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
       return result;
    }
 
-   private ArrayList<String> visitRecordRowElements(SamXParser.RecordRowContext ctx)
+   private ArrayList<String> visitRecordDataElements(SamXParser.RecordDataContext ctx)
    {
       ArrayList<String> result = new ArrayList<>(1 + ctx.optionalFlow().size());
 

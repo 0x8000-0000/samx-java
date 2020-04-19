@@ -158,7 +158,7 @@ headerRow
 
 optionalFlow : flow? ;
 
-recordRow
+recordData
    locals [ int columnCount = 0; ]
    : condition? ( COLSEP optionalFlow { $ctx.columnCount ++; } )+ NEWLINE
    {
@@ -170,6 +170,21 @@ recordRow
             " but observed " + $ctx.columnCount);
       }
    };
+
+recordSep
+   locals [ int columnCount = 0; ]
+   : (STT_TBL_SEP { $ctx.columnCount ++; })+ NEWLINE
+   {
+      if (currentHeaderLength < $ctx.columnCount)
+      {
+         throw new ParseCancellationException("line " + $start.getLine() +
+            ":" + $start.getCharPositionInLine() +
+            " incorrect number of columns; expected at most " + currentHeaderLength +
+            " but observed " + $ctx.columnCount);
+      }
+   };
+
+recordRow : recordData | recordSep ;
 
 gridElement : COLSEP attribute* optionalFlow ;
 

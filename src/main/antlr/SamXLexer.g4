@@ -420,3 +420,5 @@ STT_DEFRG : '~~~(*' ;
 
 STT_INCL : '<<<(' ;
 
+STT_TBL_SEP : '+' '-'+ ;
+
