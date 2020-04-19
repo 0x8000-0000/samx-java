@@ -57,6 +57,12 @@ public class PlainTextVisitor extends SamXParserBaseVisitor<StringBuilder>
       return builder;
    }
 
+   @Override
+   public StringBuilder visitPhrase(SamXParser.PhraseContext ctx)
+   {
+      return visitText(ctx.text());
+   }
+
    private void addSpaceIfPresentInInput(StringBuilder builder, ParseTree tn)
    {
       final Interval pos = tn.getSourceInterval();

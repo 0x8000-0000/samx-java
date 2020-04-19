@@ -21,8 +21,8 @@ public class RendererVisitor extends SamXParserBaseVisitor<Object>
    final HashMap<String, String> referencePaths;
 
    Properties properties = new Properties();
-   final Set<String> trueFlags = new HashSet<>();
-   final Set<String> falseFlags = new HashSet<>();
+   protected final Set<String> trueFlags = new HashSet<>();
+   protected final Set<String> falseFlags = new HashSet<>();
 
    int charactersWritten = 0;
    Exception exception = null;
@@ -182,7 +182,7 @@ public class RendererVisitor extends SamXParserBaseVisitor<Object>
       return Boolean.FALSE;
    }
 
-   boolean isDisabled(SamXParser.ConditionContext condition)
+   public boolean isDisabled(SamXParser.ConditionContext condition)
    {
       if (condition != null)
       {

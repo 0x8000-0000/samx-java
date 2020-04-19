@@ -23,6 +23,9 @@ import java.util.HashMap;
 
 import org.antlr.v4.runtime.BufferedTokenStream;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.text.StringTokenizer;
+import org.apache.commons.text.TextStringBuilder;
+import org.apache.commons.text.WordUtils;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 import org.stringtemplate.v4.STGroupFile;
@@ -40,6 +43,96 @@ public class CppVisitor extends RendererVisitor
    private ArrayList<String> structures = new ArrayList<>();
    private String namespace = "";
    private String outputName;
+
+   private class StructureMember
+   {
+      int DWord;
+      int width;
+      int bitOffset;
+      String type;
+      String field;
+      String name;
+      String description;
+
+      private int getInt(SamXParser.RecordRowContext rrc, int index)
+      {
+         final SamXParser.FlowContext fc = rrc.optionalFlow(index).flow();
+         if (fc != null)
+         {
+            return Integer.parseInt(fc.getText());
+         }
+         else
+         {
+            return -1;
+         }
+      }
+
+      private String getString(SamXParser.RecordRowContext rrc, int index)
+      {
+         final SamXParser.FlowContext fc = rrc.optionalFlow(index).flow();
+         if (fc != null)
+         {
+            return getPlainText(fc);
+         }
+         else
+         {
+            return "";
+         }
+      }
+
+      public StructureMember(SamXParser.RecordRowContext rrc, int bitOffset)
+      {
+         DWord = getInt(rrc, 0);
+         width = getInt(rrc, 1);
+         type = getString(rrc, 2);
+         field = getString(rrc, 3);
+         name = getString(rrc, 4);
+         description = getString(rrc, 5);
+
+         this.bitOffset = bitOffset;
+      }
+
+      public String getName()
+      {
+         return name;
+      }
+
+      public String getType()
+      {
+         return type;
+      }
+
+      public String getField()
+      {
+         return WordUtils.capitalize(field);
+      }
+
+      public String getDescription()
+      {
+         String wrapped = WordUtils.wrap(description, 60);
+         StringTokenizer tokenizer = new StringTokenizer(wrapped, '\n');
+         TextStringBuilder builder = new TextStringBuilder();
+         builder.appendWithSeparators(tokenizer.getTokenList(), "\n    * ");
+         return builder.build();
+      }
+
+      public int getWidth()
+      {
+         return width;
+      }
+
+      public int getWord()
+      {
+         return DWord;
+      }
+
+      public int getOffset()
+      {
+         return bitOffset;
+      }
+   }
+
+   private ArrayList<StructureMember> structureMembers = new ArrayList<>();
 
    public CppVisitor(Writer aWriter, HashMap<String, Parser.Result> docDict, HashMap<String, IOException> errDict, HashMap<String, String> referenceDict, BufferedTokenStream tokenStream)
    {
@@ -63,6 +156,8 @@ public class CppVisitor extends RendererVisitor
       document.add("guard", FilenameUtils.getBaseName(outputName).toUpperCase());
       document.add("enumerations", enumerations);
       document.add("structures", structures);
+      document.add("trueFlags", trueFlags);
+      document.add("falseFlags", falseFlags);
       append(document.render());
 
       return null;
@@ -93,13 +188,42 @@ public class CppVisitor extends RendererVisitor
 
    private void renderStructure(SamXParser.RecordSetContext ctx)
    {
+      structureMembers = new ArrayList<>();
+
+      int dwordCount = 0;
+      int bitOffset = 0;
+
+      for (SamXParser.RecordRowContext rrc: ctx.recordRow())
+      {
+         if (isDisabled(rrc.condition()))
+         {
+            continue;
+         }
+
+         StructureMember sm = new StructureMember(rrc, bitOffset);
+
+         bitOffset += sm.width;
+         if (bitOffset == 32)
+         {
+            bitOffset = 0;
+         }
+
+         structureMembers.add(sm);
+         if (sm.DWord > dwordCount)
+         {
+            dwordCount = sm.DWord;
+         }
+      }
+
       ST structure = cppGroup.getInstanceOf("/structure");
       AttributeVisitor attributes = getAttributes(ctx);
 
       structure.add("name", attributes.getId());
       structure.add("description", getPlainText(ctx.description));
+      structure.add("fields", structureMembers);
+      structure.add("size", dwordCount + 1);
 
-      structures.add(structure.render());
+      structures.add(structure.render(72));
    }
 
    public void setNamespace(String namespace)

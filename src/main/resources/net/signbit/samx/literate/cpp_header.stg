@@ -1,13 +1,21 @@
 group cpp ;
 
-document(filename, guard, namespace, enumerations, structures) ::= <<
+document(filename, guard, namespace, enumerations, structures, trueFlags, falseFlags) ::= <<
 /**
  * \file <filename>.h
  * \note This file is generated
+ *
+ * Configuration:
+<if(trueFlags)> *    Flags, true: <trueFlags><endif>
+<if(falseFlags)> *    Flags, false : <falseFlags><endif>
  */
 
 #ifndef <guard>_H_INCLUDED
 #define <guard>_H_INCLUDED
+
+#include \<array>
+#include \<cassert>
+#include \<cstdint>
 
 namespace <namespace>
 {
@@ -22,12 +30,40 @@ namespace <namespace>
 
 >>
 
-structure(name, description) ::= <<
+structure(name, description, fields, size) ::= <<
 
 /** <description>
  */
 class <name>
 {
+   <fields:fieldDecl()>
+
+private:
+   std::array\<uint32_t, <size>\> m_data{};
 };
+
+>>
+
+fieldDecl(field) ::= <<
+
+   /** <field.name>
+    *
+    * <field.description>
+    */
+   constexpr void set<field.field>(<field.type> val)
+   {
+      const auto mask = (1UL \<\< <field.width>) - 1UL;
+      assert(val \<= mask);
+
+      const auto shiftedMask = mask \<\< <field.offset>;
+
+      m_data[<field.word>] = (m_data[<field.word>] & (~shiftedMask)) | (val \<\< <field.offset>);
+   }
+
+   constexpr <field.type> get<field.field>() const
+   {
+      const auto mask = (1UL \<\< <field.width>) - 1UL;
+      return (m_data[<field.word>] \>> <field.offset>) & mask;
+   }
 
 >>
