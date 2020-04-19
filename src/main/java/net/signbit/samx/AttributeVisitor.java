@@ -35,8 +35,14 @@ public class AttributeVisitor extends SamXParserBaseVisitor<Void>
       return nameAttribute;
    }
 
+   public String getReference()
+   {
+      return referenceAttribute;
+   }
+
    private String idAttribute = null;
    private String nameAttribute = null;
+   private String referenceAttribute = null;
 
    @Override
    public Void visitClassAttr(SamXParser.ClassAttrContext ctx)
@@ -66,6 +72,13 @@ public class AttributeVisitor extends SamXParserBaseVisitor<Void>
    public Void visitNameAttr(SamXParser.NameAttrContext ctx)
    {
       nameAttribute = ctx.NAME().getText();
+      return null;
+   }
+
+   @Override
+   public Void visitReferenceAttr(SamXParser.ReferenceAttrContext ctx)
+   {
+      referenceAttribute = ctx.NAME().getText();
       return null;
    }
 

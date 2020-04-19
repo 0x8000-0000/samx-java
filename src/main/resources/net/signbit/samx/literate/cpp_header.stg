@@ -30,7 +30,7 @@ namespace <namespace>
 
 >>
 
-structure(name, description, fields, size) ::= <<
+structure(name, description, fields, unitWidth, size) ::= <<
 
 /** <description>
  */
@@ -39,7 +39,7 @@ class <name>
    <fields:fieldDecl()>
 
 private:
-   std::array\<uint32_t, <size>\> m_data{};
+   std::array\<uint<unitWidth>_t, <size>\> m_data{};
 };
 
 >>
@@ -52,18 +52,18 @@ fieldDecl(field) ::= <<
     */
    constexpr void set<field.field>(<field.type> val)
    {
-      const auto mask = (1UL \<\< <field.width>) - 1UL;
+      const auto mask = (uint<unitWidth>_t(1U) \<\< <field.width>U) - uint<unitWidth>_t(1U);
       assert(val \<= mask);
 
-      const auto shiftedMask = mask \<\< <field.offset>;
+      const auto shiftedMask = mask \<\< <field.bitOffset>U;
 
-      m_data[<field.word>] = (m_data[<field.word>] & (~shiftedMask)) | (val \<\< <field.offset>);
+      m_data[<field.unitOffset>] = (m_data[<field.unitOffset>] & (~shiftedMask)) | (val \<\< <field.bitOffset>U);
    }
 
    constexpr <field.type> get<field.field>() const
    {
-      const auto mask = (1UL \<\< <field.width>) - 1UL;
-      return (m_data[<field.word>] \>> <field.offset>) & mask;
+      const auto mask = (uint<unitWidth>_t(1U) \<\< <field.width>U) - uint<unitWidth>_t(1U);
+      return <field.type>((m_data[<field.unitOffset>] \>> <field.bitOffset>U) & mask);
    }
 
 >>

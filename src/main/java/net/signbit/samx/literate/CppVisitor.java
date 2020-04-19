@@ -44,9 +44,13 @@ public class CppVisitor extends RendererVisitor
    private String namespace = "";
    private String outputName;
 
+   private final HashMap<String, Integer> unitWidths = new HashMap<>();
+
    private class StructureMember
    {
-      final int DWord;
+      final int unitWidth;
+
+      final int unitOffset;
       final int width;
       final int bitOffset;
       final String type;
@@ -80,11 +84,31 @@ public class CppVisitor extends RendererVisitor
          }
       }
 
-      public StructureMember(SamXParser.RecordDataContext rdc, int bitOffset)
+      private String getBitFieldName(SamXParser.RecordDataContext rdc, int index)
       {
-         DWord = getInt(rdc, 0);
+         final SamXParser.FlowContext fc = rdc.optionalFlow(index).flow();
+         AttributeVisitor visitor = new AttributeVisitor();
+         visitor.visit(fc);
+         return visitor.getReference();
+      }
+
+      public StructureMember(SamXParser.RecordDataContext rdc, int bitOffset, int unitWidth)
+      {
+         this.unitWidth = unitWidth;
+
+         unitOffset = getInt(rdc, 0);
          width = getInt(rdc, 1);
-         type = getString(rdc, 2);
+
+         final String localType = getString(rdc, 2);
+         if ("bitfield".equals(localType))
+         {
+            type = getBitFieldName(rdc, 2);
+         }
+         else
+         {
+            type = localType;
+         }
+
          field = getString(rdc, 3);
          name = getString(rdc, 4);
          description = getString(rdc, 5);
@@ -99,7 +123,14 @@ public class CppVisitor extends RendererVisitor
 
       public String getType()
       {
-         return type;
+         if ("unsigned".equals(type))
+         {
+            return String.format("uint%d_t", unitWidth);
+         }
+         else
+         {
+            return type;
+         }
       }
 
       public String getField()
@@ -121,12 +152,12 @@ public class CppVisitor extends RendererVisitor
          return width;
       }
 
-      public int getWord()
+      public int getUnitOffset()
       {
-         return DWord;
+         return unitOffset;
       }
 
-      public int getOffset()
+      public int getBitOffset()
       {
          return bitOffset;
       }
@@ -139,6 +170,11 @@ public class CppVisitor extends RendererVisitor
       super(aWriter, docDict, errDict, referenceDict, tokenStream);
 
       cppGroup = new STGroupFile("net/signbit/samx/literate/cpp_header.stg");
+
+      unitWidths.put("_8_bit", 8);
+      unitWidths.put("_16_bit", 16);
+      unitWidths.put("_32_bit", 32);
+      unitWidths.put("_64_bit", 64);
    }
 
    @Override
@@ -193,6 +229,9 @@ public class CppVisitor extends RendererVisitor
       int dwordCount = 0;
       int bitOffset = 0;
 
+      final String unitWidthHeader = ctx.headerRow().NAME(0).getText();
+      final int unitWidth = unitWidths.getOrDefault(unitWidthHeader, 0);
+
       for (SamXParser.RecordRowContext rrc : ctx.recordRow())
       {
          final SamXParser.RecordDataContext rdc = rrc.recordData();
@@ -203,7 +242,7 @@ public class CppVisitor extends RendererVisitor
                continue;
             }
 
-            StructureMember sm = new StructureMember(rdc, bitOffset);
+            StructureMember sm = new StructureMember(rdc, bitOffset, unitWidth);
 
             bitOffset += sm.width;
             if (bitOffset == 32)
@@ -212,9 +251,9 @@ public class CppVisitor extends RendererVisitor
             }
 
             structureMembers.add(sm);
-            if (sm.DWord > dwordCount)
+            if (sm.unitOffset > dwordCount)
             {
-               dwordCount = sm.DWord;
+               dwordCount = sm.unitOffset;
             }
          }
       }
@@ -223,6 +262,7 @@ public class CppVisitor extends RendererVisitor
       AttributeVisitor attributes = getAttributes(ctx);
 
       structure.add("name", attributes.getId());
+      structure.add("unitWidth", unitWidth);
       structure.add("description", getPlainText(ctx.description));
       structure.add("fields", structureMembers);
       structure.add("size", dwordCount + 1);
