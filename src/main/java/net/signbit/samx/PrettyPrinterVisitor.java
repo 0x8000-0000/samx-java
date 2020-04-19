@@ -320,11 +320,21 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
                   columnWidths[ii + 1] = length;
                }
 
-               if (!VisitorUtils.isInteger(value))
+               if ((value != null) && (!value.isEmpty()))
                {
-                  isInteger[ii] = false;
+                  if (!VisitorUtils.isInteger(value))
+                  {
+                     isInteger[ii] = false;
+                  }
                }
             }
+         }
+
+         if (rrc.recordSep() != null)
+         {
+            ArrayList<String> cols = new ArrayList<>();
+            cols.add("+-");
+            rows.add(cols);
          }
       }
 
@@ -350,26 +360,47 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
       for (ArrayList<String> rowData : rows)
       {
          addIndent(builder);
-         if (columnWidths[0] != 0)
+         if (rowData.get(0).equals("+-"))
          {
-            builder.append(String.format("%1$-" + columnWidths[0] + "s", rowData.get(0)));
-         }
-         for (int ii = 0; ii < headerElements.size(); ++ii)
-         {
-            builder.append(" | ");
-            if (isInteger[ii])
+            builder.append(' ');
+
+            for (int jj = 0; jj < columnWidths[0]; ++ jj)
             {
-               builder.append(String.format("%1$" + columnWidths[ii + 1] + "s", rowData.get(ii + 1)));
+               builder.append(' ');
             }
-            else
+
+            for (int ii = 0; ii < headerElements.size(); ++ii)
             {
-               if (ii != (headerElements.size() - 1))
+               builder.append("+---");
+               for (int jj = 1; jj < columnWidths[ii + 1]; ++jj)
                {
-                  builder.append(String.format("%1$-" + columnWidths[ii + 1] + "s", rowData.get(ii + 1)));
+                  builder.append('-');
+               }
+            }
+         }
+         else
+         {
+            if (columnWidths[0] != 0)
+            {
+               builder.append(String.format("%1$-" + columnWidths[0] + "s", rowData.get(0)));
+            }
+            for (int ii = 0; ii < headerElements.size(); ++ii)
+            {
+               builder.append(" | ");
+               if (isInteger[ii])
+               {
+                  builder.append(String.format("%1$" + columnWidths[ii + 1] + "s", rowData.get(ii + 1)));
                }
                else
                {
-                  builder.append(rowData.get(headerElements.size()));
+                  if (ii != (headerElements.size() - 1))
+                  {
+                     builder.append(String.format("%1$-" + columnWidths[ii + 1] + "s", rowData.get(ii + 1)));
+                  }
+                  else
+                  {
+                     builder.append(rowData.get(headerElements.size()));
+                  }
                }
             }
          }
@@ -1008,9 +1039,12 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
                columnWidths[ii] = length;
             }
 
-            if (!VisitorUtils.isInteger(value))
+            if ((value != null) && (!value.isEmpty()))
             {
-               isInteger[ii] = false;
+               if (!VisitorUtils.isInteger(value))
+               {
+                  isInteger[ii] = false;
+               }
             }
          }
       }
