@@ -23,31 +23,31 @@ document: Internet Data Structures
 
       bitfield::(#tos) Type of Service
 
-          | Offset | Width | Name        | Value | Description
-          |      0 |     3 | Precedence  | 0b111 | Network Control
-          |      0 |     3 | Precedence  | 0b110 | Internetwork Control
-          |      0 |     3 | Precedence  | 0b101 | CRITIC/ECP
-          |      0 |     3 | Precedence  | 0b100 | Flash Override
-          |      0 |     3 | Precedence  | 0b011 | Flash
-          |      0 |     3 | Precedence  | 0b010 | Immediate
-          |      0 |     3 | Precedence  | 0b001 | Priority
-          |      0 |     3 | Precedence  | 0b000 | Routine
-          |      3 |     1 | Delay       | 0     | Normal Delay
-          |      3 |     1 | Delay       | 1     | Low Delay
-          |      4 |     1 | Throughput  | 0     | Normal Throughput
-          |      4 |     1 | Throughput  | 1     | High Throughput
-          |      5 |     1 | Reliability | 0     | Normal Reliability
-          |      5 |     1 | Reliability | 1     | High Reliability
-          |      6 |     2 | Reserved    | 0     | Reserved for Future Use
+          | Octet | Offset | Width | Name        | Value | Description
+          |     0 |      0 |     3 | Precedence  | 0b111 | Network Control
+          |     0 |      0 |     3 | Precedence  | 0b110 | Internetwork Control
+          |     0 |      0 |     3 | Precedence  | 0b101 | CRITIC/ECP
+          |     0 |      0 |     3 | Precedence  | 0b100 | Flash Override
+          |     0 |      0 |     3 | Precedence  | 0b011 | Flash
+          |     0 |      0 |     3 | Precedence  | 0b010 | Immediate
+          |     0 |      0 |     3 | Precedence  | 0b001 | Priority
+          |     0 |      0 |     3 | Precedence  | 0b000 | Routine
+          |     0 |      3 |     1 | Delay       | 0     | Normal Delay
+          |     0 |      3 |     1 | Delay       | 1     | Low Delay
+          |     0 |      4 |     1 | Throughput  | 0     | Normal Throughput
+          |     0 |      4 |     1 | Throughput  | 1     | High Throughput
+          |     0 |      5 |     1 | Reliability | 0     | Normal Reliability
+          |     0 |      5 |     1 | Reliability | 1     | High Reliability
+          |     0 |      6 |     2 | Reserved    | 0     | Reserved for Future Use
 
       bitfield::(#flags) Various Control Flags
 
-          | Offset | Width | Name     | Value | Description
-          |      0 |     1 | reserved |     0 | must be zero
-          |      1 |     1 | DF       |     0 | May Fragment.
-          |      1 |     1 | DF       |     1 | Don't Fragment.
-          |      2 |     1 | MF       |     0 | Last Fragment.
-          |      2 |     1 | MF       |     1 | More Fragments.
+          | Octet | Offset | Width | Name     | Value | Description
+          |     0 |      0 |     1 | reserved |     0 | must be zero
+          |     0 |      1 |     1 | DF       |     0 | May Fragment.
+          |     0 |      1 |     1 | DF       |     1 | Don't Fragment.
+          |     0 |      2 |     1 | MF       |     0 | Last Fragment.
+          |     0 |      2 |     1 | MF       |     1 | More Fragments.
 
       structure::(#ip_header) Internet Header Format
 
