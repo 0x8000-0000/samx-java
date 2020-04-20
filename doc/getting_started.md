@@ -68,6 +68,8 @@ There are several applications bundled in the distribution package:
 
 ```shell script
 $ ls bin | cat
+generate_header
+generate_header.bat
 pretty_print
 pretty_print.bat
 samxj
@@ -107,3 +109,6 @@ In-development Utilities
 
 `to_html` converts the input document into the corresponding HTML format. It is under heavy development at this time
 and it does not support all SAMx functionality.
+
+`generate_header` is part of the support for literate programing in SAMx, where we define enumerations and data
+structures inside SAMx, then generate both end-user documentation and source code from the same model.
