@@ -333,11 +333,15 @@ TYPESEP : ':' ;
 
 RECSEP : '::' { prepareFreeIndent = true; };
 
+MUL_COLSEP : '||' '|'+ ;
+
 COLSEP : '|' ;
 
 BULLET : { expectListStart }? '*' { expectListStart = false; } ;
 
 BULL_T : { !expectListStart }? '*' ;
+
+STT_PREC_GRID : '###' { prepareFreeIndent = true; };
 
 HASH : { expectListStart }? '#' { expectListStart = false; } ;
 
@@ -404,6 +408,8 @@ BANG : '!' ;
 
 STT_GRID: '+++' { prepareFreeIndent = true; } ;
 
+STT_GEN_GRID: '-+-' { prepareFreeIndent = true; } ;
+
 PLUS : '+' ;
 
 STT_LOCIN : '>($' ;
@@ -421,4 +427,8 @@ STT_DEFRG : '~~~(*' ;
 STT_INCL : '<<<(' ;
 
 STT_TBL_SEP : '+' '-'+ ;
+
+STT_HDR_SEP : '+' '='+ ;
+
+GEN_ROW_SEP : ('+' | '-')+ ;
 

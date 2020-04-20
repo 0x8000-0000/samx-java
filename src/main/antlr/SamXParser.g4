@@ -188,6 +188,10 @@ recordRow : recordData | recordSep ;
 
 gridElement : COLSEP attribute* optionalFlow ;
 
+spanGridElement : MUL_COLSEP attribute* optionalFlow ;
+
+generalGridElement : gridElement | spanGridElement ;
+
 gridHeaderRow
    locals [ int columnCount = 0; ]
    : attribute* ( gridElement { $ctx.columnCount ++; } )+ NEWLINE { currentHeaderLength = $ctx.columnCount; };
@@ -204,6 +208,20 @@ gridRecordRow
             " but observed " + $ctx.columnCount);
       }
    };
+
+generalGridHeaderSep : STT_HDR_SEP+ PLUS NEWLINE ;
+
+generalGridRowData : attribute* condition? generalGridElement+ COLSEP ;
+
+generalGridRow : (generalGridRowData | GEN_ROW_SEP) NEWLINE ;
+
+generalGridHeader : generalGridRow+ generalGridHeaderSep ;
+
+preciseRecordSep : (STT_TBL_SEP)+ PLUS NEWLINE ;
+
+preciseGridRowData : attribute* condition? gridElement+ NEWLINE ;
+
+preciseGridRow : preciseGridRowData | preciseRecordSep ;
 
 externalCode : EXTCODE ;
 
@@ -229,6 +247,8 @@ block :
    | STT_IMAGE text CLOSE_PAR attribute* condition? description=flow?                           # InsertImage
    | CODE_MARKER language=text CLOSE_PAR attribute* condition? NEWLINE+ INDENT (externalCode? NEWLINE)+ DEDENT     # CodeBlock
    | STT_GRID attribute* condition? description=flow? NEWLINE+ INDENT gridHeaderRow (gridRecordRow | NEWLINE) + DEDENT # Grid
+   | STT_GEN_GRID attribute* condition? description=flow? NEWLINE+ INDENT generalGridHeader? (generalGridRow | NEWLINE)+ DEDENT # GeneralGrid
+   | STT_PREC_GRID attribute* condition? description=flow? NEWLINE+ INDENT (preciseGridRow | NEWLINE) + DEDENT # PreciseGrid
    | NEWLINE                                                                                    # Empty
    ;
 

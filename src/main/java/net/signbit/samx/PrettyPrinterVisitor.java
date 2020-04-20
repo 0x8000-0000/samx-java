@@ -1103,4 +1103,44 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
 
       return builder;
    }
+
+   private static class GridCell
+   {
+      int span;
+      String content;
+   }
+
+   private ArrayList<GridCell> renderGeneralGridRow(SamXParser.GeneralGridRowDataContext ggrdc)
+   {
+
+      return null;
+   }
+
+   @Override
+   public StringBuilder visitGeneralGrid(SamXParser.GeneralGridContext ctx)
+   {
+      StringBuilder builder = new StringBuilder();
+
+      ArrayList<ArrayList<GridCell>> cells = new ArrayList<>();
+
+      for (SamXParser.GeneralGridRowContext rc: ctx.generalGridHeader().generalGridRow())
+      {
+         final SamXParser.GeneralGridRowDataContext rdc = rc.generalGridRowData();
+         if (rdc != null)
+         {
+            cells.add(renderGeneralGridRow(rdc));
+         }
+      }
+
+      for (SamXParser.GeneralGridRowContext rc: ctx.generalGridRow())
+      {
+         final SamXParser.GeneralGridRowDataContext rdc = rc.generalGridRowData();
+         if (rdc != null)
+         {
+            cells.add(renderGeneralGridRow(rdc));
+         }
+      }
+
+      return builder;
+   }
 }
