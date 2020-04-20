@@ -16,23 +16,22 @@ A Java 1.8 compiler (tested with OpenJDK 11) and Antlr 4.8 (included as Gradle
 dependency)
 
 
-Building
---------
+Getting started
+---------------
 
-```shell script
-$ ./gradlew assembleDist
-```
+Please review the [Getting started document](doc/getting_started.md).
 
 
-What's the difference between SAM and SAMx?
--------------------------------------------
+What are the differences between SAM and SAMx?
+----------------------------------------------
 
 SAM is Mark Baker's original implementation, written in Python using a
 hand-written parser.
 
 SAMx-Java is a separate implementation in Java using a parser generator thus
 intending to formalize the grammar. Also, this implementation will experiment
-with more complex conditions attached to various flows and other elements.
+with more complex conditions attached to various flows and other elements as
+well as additional text structures.
 
 
 Can SAMx parse SAM documents?
