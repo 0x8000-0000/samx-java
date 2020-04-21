@@ -3,7 +3,7 @@
 RFC793 defines the following Transmission Control Protocol Header Format\:
 
 -+-(#tcp-header)
-   +===========================================+
+
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    ||      Source Port      || Destination Port |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -20,3 +20,15 @@ RFC793 defines the following Transmission Control Protocol Header Format\:
    ||||               data                     |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
+-+-(#large-cells)
+
+   |              ||         Grouping            |
+   | First Header | Second Header | Third Header |
+   +==============+===============+==============+
+   |- Content     ||           Long Cell         |
+   +              +---------------+--------------+
+   |              |      Cell     |         Cell |
+   +--------------+---------------+--------------+
+   ||- New section                |         Data |
+   || And more                    |              |
+   +--------------+---------------+--------------+

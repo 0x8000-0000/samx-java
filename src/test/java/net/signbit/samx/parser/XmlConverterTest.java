@@ -95,5 +95,7 @@ public class XmlConverterTest
       testConversion("grids/simple.samx", "grids/simple.xml");
 
       testConversion("grids/missing_cells.samx", "grids/missing_cells.xml");
+
+      testConversion("grids/gengrid_rowspan_only.samx", "grids/gengrid_rowspan_only.xml");
    }
 }

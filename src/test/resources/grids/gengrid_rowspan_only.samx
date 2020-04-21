@@ -1,0 +1,20 @@
+-+-(#tcp-header) Equal size cells
+
+    || Source Port           || Destination Port   |
+    |||| Sequence Number                           |
+    |||| Acknowledgment Number                     |
+    | Data Offset | Reserved | Flags    | Window   |
+    || Checksum              || Urgent Pointer     |
+    || Options               || Padding            |
+    |||| data                                      |
+
+-+-(#large-cells) Example spans
+
+                |              ||(.emphasize) Grouping         |
+                | First Header | Second Header | Third Header  |
+                +==============+===============+===============+
+   (.highlight) | Content      || Long Cell                    |
+                |              |(.large) Cell  | {Cell}(.pink) |
+                || New section                 | Data          |
+                || And more                    |               |
+

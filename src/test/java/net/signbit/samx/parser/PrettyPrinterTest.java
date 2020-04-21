@@ -172,5 +172,7 @@ public class PrettyPrinterTest
       testAsPretty("grids/simple.samx", "grids/simple-pretty.samx");
 
       testIsPretty("grids/missing_cells.samx");
+
+      testIsPretty("grids/gengrid_rowspan_only.samx");
    }
 }

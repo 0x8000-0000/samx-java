@@ -18,6 +18,7 @@ package net.signbit.samx;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -858,7 +859,7 @@ public class XmlTextVisitor extends RendererVisitor
       append('>');
    }
 
-   private void renderElementWithAttributes(String tagType, List<SamXParser.AttributeContext> attributes)
+   private void renderElementWithAttributesOpen(String tagType, List<SamXParser.AttributeContext> attributes)
    {
       append('<');
       append(tagType);
@@ -868,8 +869,13 @@ public class XmlTextVisitor extends RendererVisitor
       {
          attributeVisitor.visit(ac);
       }
-      append(attributeVisitor.toString());
+      final String renderedAttributes = attributeVisitor.toString();
+      append(renderedAttributes);
+   }
 
+   private void renderElementWithAttributes(String tagType, List<SamXParser.AttributeContext> attributes)
+   {
+      renderElementWithAttributesOpen(tagType, attributes);
       append('>');
    }
 
@@ -924,6 +930,203 @@ public class XmlTextVisitor extends RendererVisitor
          }
 
          indentLevel--;
+
+         addIndent();
+         append("</tr>");
+         appendNewline();
+      }
+
+      indentLevel--;
+
+      appendCloseTag("table");
+
+      return null;
+   }
+
+   private class GridCell
+   {
+      int rowSpan = 1;
+      int colSpan = 1;
+
+      final List<SamXParser.AttributeContext> attribute;
+      final SamXParser.FlowContext flow;
+
+      GridCell(List<SamXParser.AttributeContext> attributes, SamXParser.OptionalFlowContext optionalFlowContext)
+      {
+         this.attribute = attributes;
+         if (optionalFlowContext != null)
+         {
+            flow = optionalFlowContext.flow();
+         }
+         else
+         {
+            flow = null;
+         }
+      }
+
+      void setSpan(String span)
+      {
+         for (char ch: span.toCharArray())
+         {
+            if (ch == '|')
+            {
+               colSpan ++;
+            }
+            else if (ch == '-')
+            {
+               rowSpan ++;
+            }
+            else
+            {
+               // error
+            }
+         }
+
+         if (colSpan > 1)
+         {
+            colSpan --;
+         }
+      }
+   }
+
+   private ArrayList<GridCell> renderGeneralGridRow(SamXParser.GeneralGridRowDataContext ggrdc)
+   {
+      ArrayList<GridCell> rowCells = new ArrayList<>();
+
+      for (SamXParser.GeneralGridElementContext ggec: ggrdc.generalGridElement())
+      {
+         if (ggec.gridElement() != null)
+         {
+            GridCell gc = new GridCell(ggec.gridElement().attribute(), ggec.gridElement().optionalFlow());
+            rowCells.add(gc);
+         }
+         else if (ggec.spanGridElement() != null)
+         {
+            GridCell gc = new GridCell(ggec.spanGridElement().attribute(), ggec.spanGridElement().optionalFlow());
+            gc.setSpan(ggec.spanGridElement().MUL_COLSEP().getText());
+
+            for (int ii = 0; ii < gc.colSpan; ++ ii)
+            {
+               rowCells.add(gc);
+            }
+         }
+      }
+
+      return rowCells;
+   }
+
+   @Override
+   public StringBuilder visitGeneralGrid(SamXParser.GeneralGridContext ctx)
+   {
+      if (isDisabled(ctx.condition()))
+      {
+         return null;
+      }
+
+      ArrayList<ArrayList<GridCell>> cells = new ArrayList<>();
+      ArrayList<List<SamXParser.AttributeContext>> rowAttributes = new ArrayList<>();
+
+      if (ctx.generalGridHeader() != null)
+      {
+         for (SamXParser.GeneralGridRowContext rc : ctx.generalGridHeader().generalGridRow())
+         {
+            final SamXParser.GeneralGridRowDataContext rdc = rc.generalGridRowData();
+            if (rdc != null)
+            {
+               if (! isDisabled(rdc.condition()))
+               {
+                  ArrayList<GridCell> rowCells = renderGeneralGridRow(rdc);
+                  cells.add(rowCells);
+
+                  rowAttributes.add(rdc.attribute());
+               }
+            }
+         }
+      }
+
+      int headerOffsetAt = cells.size();
+
+      for (SamXParser.GeneralGridRowContext rc: ctx.generalGridRow())
+      {
+         final SamXParser.GeneralGridRowDataContext rdc = rc.generalGridRowData();
+         if (rdc != null)
+         {
+            if (! isDisabled(rdc.condition()))
+            {
+               ArrayList<GridCell> rowCells = renderGeneralGridRow(rdc);
+               cells.add(rowCells);
+
+               rowAttributes.add(rdc.attribute());
+            }
+         }
+      }
+
+      addIndent();
+      renderElementWithAttributes("table", ctx.attribute());
+      appendNewline();
+
+      indentLevel++;
+
+      if (ctx.description != null)
+      {
+         final String descriptionText = ctx.description.getText();
+         if (!descriptionText.isEmpty())
+         {
+            addIndent();
+            append("<title>");
+            visit(ctx.description);
+            append("</title>");
+            appendNewline();
+         }
+      }
+
+      for (int ii = 0; ii < cells.size(); ++ii)
+      {
+         String cellTag = "td";
+         if ((headerOffsetAt != 0) && (ii < headerOffsetAt))
+         {
+            cellTag = "th";
+         }
+
+         addIndent();
+         renderElementWithAttributes("tr", rowAttributes.get(ii));
+         appendNewline();
+
+         indentLevel ++;
+
+         final ArrayList<GridCell> rowCells = cells.get(ii);
+         int jj = 0;
+         while (jj < rowCells.size())
+         {
+            final GridCell gc = rowCells.get(jj);
+
+            addIndent();
+
+            renderElementWithAttributesOpen(cellTag, gc.attribute);
+            if (gc.colSpan > 1)
+            {
+               append(String.format(" colspan=\"%d\"", gc.colSpan));
+            }
+
+            if ((gc.flow != null && (! gc.flow.getText().isEmpty())))
+            {
+               append('>');
+               visitFlow(gc.flow);
+               append('<');
+               append('/');
+               append(cellTag);
+            }
+            else
+            {
+               append('/');
+            }
+            append('>');
+            appendNewline();
+
+            jj += gc.colSpan;
+         }
+
+         indentLevel --;
 
          addIndent();
          append("</tr>");

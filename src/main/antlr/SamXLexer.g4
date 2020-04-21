@@ -309,6 +309,8 @@ STT_ANN : '(:' { ignoreNewLinesInConditions = true; nestedParenthesesLevel = 1; 
 
 STT_REFR : '[*' ;
 
+MUL_COLSEP : ('||' '|'* '-'* ) | ( '|-' '-'*  );
+
 NAME : [-a-zA-Z_] [-a-zA-Z0-9_.]+ ;
 
 INTEGER : [1-9] [0-9]+ ;
@@ -332,8 +334,6 @@ GT : '>' ;
 TYPESEP : ':' ;
 
 RECSEP : '::' { prepareFreeIndent = true; };
-
-MUL_COLSEP : '||' '|'+ ;
 
 COLSEP : '|' ;
 
@@ -428,7 +428,7 @@ STT_INCL : '<<<(' ;
 
 STT_TBL_SEP : '+' '-'+ ;
 
-STT_HDR_SEP : '+' '='+ ;
+STT_HDR_SEP : '+' ('='| '+' )+ '+' ;
 
-GEN_ROW_SEP : ('+' | '-')+ ;
+GEN_ROW_SEP : '+' ('+' | '-' | ' ')+ ;
 

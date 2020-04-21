@@ -1104,42 +1104,282 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
       return builder;
    }
 
-   private static class GridCell
+   private class GridCell
    {
-      int span;
-      String content;
+      int rowSpan = 1;
+      int colSpan = 1;
+
+      final String attributes;
+      final String content;
+
+      GridCell(List<SamXParser.AttributeContext> attributes, SamXParser.OptionalFlowContext optionalFlowContext)
+      {
+         {
+            StringBuilder builder = new StringBuilder();
+            for (SamXParser.AttributeContext ac : attributes)
+            {
+               builder.append(visit(ac));
+            }
+            this.attributes = builder.toString();
+         }
+
+         StringBuilder builder = new StringBuilder();
+         if (optionalFlowContext != null)
+         {
+            final SamXParser.FlowContext fc = optionalFlowContext.flow();
+            if (fc != null)
+            {
+               if (builder.length() > 0)
+               {
+                  builder.append(' ');
+               }
+
+               builder.append(visitFlow(fc));
+            }
+         }
+         content = builder.toString();
+      }
+
+      int getLength()
+      {
+         int length = attributes.length();
+         if (length > 0)
+         {
+            length++;
+         }
+         length += content.length();
+         return length;
+      }
+
+      void setSpan(String span)
+      {
+         for (char ch: span.toCharArray())
+         {
+            if (ch == '|')
+            {
+               colSpan ++;
+            }
+            else if (ch == '-')
+            {
+               rowSpan ++;
+            }
+            else
+            {
+               // error
+            }
+         }
+
+         if (colSpan > 1)
+         {
+            colSpan --;
+         }
+      }
    }
 
    private ArrayList<GridCell> renderGeneralGridRow(SamXParser.GeneralGridRowDataContext ggrdc)
    {
+      ArrayList<GridCell> rowCells = new ArrayList<>();
 
-      return null;
+      for (SamXParser.GeneralGridElementContext ggec: ggrdc.generalGridElement())
+      {
+         if (ggec.gridElement() != null)
+         {
+            GridCell gc = new GridCell(ggec.gridElement().attribute(), ggec.gridElement().optionalFlow());
+            rowCells.add(gc);
+         }
+         else if (ggec.spanGridElement() != null)
+         {
+            GridCell gc = new GridCell(ggec.spanGridElement().attribute(), ggec.spanGridElement().optionalFlow());
+            gc.setSpan(ggec.spanGridElement().MUL_COLSEP().getText());
+
+            for (int ii = 0; ii < gc.colSpan; ++ ii)
+            {
+               rowCells.add(gc);
+            }
+         }
+      }
+
+      return rowCells;
    }
 
    @Override
    public StringBuilder visitGeneralGrid(SamXParser.GeneralGridContext ctx)
    {
-      StringBuilder builder = new StringBuilder();
-
       ArrayList<ArrayList<GridCell>> cells = new ArrayList<>();
 
-      for (SamXParser.GeneralGridRowContext rc: ctx.generalGridHeader().generalGridRow())
+      ArrayList<String> rowAttrAndConditions = new ArrayList<>();
+
+      int columnWidths[] = null;
+
+      if (ctx.generalGridHeader() != null)
       {
-         final SamXParser.GeneralGridRowDataContext rdc = rc.generalGridRowData();
-         if (rdc != null)
+         for (SamXParser.GeneralGridRowContext rc : ctx.generalGridHeader().generalGridRow())
          {
-            cells.add(renderGeneralGridRow(rdc));
+            final SamXParser.GeneralGridRowDataContext rdc = rc.generalGridRowData();
+            if (rdc != null)
+            {
+               StringBuilder builder = new StringBuilder();
+               renderConditionAndAttributes(rdc, builder);
+               rowAttrAndConditions.add(builder.toString());
+
+               ArrayList<GridCell> rowCells = renderGeneralGridRow(rdc);
+               cells.add(rowCells);
+
+               if (columnWidths == null)
+               {
+                  columnWidths = new int[rowCells.size()];
+                  for (int ii = 0; ii < rowCells.size(); ++ii)
+                  {
+                     final GridCell gc = rowCells.get(ii);
+                     columnWidths[ii] = (int) Math.ceil(gc.getLength() / (double) (gc.colSpan));
+                  }
+               }
+               else
+               {
+                  if (columnWidths.length != rowCells.size())
+                  {
+                     throw new RuntimeException("Invalid length");
+                  }
+
+                  for (int ii = 0; ii < rowCells.size(); ++ii)
+                  {
+                     final GridCell gc = rowCells.get(ii);
+                     final int thisWidth = (int) Math.ceil(gc.content.length() / (double) (gc.colSpan));
+
+                     if (columnWidths[ii] < thisWidth)
+                     {
+                        columnWidths[ii] = thisWidth;
+                     }
+                  }
+               }
+            }
          }
       }
+
+      int headerOffsetAt = cells.size();
 
       for (SamXParser.GeneralGridRowContext rc: ctx.generalGridRow())
       {
          final SamXParser.GeneralGridRowDataContext rdc = rc.generalGridRowData();
          if (rdc != null)
          {
-            cells.add(renderGeneralGridRow(rdc));
+            StringBuilder builder = new StringBuilder();
+            renderConditionAndAttributes(rdc, builder);
+            rowAttrAndConditions.add(builder.toString());
+
+            ArrayList<GridCell> rowCells = renderGeneralGridRow(rdc);
+            cells.add(rowCells);
+
+            if (columnWidths == null)
+            {
+               columnWidths = new int[rowCells.size()];
+               for (int ii = 0; ii < rowCells.size(); ++ii)
+               {
+                  final GridCell gc = rowCells.get(ii);
+                  columnWidths[ii] = (int) Math.ceil(gc.content.length() / (double) (gc.colSpan));
+               }
+            }
+            else
+            {
+               if (columnWidths.length != rowCells.size())
+               {
+                  throw new RuntimeException("Invalid length on row ");
+               }
+
+               for (int ii = 0; ii < rowCells.size(); ++ii)
+               {
+                  final GridCell gc = rowCells.get(ii);
+                  final int thisWidth = (int) Math.ceil(gc.content.length() / (double) (gc.colSpan));
+
+                  if (columnWidths[ii] < thisWidth)
+                  {
+                     columnWidths[ii] = thisWidth;
+                  }
+               }
+            }
          }
       }
+
+      int conditionColumnWidth = 0;
+      for (String str: rowAttrAndConditions)
+      {
+         if (conditionColumnWidth < str.length())
+         {
+            conditionColumnWidth = str.length();
+         }
+      }
+
+      StringBuilder builder = new StringBuilder();
+
+      builder.append("-+-");
+      renderConditionAndAttributes(ctx, builder);
+      if (ctx.description != null)
+      {
+         builder.append(' ');
+         builder.append(visit(ctx.description));
+      }
+      builder.append('\n');
+      builder.append('\n');
+
+      indentLevel++;
+
+      for (int ii = 0; ii < cells.size(); ++ii)
+      {
+         if ((headerOffsetAt != 0) && (ii == headerOffsetAt))
+         {
+            addIndent(builder);
+            for (int jj = 0; jj < conditionColumnWidth + 1; ++ jj)
+            {
+               builder.append(' ');
+            }
+
+            for (int jj = 0; jj < columnWidths.length; ++ jj)
+            {
+               builder.append('+');
+               for (int kk = 0; kk < columnWidths[jj] + 2; kk ++)
+               {
+                  builder.append('=');
+               }
+            }
+
+            builder.append("+\n");
+         }
+
+         final ArrayList<GridCell> rowCells = cells.get(ii);
+
+         addIndent(builder);
+         if (conditionColumnWidth > 0)
+         {
+            builder.append(String.format("%1$-" + conditionColumnWidth + "s", rowAttrAndConditions.get(ii)));
+         }
+         for (int jj = 0; jj < columnWidths.length; ++ jj)
+         {
+            final GridCell gc = rowCells.get(jj);
+            if (gc.colSpan > 0)
+            {
+               builder.append(" |");
+               int columnWidth = columnWidths[jj];
+               final int colSpan = gc.colSpan;
+               for (int kk = 1; kk < colSpan; ++ kk)
+               {
+                  columnWidth += columnWidths[jj + kk] + 2;
+                  rowCells.get(jj + kk).colSpan = 0;
+                  builder.append('|');
+               }
+               builder.append(gc.attributes);
+               builder.append(' ');
+               columnWidth -= gc.attributes.length();
+
+               builder.append(String.format("%1$-" + columnWidth + "s", gc.content));
+            }
+         }
+
+         builder.append(" |\n");
+      }
+
+      indentLevel --;
+
+      builder.append('\n');
 
       return builder;
    }

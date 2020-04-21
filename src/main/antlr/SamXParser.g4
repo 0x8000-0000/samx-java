@@ -209,7 +209,7 @@ gridRecordRow
       }
    };
 
-generalGridHeaderSep : STT_HDR_SEP+ PLUS NEWLINE ;
+generalGridHeaderSep : STT_HDR_SEP NEWLINE ;
 
 generalGridRowData : attribute* condition? generalGridElement+ COLSEP ;
 

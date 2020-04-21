@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<document xmlns="https://mbakeranalecta.github.io/sam/">
+  <table id="tcp-header">
+    <title>Equal size cells</title>
+    <tr>
+      <td colspan="2">Source Port</td>
+      <td colspan="2">Destination Port</td>
+    </tr>
+    <tr>
+      <td colspan="4">Sequence Number</td>
+    </tr>
+    <tr>
+      <td colspan="4">Acknowledgment Number</td>
+    </tr>
+    <tr>
+      <td>Data Offset</td>
+      <td>Reserved</td>
+      <td>Flags</td>
+      <td>Window</td>
+    </tr>
+    <tr>
+      <td colspan="2">Checksum</td>
+      <td colspan="2">Urgent Pointer</td>
+    </tr>
+    <tr>
+      <td colspan="2">Options</td>
+      <td colspan="2">Padding</td>
+    </tr>
+    <tr>
+      <td colspan="4">data</td>
+    </tr>
+  </table>
+  <table id="large-cells">
+    <title>Example spans</title>
+    <tr>
+      <th/>
+      <th class="emphasize" colspan="2">Grouping</th>
+    </tr>
+    <tr>
+      <th>First Header</th>
+      <th>Second Header</th>
+      <th>Third Header</th>
+    </tr>
+    <tr class="highlight">
+      <td>Content</td>
+      <td colspan="2">Long Cell</td>
+    </tr>
+    <tr>
+      <td/>
+      <td class="large">Cell</td>
+      <td><phrase class="pink">Cell</phrase></td>
+    </tr>
+    <tr>
+      <td colspan="2">New section</td>
+      <td>Data</td>
+    </tr>
+    <tr>
+      <td colspan="2">And more</td>
+      <td/>
+    </tr>
+  </table>
+</document>
