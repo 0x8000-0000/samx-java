@@ -860,6 +860,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
    private void visitNestedBlock(StringBuilder builder, List<SamXParser.BlockContext> blocks)
    {
       indentLevel++;
+      boolean lastChildHadNewline = false;
       for (SamXParser.BlockContext bc : blocks)
       {
          StringBuilder childBuilder = visit(bc);
@@ -867,8 +868,25 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
          {
             addIndent(builder);
             builder.append(childBuilder);
+
+            // hack to add empty lines between top-level blocks
+            final int childLen = childBuilder.length();
+            if (childLen > 2)
+            {
+               if ((childBuilder.charAt(childLen - 1) == '\n') && (childBuilder.charAt(childLen - 2) == '\n'))
+               {
+                  lastChildHadNewline = true;
+               }
+            }
+            //builder.append(String.format("NB: %d\n", indentLevel));
          }
       }
+
+      if (! lastChildHadNewline)
+      {
+         builder.append('\n');
+      }
+
       indentLevel--;
    }
 
@@ -1379,6 +1397,19 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
       indentLevel --;
 
       builder.append('\n');
+
+      return builder;
+   }
+
+   @Override
+   public StringBuilder visitIncludeFile(SamXParser.IncludeFileContext ctx)
+   {
+      StringBuilder builder = new StringBuilder();
+
+      final String reference = ctx.reference.getText();
+      builder.append("<<<(");
+      builder.append(reference);
+      builder.append(")\n");
 
       return builder;
    }
