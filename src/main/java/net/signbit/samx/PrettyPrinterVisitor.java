@@ -617,7 +617,6 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
    public StringBuilder visitField(SamXParser.FieldContext ctx)
    {
       StringBuilder builder = new StringBuilder();
-      addIndent(builder);
 
       builder.append(ctx.NAME().getText());
       builder.append(ctx.TYPESEP().getText());
