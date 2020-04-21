@@ -24,6 +24,8 @@ import net.signbit.samx.parser.SamXParserBaseVisitor;
 public class AttributeVisitor extends SamXParserBaseVisitor<Void>
 {
    private final HashSet<String> classAttributes = new HashSet<>();
+   private boolean docBookMode = false;
+   private boolean ditaMode = false;
 
    public String getId()
    {
@@ -82,6 +84,11 @@ public class AttributeVisitor extends SamXParserBaseVisitor<Void>
       return null;
    }
 
+   private boolean wantsClassAttributes()
+   {
+       return (! docBookMode) && (! classAttributes.isEmpty());
+   }
+
    @Override
    public String toString()
    {
@@ -89,12 +96,12 @@ public class AttributeVisitor extends SamXParserBaseVisitor<Void>
 
       boolean isEmpty = true;
 
-      if (!classAttributes.isEmpty() || (idAttribute != null) || (nameAttribute != null))
+      if (wantsClassAttributes() || (idAttribute != null) || (nameAttribute != null))
       {
          builder.append(' ');
       }
 
-      if (!classAttributes.isEmpty())
+      if (wantsClassAttributes())
       {
          builder.append("class=\"");
          boolean firstElement = true;
@@ -122,7 +129,14 @@ public class AttributeVisitor extends SamXParserBaseVisitor<Void>
             builder.append(' ');
          }
 
-         builder.append("id=\"");
+         if (docBookMode)
+         {
+            builder.append("xml:id=\"");
+         }
+         else
+         {
+            builder.append("id=\"");
+         }
          builder.append(idAttribute);
          builder.append("\"");
 
@@ -142,5 +156,15 @@ public class AttributeVisitor extends SamXParserBaseVisitor<Void>
       }
 
       return builder.toString();
+   }
+
+   public void setDocBookMode()
+   {
+       docBookMode = true;
+   }
+
+   public void setDitaMode()
+   {
+       ditaMode = true;
    }
 }

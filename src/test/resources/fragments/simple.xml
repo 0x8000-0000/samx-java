@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <document xmlns="https://mbakeranalecta.github.io/sam/">
-  <para>This paragraph is before the fragment definition.</para>
-  <para>This paragraph is after the fragment definition.</para>
+  <p>This paragraph is before the fragment definition.</p>
+  <p>This paragraph is after the fragment definition.</p>
   <section>
     <title>one</title>
-    <para>Now we&apos;ll include the fragment, once:</para>
-    <para>This paragraph is inside the fragment.</para>
-    <para>and then again:</para>
-    <para>This paragraph is inside the fragment.</para>
+    <p>Now we&apos;ll include the fragment, once:</p>
+    <p>This paragraph is inside the fragment.</p>
+    <p>and then again:</p>
+    <p>This paragraph is inside the fragment.</p>
   </section>
 </document>

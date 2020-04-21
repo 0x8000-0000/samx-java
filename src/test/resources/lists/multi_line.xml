@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <document xmlns="https://mbakeranalecta.github.io/sam/">
-  <para>This is an unordered list:</para>
+  <p>This is an unordered list:</p>
   <ul>
-    <li><para>alpha with second line</para></li>
-    <li><para>beta with second line</para></li>
-    <li><para>gamma with follow-up line</para><para>and another paragraph</para></li>
-    <li><para>delta</para><para>with a blank line</para></li>
+    <li><p>alpha with second line</p></li>
+    <li><p>beta with second line</p></li>
+    <li><p>gamma with follow-up line</p><p>and another paragraph</p></li>
+    <li><p>delta</p><p>with a blank line</p></li>
   </ul>
-  <para>This is an * ordered * list:</para>
+  <p>This is an * ordered * list:</p>
   <ol>
-    <li><para>one</para></li>
-    <li><para>two</para></li>
-    <li><para>three</para></li>
+    <li><p>one</p></li>
+    <li><p>two</p></li>
+    <li><p>three</p></li>
   </ol>
 </document>

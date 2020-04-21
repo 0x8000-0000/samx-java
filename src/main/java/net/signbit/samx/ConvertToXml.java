@@ -47,6 +47,12 @@ public final class ConvertToXml extends Renderer
       Option rootElement = new Option("r", "root", true, "root element tag (default document)");
       options.addOption(rootElement);
 
+      Option generateDocbook = new Option("b", "docbook", false, "generate DocBook tags");
+      options.addOption(generateDocbook);
+
+      Option generateDita = new Option("d", "dita", false, "generate DITA tags");
+      options.addOption(generateDita);
+
       Option rootElementNamespace = new Option("n", "namespace", true, "root element namespace (default null)");
       options.addOption(rootElementNamespace);
 
@@ -70,6 +76,24 @@ public final class ConvertToXml extends Renderer
 
          visitor.setTopElementNamespace(cmd.getOptionValue("n"));
          visitor.setTopElementVersion(cmd.getOptionValue("v"));
+      }
+
+      if (cmd.hasOption("d") && cmd.hasOption("b"))
+      {
+          System.err.println("DocBook and DITA formats are incompatible. Please select only one");
+          throw new RuntimeException("Invalid option combination");
+      }
+
+      if (cmd.hasOption("b"))
+      {
+          System.err.println("enable DocBook mode");
+          visitor.setDocBookMode();
+      }
+
+      if (cmd.hasOption("d"))
+      {
+          System.err.println("enable DITA mode");
+          visitor.setDitaMode();
       }
    }
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <document xmlns="https://mbakeranalecta.github.io/sam/">
-  <para>This document contains a grid.</para>
+  <p>This document contains a grid.</p>
   <table class="fancy" id="the-grid">
     <tr class="header">
     <th>Name</th>

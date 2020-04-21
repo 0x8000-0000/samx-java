@@ -42,6 +42,9 @@ public class XmlTextVisitor extends RendererVisitor
    private String topElementNamespace = "https://mbakeranalecta.github.io/sam/";
    private String topElementVersion = null;
 
+   private boolean docBookMode = false;
+   private boolean ditaMode = false;
+
    public XmlTextVisitor(Writer aWriter, HashMap<String, Parser.Result> docDict, HashMap<String, IOException> errDict, HashMap<String, String> referenceDict, BufferedTokenStream tokenStream)
    {
       super(aWriter, docDict, errDict, referenceDict, tokenStream);
@@ -300,11 +303,16 @@ public class XmlTextVisitor extends RendererVisitor
          addIndent();
       }
 
-      append("<para>");
+      append('<');
+      append(getParagraphTag());
+      append('>');
 
       visitParagraphContents(ctx);
 
-      append("</para>");
+      append('<');
+      append('/');
+      append(getParagraphTag());
+      append('>');
 
       if (indentParagraph)
       {
@@ -349,7 +357,11 @@ public class XmlTextVisitor extends RendererVisitor
          {
             addIndent();
 
-            append("<li><para>");
+            append('<');
+            append(getListItemTag());
+            append("><");
+            append(getParagraphTag());
+            append('>');
             visit(lec.flow());
             if (lec.skipped == null)
             {
@@ -362,7 +374,9 @@ public class XmlTextVisitor extends RendererVisitor
                   visitParagraphContents(lec.paragraph(0));
                }
             }
-            append("</para>");
+            append("</");
+            append(getParagraphTag());
+            append('>');
 
             boolean mergedFirstLine = false;
             if (lec.skipped == null)
@@ -383,7 +397,7 @@ public class XmlTextVisitor extends RendererVisitor
             {
                indentLevel++;
                appendNewline();
-               visitGenericList("ul", lec.unorderedList().listElement());
+               visitGenericList(getUnorderedListTag(), lec.unorderedList().listElement());
                indentLevel--;
                addIndent();
             }
@@ -392,12 +406,14 @@ public class XmlTextVisitor extends RendererVisitor
             {
                indentLevel++;
                appendNewline();
-               visitGenericList("ol", lec.orderedList().listElement());
+               visitGenericList(getOrderedListTag(), lec.orderedList().listElement());
                indentLevel--;
                addIndent();
             }
 
-            append("</li>");
+            append("</");
+            append(getListItemTag());
+            append('>');
 
             appendNewline();
          }
@@ -417,7 +433,7 @@ public class XmlTextVisitor extends RendererVisitor
    @Override
    public Exception visitUnorderedList(SamXParser.UnorderedListContext ctx)
    {
-      visitGenericList("ul", ctx.listElement());
+      visitGenericList(getUnorderedListTag(), ctx.listElement());
 
       return null;
    }
@@ -425,7 +441,7 @@ public class XmlTextVisitor extends RendererVisitor
    @Override
    public Object visitOrderedList(SamXParser.OrderedListContext ctx)
    {
-      visitGenericList("ol", ctx.listElement());
+      visitGenericList(getOrderedListTag(), ctx.listElement());
 
       return null;
    }
@@ -587,6 +603,14 @@ public class XmlTextVisitor extends RendererVisitor
          XmlTextVisitor visitor = new XmlTextVisitor(writer, includedDocuments, includedExceptions, includedResult.referencePaths, includedResult.tokens);
          visitor.skipXmlDeclaration();
          visitor.setIndentLevel(indentLevel + 1);
+         if (docBookMode)
+         {
+             visitor.setDocBookMode();
+         }
+         if (ditaMode)
+         {
+             visitor.setDitaMode();
+         }
 
          visitor.visit(includedResult.document);
 
@@ -792,17 +816,65 @@ public class XmlTextVisitor extends RendererVisitor
       return null;
    }
 
-   @Override
-   public Object visitInsertImage(SamXParser.InsertImageContext ctx)
+   private void renderDocBookFigure(SamXParser.InsertImageContext ctx)
    {
-      if (isDisabled(ctx.condition()))
+      AttributeVisitor attributeVisitor = new AttributeVisitor();
+      for (SamXParser.AttributeContext ac : ctx.attribute())
       {
-         return null;
+         attributeVisitor.visit(ac);
       }
 
+      final String elementId = attributeVisitor.getId();
+      append(String.format("<figure xml:id=\"%s\">", elementId));
+      appendNewline();
+      indentLevel ++;
+
       addIndent();
+      append("<title>");
+      visitFlow(ctx.description);
+      append("</title>");
+      appendNewline();
+
+      addIndent();
+      append("<mediaobject>");
+      appendNewline();
+      indentLevel ++;
+      
+      addIndent();
+      append("<imageobject>");
+      appendNewline();
+      indentLevel ++;
+
+      addIndent();
+      append("<imagedata fileref=\"");
+      visitText(ctx.text());
+      append("\" />");
+      appendNewline();
+
+      indentLevel --;
+      addIndent();
+      append("</imageobject>");
+      appendNewline();
+
+      indentLevel --;
+      addIndent();
+      append("</mediaobject>");
+      appendNewline();
+
+      indentLevel --;
+      addIndent();
+      append("</figure>");
+      appendNewline();
+   }
+
+   private void renderFigure(SamXParser.InsertImageContext ctx)
+   {
       append("<imagedata");
       AttributeVisitor attributeVisitor = new AttributeVisitor();
+      if (ditaMode)
+      {
+          attributeVisitor.setDitaMode();
+      }
       for (SamXParser.AttributeContext ac : ctx.attribute())
       {
          attributeVisitor.visit(ac);
@@ -814,15 +886,32 @@ public class XmlTextVisitor extends RendererVisitor
       append("\"");
       if (ctx.description != null)
       {
-         append(">");
-         append("<title>");
+         append("><title>");
          visitFlow(ctx.description);
-         append("</title>");
-         append("</imagedata>");
+         append("</title></imagedata>");
       }
       else
       {
          append(" />");
+      }
+   }
+
+   @Override
+   public Object visitInsertImage(SamXParser.InsertImageContext ctx)
+   {
+      if (isDisabled(ctx.condition()))
+      {
+         return null;
+      }
+
+      addIndent();
+      if (docBookMode)
+      {
+          renderDocBookFigure(ctx);
+      }
+      else
+      {
+          renderFigure(ctx);
       }
       appendNewline();
 
@@ -865,6 +954,14 @@ public class XmlTextVisitor extends RendererVisitor
       append(tagType);
 
       AttributeVisitor attributeVisitor = new AttributeVisitor();
+      if (docBookMode)
+      {
+        attributeVisitor.setDocBookMode();
+      }
+      if (ditaMode)
+      {
+        attributeVisitor.setDitaMode();
+      }
       for (SamXParser.AttributeContext ac : attributes)
       {
          attributeVisitor.visit(ac);
@@ -1139,4 +1236,63 @@ public class XmlTextVisitor extends RendererVisitor
 
       return null;
    }
+
+   public void setDocBookMode()
+   {
+       docBookMode = true;
+   }
+
+   public void setDitaMode()
+   {
+       ditaMode = true;
+   }
+
+   private String getParagraphTag()
+   {
+       if (docBookMode)
+       {
+           return "para";
+       }
+       else
+       {
+           return "p";
+       }
+   }
+
+   private String getOrderedListTag()
+   {
+       if (docBookMode)
+       {
+           return "orderedlist";
+       }
+       else
+       {
+           return "ol";
+       }
+   }
+
+   private String getUnorderedListTag()
+   {
+       if (docBookMode)
+       {
+           return "itemizedlist";
+       }
+       else
+       {
+           return "ul";
+       }
+   }
+
+   private String getListItemTag()
+   {
+       if (docBookMode)
+       {
+           return "listitem";
+       }
+       else
+       {
+           return "li";
+       }
+   }
+
 }

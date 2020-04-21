@@ -39,6 +39,7 @@ public class XmlConverterTest
       visitor.setTopElement(root);
       visitor.setTopElementNamespace(namespace);
       visitor.setTopElementVersion(version);
+      visitor.setDocBookMode();
 
       visitor.visit(result.document);
       writer.flush();

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <document xmlns="https://mbakeranalecta.github.io/sam/">
-  <para>This is an image of a happy-face.png child because he got...</para>
+  <p>This is an image of a happy-face.png child because he got...</p>
   <imagedata class="wide" id="the-ice-cream" fileref="ice_cream.png"><title>Ice Cream Image</title></imagedata>
 </document>
