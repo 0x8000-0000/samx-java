@@ -13,6 +13,8 @@ In Progress:
 
 Done:
 
+* [0.3.5] Add partial support for generalized grids: column spanning cells.
+
 * [0.3.1] Add support for grids.
 
 * [0.2.9] Add support for fragments.
