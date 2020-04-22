@@ -87,17 +87,9 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
 
       final String paragraphText = WordUtils.wrap(visitParagraphDirect(ctx).toString(), wrapLength);
       StringTokenizer tokenizer = new StringTokenizer(paragraphText, '\n');
-      boolean firstLine = true;
       while (tokenizer.hasNext())
       {
-         if (firstLine)
-         {
-            firstLine = false;
-         }
-         else
-         {
-            addIndent(builder);
-         }
+         addIndent(builder);
          builder.append(tokenizer.next());
          builder.append('\n');
       }
@@ -112,6 +104,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
    {
       StringBuilder builder = new StringBuilder();
 
+      addIndent(builder);
       builder.append(ctx.NAME().getText());
       builder.append(ctx.TYPESEP().getText());
       renderConditionAndAttributes(ctx, builder);
@@ -145,7 +138,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
    {
       StringBuilder builder = new StringBuilder();
 
-      indentLevel++;
+      indentLevel ++;
 
       for (SamXParser.ListElementContext lec : elements)
       {
@@ -271,6 +264,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
    {
       StringBuilder builder = new StringBuilder();
 
+      addIndent(builder);
       builder.append(ctx.NAME().getText());
       builder.append(ctx.RECSEP().getText());
       renderConditionAndAttributes(ctx, builder);
@@ -553,7 +547,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
       StringBuilder builder = new StringBuilder();
 
       builder.append("(:");
-      builder.append(visit(ctx.text()));
+      builder.append(visitFlow(ctx.flow()));
       builder.append(')');
 
       return builder;
@@ -693,6 +687,8 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
    public StringBuilder visitCodeBlock(SamXParser.CodeBlockContext ctx)
    {
       StringBuilder builder = new StringBuilder();
+
+      addIndent(builder);
 
       final int codeBlockIndent = VisitorUtils.getTokenIndent(ctx, tokenStream) + indentLevel * indentString.length();
 
@@ -847,6 +843,8 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
    public StringBuilder visitConditionalBlock(SamXParser.ConditionalBlockContext ctx)
    {
       StringBuilder builder = new StringBuilder();
+
+      addIndent(builder);
       builder.append(visit(ctx.condition()));
       builder.append('\n');
       builder.append('\n');
@@ -866,7 +864,6 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
          StringBuilder childBuilder = visit(bc);
          if (childBuilder != null)
          {
-            addIndent(builder);
             builder.append(childBuilder);
 
             // hack to add empty lines between top-level blocks
@@ -899,6 +896,8 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
    public StringBuilder visitDefineFragment(SamXParser.DefineFragmentContext ctx)
    {
       StringBuilder builder = new StringBuilder();
+
+      addIndent(builder);
       builder.append("~~~(*");
       builder.append(ctx.name.getText());
       builder.append(")");
@@ -915,6 +914,8 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
    public StringBuilder visitInsertFragment(SamXParser.InsertFragmentContext ctx)
    {
       StringBuilder builder = new StringBuilder();
+
+      addIndent(builder);
       builder.append(">>>(*");
       builder.append(ctx.name.getText());
       builder.append(')');
@@ -929,6 +930,8 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
    public StringBuilder visitInsertImage(SamXParser.InsertImageContext ctx)
    {
       StringBuilder builder = new StringBuilder();
+
+      addIndent(builder);
       builder.append(">>>(image ");
       builder.append(visitText(ctx.text()));
       builder.append(')');
@@ -1406,6 +1409,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
    {
       StringBuilder builder = new StringBuilder();
 
+      addIndent(builder);
       final String reference = ctx.reference.getText();
       builder.append("<<<(");
       builder.append(reference);

@@ -86,6 +86,8 @@ public class PrettyPrinterTest
       testIsPretty("lists/nested_lists.samx");
 
       testAsPretty("lists/multi_line.samx", "lists/multi_line-pretty.samx");
+
+      testIsPretty("lists/lists_in_sections.samx");
    }
 
    @Test
