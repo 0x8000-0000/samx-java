@@ -70,30 +70,36 @@ public final class ConvertToXml extends Renderer
    @Override
    protected void addCustomOptions(CommandLine cmd)
    {
+      if (cmd.hasOption("d") && cmd.hasOption("b"))
+      {
+         System.err.println("DocBook and DITA formats are incompatible. Please select only one");
+         throw new RuntimeException("Invalid option combination");
+      }
+
+      if (cmd.hasOption("d"))
+      {
+         System.err.println("Enable DITA mode");
+         visitor.setDitaMode();
+      }
+
+      if (cmd.hasOption("b"))
+      {
+         System.err.println("Enable DocBook mode");
+
+         visitor.setDocBookMode();
+
+         // load sensible defaults
+         visitor.setTopElement("book");
+         visitor.setTopElementNamespace("http://docbook.org/ns/docbook");
+         visitor.setTopElementVersion("5.1");
+      }
+
       if (cmd.getOptionValue("r") != null)
       {
          visitor.setTopElement(cmd.getOptionValue("r"));
 
          visitor.setTopElementNamespace(cmd.getOptionValue("n"));
          visitor.setTopElementVersion(cmd.getOptionValue("v"));
-      }
-
-      if (cmd.hasOption("d") && cmd.hasOption("b"))
-      {
-          System.err.println("DocBook and DITA formats are incompatible. Please select only one");
-          throw new RuntimeException("Invalid option combination");
-      }
-
-      if (cmd.hasOption("b"))
-      {
-          System.err.println("enable DocBook mode");
-          visitor.setDocBookMode();
-      }
-
-      if (cmd.hasOption("d"))
-      {
-          System.err.println("enable DITA mode");
-          visitor.setDitaMode();
       }
    }
 
