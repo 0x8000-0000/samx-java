@@ -97,8 +97,15 @@ public final class ConvertToXml extends Renderer
       if (cmd.getOptionValue("r") != null)
       {
          visitor.setTopElement(cmd.getOptionValue("r"));
+      }
 
+      if (cmd.getOptionValue("n") != null)
+      {
          visitor.setTopElementNamespace(cmd.getOptionValue("n"));
+      }
+
+      if (cmd.getOptionValue("v") != null)
+      {
          visitor.setTopElementVersion(cmd.getOptionValue("v"));
       }
    }

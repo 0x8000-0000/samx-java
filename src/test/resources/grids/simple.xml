@@ -2,13 +2,14 @@
 <document xmlns="https://mbakeranalecta.github.io/sam/">
   <p>This document contains a grid.</p>
   <table class="fancy" id="the-grid">
+    <title>Example table</title>
     <tr class="header">
-    <th>Name</th>
-    <th>Position</th>
-    <th><phrase class="location">Office</phrase></th>
-    <th><phrase class="numeric">Age</phrase></th>
-    <th>Start date</th>
-    <th>Salary</th>
+      <th>Name</th>
+      <th>Position</th>
+      <th><phrase class="location">Office</phrase></th>
+      <th><phrase class="numeric">Age</phrase></th>
+      <th>Start date</th>
+      <th>Salary</th>
     </tr>
     <tr>
       <td>Airi Satou</td>

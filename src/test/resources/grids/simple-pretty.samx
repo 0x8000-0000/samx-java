@@ -1,6 +1,6 @@
 This document contains a grid.
 
-+++(#the-grid)(.fancy)
++++(#the-grid)(.fancy) Example table
 
    (.header)            | Name               | Position                      | {Office}(.location)  | {Age}(.numeric) | Start date | Salary
                         | Airi Satou         | Accountant                    | Tokyo                |              33 | 2008/11/28 | $162,700
