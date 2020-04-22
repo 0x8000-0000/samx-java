@@ -99,6 +99,11 @@ public class XmlTextVisitor extends RendererVisitor
                append(topElementNamespace);
                append('"');
 
+               if (docBookMode)
+               {
+                  append(" xmlns:xl=\"http://www.w3.org/1999/xlink\"");
+               }
+
                if (topElementVersion != null)
                {
                   append(" version=\"");
@@ -201,9 +206,27 @@ public class XmlTextVisitor extends RendererVisitor
          return null;
       }
 
-      renderElementWithAttributes("phrase", ctx.attribute());
-      visit(ctx.text());
-      append("</phrase>");
+      if (! ctx.annotation().isEmpty())
+      {
+         final List<SamXParser.UrlContext> url = ctx.annotation(0).flow().url();
+         if ((url != null) && (! url.isEmpty()))
+         {
+            if (docBookMode)
+            {
+               append("<link xl:href=\"");
+               visitUrl(url.get(0));
+               append("\">");
+               visit(ctx.text());
+               append("</link>");
+            }
+         }
+      }
+      else
+      {
+         renderElementWithAttributes("phrase", ctx.attribute());
+         visit(ctx.text());
+         append("</phrase>");
+      }
 
       return null;
    }
@@ -1295,4 +1318,10 @@ public class XmlTextVisitor extends RendererVisitor
        }
    }
 
+   @Override
+   public Object visitUrl(SamXParser.UrlContext ctx)
+   {
+      append(ctx.getText());
+      return null;
+   }
 }

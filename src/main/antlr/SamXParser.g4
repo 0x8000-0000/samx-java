@@ -140,7 +140,7 @@ entity : escapeSeq | lessThan | greaterThan | ampersand | quote ;
 
 text : ( literal | entity | string ) + ;
 
-annotation : STT_ANN text CLOSE_PAR ;
+annotation : STT_ANN flow CLOSE_PAR ;
 
 phrase : OPEN_PHR text CLOSE_PHR annotation* attribute* condition? ;
 
