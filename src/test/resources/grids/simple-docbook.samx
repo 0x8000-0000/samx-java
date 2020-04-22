@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <article xmlns="http://docbook.org/ns/docbook" xmlns:xl="http://www.w3.org/1999/xlink" version="5.1">
   <para>This document contains a grid.</para>
-  <table xml:id="the-grid">
+  <table role="fancy" xml:id="the-grid">
     <title>Example table</title>
     <tgroup cols="6">
     <thead>
-      <row>
+      <row role="header">
         <entry>Name</entry>
         <entry>Position</entry>
-        <entry><phrase>Office</phrase></entry>
-        <entry><phrase>Age</phrase></entry>
+        <entry><phrase role="location">Office</phrase></entry>
+        <entry><phrase role="numeric">Age</phrase></entry>
         <entry>Start date</entry>
         <entry>Salary</entry>
       </row>
@@ -23,7 +23,7 @@
       <entry>2008/11/28</entry>
       <entry>$162,700</entry>
     </row>
-    <row>
+    <row role="highlight">
       <entry>Angelica Ramos</entry>
       <entry>Chief Executive Officer (CEO)</entry>
       <entry>London</entry>
@@ -42,7 +42,7 @@
     <row>
       <entry>Bradley Greer</entry>
       <entry>Software Engineer</entry>
-      <entry><phrase>London</phrase></entry>
+      <entry><phrase role="expensive">London</phrase></entry>
       <entry>41</entry>
       <entry>2012/10/13</entry>
       <entry>$132,000</entry>
@@ -55,7 +55,7 @@
       <entry>2011/06/07</entry>
       <entry>$206,850</entry>
     </row>
-    <row>
+    <row role="highlight extra">
       <entry>Brielle Williamson</entry>
       <entry>Integration Specialist</entry>
       <entry>New York</entry>

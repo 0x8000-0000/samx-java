@@ -84,11 +84,6 @@ public class AttributeVisitor extends SamXParserBaseVisitor<Void>
       return null;
    }
 
-   private boolean wantsClassAttributes()
-   {
-       return (! docBookMode) && (! classAttributes.isEmpty());
-   }
-
    @Override
    public String toString()
    {
@@ -96,14 +91,21 @@ public class AttributeVisitor extends SamXParserBaseVisitor<Void>
 
       boolean isEmpty = true;
 
-      if (wantsClassAttributes() || (idAttribute != null) || (nameAttribute != null))
+      if ((! classAttributes.isEmpty()) || (idAttribute != null) || (nameAttribute != null))
       {
          builder.append(' ');
       }
 
-      if (wantsClassAttributes())
+      if (! classAttributes.isEmpty())
       {
-         builder.append("class=\"");
+         if (docBookMode)
+         {
+            builder.append("role=\"");
+         }
+         else
+         {
+            builder.append("class=\"");
+         }
          boolean firstElement = true;
          for (String className : classAttributes)
          {
