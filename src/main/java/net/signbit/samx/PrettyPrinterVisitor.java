@@ -1013,6 +1013,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
    {
       StringBuilder builder = new StringBuilder();
 
+      addIndent(builder);
       builder.append("+++");
       renderConditionAndAttributes(ctx, builder);
       if (ctx.description != null)
