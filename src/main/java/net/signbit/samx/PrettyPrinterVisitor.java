@@ -612,6 +612,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
    {
       StringBuilder builder = new StringBuilder();
 
+      addIndent(builder);
       builder.append(ctx.NAME().getText());
       builder.append(ctx.TYPESEP().getText());
       renderConditionAndAttributes(ctx, builder);
