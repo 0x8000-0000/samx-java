@@ -52,31 +52,31 @@ chapter: Document Structure
    A SAMx document is comprised of blocks of text. Blocks of text can
    be\:
 
-      * paragraphs
+   * paragraphs
 
-      * lists, either ordered or unordered
+   * lists, either ordered or unordered
 
-      * tabular data
+   * tabular data
 
-      * field definitions
+   * field definitions
 
-      * structured records
+   * structured records
 
-      * definition or references to fragments
+   * definition or references to fragments
 
-      * references to external resources
+   * references to external resources
 
-      * typed (or named blocks)
+   * typed (or named blocks)
 
-      * verbatim code blocks
+   * verbatim code blocks
 
 chapter: SAMx Tools
 
    The following tools are part of the SAMx distribution\:
 
-      * pretty_print
+   * pretty_print
 
-      * to_xml
+   * to_xml
 
    section: pretty_print
 

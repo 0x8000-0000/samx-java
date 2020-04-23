@@ -1,28 +1,28 @@
 This is an unordered list\:
 
+* alpha
+
+* beta
+
+* gamma
+
+section: one
+
+   This is an unordered list\:
+
    * alpha
 
    * beta
 
    * gamma
 
-section: one
+   section: test
 
-   This is an unordered list\:
+      This is an unordered list\:
 
       * alpha
 
       * beta
 
       * gamma
-
-   section: test
-
-      This is an unordered list\:
-
-         * alpha
-
-         * beta
-
-         * gamma
 

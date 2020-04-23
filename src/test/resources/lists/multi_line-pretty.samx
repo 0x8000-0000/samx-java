@@ -1,22 +1,24 @@
 This is an unordered list\:
 
-   * alpha with second line
+* alpha with second line
 
-   * beta with second line
+* beta with second line
 
-   * gamma with follow-up line
+* gamma with follow-up line
 
-     and another paragraph
+   and another paragraph
 
-   * delta
+   then one extra
 
-     with a blank line
+* delta
+
+   with a blank line
 
 This is an * ordered * list\:
 
-   # one
+# one
 
-   # two
+# two
 
-   # three
+# three
 

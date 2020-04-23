@@ -386,54 +386,51 @@ public class XmlTextVisitor extends RendererVisitor
             append(getParagraphTag());
             append('>');
             visit(lec.flow());
-            if (lec.skipped == null)
+
+            ArrayList<SamXParser.BlockContext> blocks = new ArrayList<>(lec.block());
+            if (! blocks.isEmpty())
             {
-               /* This means there is no empty line between the first and second lines in the
-                * bulleted list; by the rules of paragraph handling, we have to join them.
-                */
-               if (!lec.paragraph().isEmpty())
+               if (lec.separator == null)
                {
-                  append(' ');
-                  visitParagraphContents(lec.paragraph(0));
+                  SamXParser.BlockContext firstBlock = blocks.get(0);
+                  if (firstBlock.getChildCount() == 1)
+                  {
+                     SamXParser.ParagraphContext pc = firstBlock.getChild(SamXParser.ParagraphContext.class, 0);
+
+                     if (pc != null)
+                     {
+                        // need to join the first paragraph with the flow
+
+                        append(' ');
+                        visitParagraphContents(pc);
+                        blocks.remove(0);
+                     }
+                  }
                }
             }
+
             append("</");
             append(getParagraphTag());
             append('>');
 
-            boolean mergedFirstLine = false;
-            if (lec.skipped == null)
+            if (! blocks.isEmpty())
             {
-               mergedFirstLine = true;
-            }
-            for (SamXParser.ParagraphContext pc : lec.paragraph())
-            {
-               if (mergedFirstLine)
-               {
-                  mergedFirstLine = false;
-                  continue;
-               }
-               visit(pc);
+               appendNewline();
             }
 
-            if (lec.unorderedList() != null)
+            indentParagraph = true;
+            indentLevel ++;
+            for (SamXParser.BlockContext bc: blocks)
             {
-               indentLevel++;
-               appendNewline();
-               visitGenericList(getUnorderedListTag(), lec.unorderedList().listElement());
-               indentLevel--;
+               visit(bc);
+               //appendNewline();
+            }
+            indentLevel --;
+
+            if (! blocks.isEmpty())
+            {
                addIndent();
             }
-
-            if (lec.orderedList() != null)
-            {
-               indentLevel++;
-               appendNewline();
-               visitGenericList(getOrderedListTag(), lec.orderedList().listElement());
-               indentLevel--;
-               addIndent();
-            }
-
             append("</");
             append(getListItemTag());
             append('>');

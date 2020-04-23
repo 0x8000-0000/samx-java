@@ -78,25 +78,36 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
       return builder;
    }
 
-   @Override
-   public StringBuilder visitParagraph(SamXParser.ParagraphContext ctx)
+   private StringBuilder wrapText(String rawText, int wrapLength, boolean indentFirst)
    {
       StringBuilder builder = new StringBuilder();
-
-      final int wrapLength = wrapParagraphAtColumn - indentLevel * indentString.length();
-
-      final String paragraphText = WordUtils.wrap(visitParagraphDirect(ctx).toString(), wrapLength);
+      final String paragraphText = WordUtils.wrap(rawText, wrapLength);
       StringTokenizer tokenizer = new StringTokenizer(paragraphText, '\n');
       while (tokenizer.hasNext())
       {
-         addIndent(builder);
+         if (! indentFirst)
+         {
+            indentFirst = true;
+         }
+         else
+         {
+            addIndent(builder);
+         }
          builder.append(tokenizer.next());
          builder.append('\n');
       }
 
-      builder.append('\n');
-
       return builder;
+   }
+
+   @Override
+   public StringBuilder visitParagraph(SamXParser.ParagraphContext ctx)
+   {
+      final String rawText = visitParagraphDirect(ctx).toString();
+
+      final int wrapLength = wrapParagraphAtColumn - indentLevel * indentString.length();
+
+      return wrapText(rawText, wrapLength, true).append('\n');
    }
 
    @Override
@@ -138,21 +149,17 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
    {
       StringBuilder builder = new StringBuilder();
 
-      indentLevel ++;
-
       for (SamXParser.ListElementContext lec : elements)
       {
+         addIndent(builder);
          StringBuilder childBuilder = visitListElement(lec);
          if (childBuilder != null)
          {
-            addIndent(builder);
             builder.append(type);
             builder.append(' ');
             builder.append(childBuilder);
          }
       }
-
-      indentLevel--;
 
       return builder;
    }
@@ -160,100 +167,67 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
    @Override
    public StringBuilder visitListElement(SamXParser.ListElementContext ctx)
    {
-      final int wrapLength = wrapParagraphAtColumn - indentLevel * indentString.length() - 2;
+      StringBuilder firstLineFlow = new StringBuilder();
+
+      final SamXParser.ConditionContext cond = ctx.condition();
+      if (cond != null)
+      {
+         firstLineFlow.append(visit(cond));
+         firstLineFlow.append(' ');
+      }
+
+      firstLineFlow.append(visitFlow(ctx.flow()));
+
+      ArrayList<SamXParser.BlockContext> blocks = new ArrayList<>(ctx.block());
+
+      boolean joined = false;
+      if (! blocks.isEmpty())
+      {
+         if (ctx.separator == null)
+         {
+            SamXParser.BlockContext firstBlock = blocks.get(0);
+            if (firstBlock.getChildCount() == 1)
+            {
+               SamXParser.ParagraphContext pc = firstBlock.getChild(SamXParser.ParagraphContext.class, 0);
+
+               if (pc != null)
+               {
+                  // need to join the first paragraph with the flow
+
+                  firstLineFlow.append(' ');
+                  firstLineFlow.append(visitParagraphDirect(pc));
+                  joined = true;
+
+                  blocks.remove(0);
+               }
+            }
+         }
+      }
 
       StringBuilder builder = new StringBuilder();
 
+      indentLevel ++;
+      final int wrapLength = wrapParagraphAtColumn - indentLevel * indentString.length();
+      builder.append(wrapText(firstLineFlow.toString(), wrapLength, false));
+      indentLevel --;
+
+      if (! blocks.isEmpty())
       {
-         StringBuilder firstLineBuilder = new StringBuilder();
-
-         final SamXParser.ConditionContext cond = ctx.condition();
-         if (cond != null)
+         if ((ctx.separator != null) || joined)
          {
-            firstLineBuilder.append(visit(cond));
-            firstLineBuilder.append(' ');
-         }
-
-         firstLineBuilder.append(visitFlow(ctx.flow()));
-
-         if (ctx.skipped == null)
-         {
-            /* This means there is no empty line between the first and second lines in the
-             * bulleted list; by the rules of paragraph handling, we have to join them.
-             */
-
-            if (!ctx.paragraph().isEmpty())
-            {
-               firstLineBuilder.append(' ');
-               firstLineBuilder.append(visitParagraphDirect(ctx.paragraph(0)));
-            }
-         }
-
-         final String wrappedFlow = WordUtils.wrap(firstLineBuilder.toString(), wrapLength);
-         StringTokenizer tokenizer = new StringTokenizer(wrappedFlow, '\n');
-
-         boolean firstLine = true;
-         while (tokenizer.hasNext())
-         {
-            if (firstLine)
-            {
-               firstLine = false;
-            }
-            else
-            {
-               addIndent(builder);
-               builder.append("  ");
-            }
-            builder.append(tokenizer.next());
             builder.append('\n');
          }
+
+         visitNestedBlock(builder, blocks);
       }
 
-      if (!ctx.paragraph().isEmpty())
+      final int builderLen = builder.length();
+      if (builderLen > 2)
       {
-         boolean mergedFirstLine = false;
-         if (ctx.skipped == null)
+         if ((builder.charAt(builderLen - 1) != '\n') || (builder.charAt(builderLen - 2) != '\n'))
          {
-            mergedFirstLine = true;
-         }
-         builder.append('\n');
-
-         for (SamXParser.ParagraphContext pc : ctx.paragraph())
-         {
-            if (mergedFirstLine)
-            {
-               mergedFirstLine = false;
-               continue;
-            }
-
-            final String paragraph = visitParagraphDirect(pc).toString();
-
-            final String wrappedParagraphs = WordUtils.wrap(paragraph, wrapLength);
-            StringTokenizer tokenizer = new StringTokenizer(wrappedParagraphs, '\n');
-
-            while (tokenizer.hasNext())
-            {
-               addIndent(builder);
-               builder.append("  ");
-               builder.append(tokenizer.next());
-               builder.append('\n');
-            }
             builder.append('\n');
          }
-      }
-      else
-      {
-         builder.append('\n');
-      }
-
-      if (ctx.unorderedList() != null)
-      {
-         builder.append(visitUnorderedList(ctx.unorderedList()));
-      }
-
-      if (ctx.orderedList() != null)
-      {
-         builder.append(visitOrderedList(ctx.orderedList()));
       }
 
       return builder;

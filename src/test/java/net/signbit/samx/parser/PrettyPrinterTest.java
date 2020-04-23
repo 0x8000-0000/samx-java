@@ -43,7 +43,7 @@ public class PrettyPrinterTest
 
       final String prettified = TestUtils.getResourceContents(prettifiedResource);
 
-      assertEquals(prettified, pretty);
+      assertEquals(prettified.trim(), pretty.trim());
    }
 
    @Test

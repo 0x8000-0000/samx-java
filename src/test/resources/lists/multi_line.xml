@@ -4,8 +4,13 @@
   <ul>
     <li><p>alpha with second line</p></li>
     <li><p>beta with second line</p></li>
-    <li><p>gamma with follow-up line</p><p>and another paragraph</p></li>
-    <li><p>delta</p><p>with a blank line</p></li>
+    <li><p>gamma with follow-up line</p>
+      <p>and another paragraph</p>
+      <p>then one extra</p>
+    </li>
+    <li><p>delta</p>
+      <p>with a blank line</p>
+    </li>
   </ul>
   <p>This is an * ordered * list:</p>
   <ol>

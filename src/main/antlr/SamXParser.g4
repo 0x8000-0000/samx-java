@@ -225,11 +225,11 @@ preciseGridRow : preciseGridRowData | preciseRecordSep ;
 
 externalCode : EXTCODE ;
 
-listElement : condition? flow NEWLINE skipped=NEWLINE? ( INDENT (paragraph | NEWLINE)+ DEDENT )? ( NEWLINE (unorderedList | orderedList) ) ?;
+listElement : condition? flow NEWLINE (separator=NEWLINE? INDENT block+ DEDENT)? ;
 
-unorderedList : INDENT ((BULLET listElement) | NEWLINE)+ DEDENT ;
+unorderedList : (BULLET listElement) NEWLINE* ((BULLET listElement) | NEWLINE)* ;
 
-orderedList : INDENT ((HASH listElement) | NEWLINE)+ DEDENT ;
+orderedList : (HASH listElement) NEWLINE* ((HASH listElement) | NEWLINE)* ;
 
 block :
      NAME TYPESEP attribute* condition? description=flow? NEWLINE+ INDENT block+ DEDENT         # TypedBlock

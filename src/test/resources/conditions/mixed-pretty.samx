@@ -15,7 +15,7 @@ section:(?radiation not in {detected, present})
 
 The options are
 
-   * (?radiation in {detected, present}) dead
+* (?radiation in {detected, present}) dead
 
-   * (?radiation==absent) alive
+* (?radiation==absent) alive
 

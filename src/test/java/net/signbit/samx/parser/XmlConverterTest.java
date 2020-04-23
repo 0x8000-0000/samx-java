@@ -64,6 +64,8 @@ public class XmlConverterTest
       testConversion("lists/multi_line.samx", "lists/multi_line.xml");
 
       testConversion("lists/nested_lists.samx", "lists/nested_lists.xml");
+
+      testConversion("wrap/long_lists.samx", "wrap/long_lists.xml");
    }
 
    @Test
