@@ -201,7 +201,7 @@ public class XmlTextVisitor extends RendererVisitor
    @Override
    public Object visitPhrase(SamXParser.PhraseContext ctx)
    {
-      if (isDisabled(ctx.condition()))
+      if (isDisabled(ctx))
       {
          return null;
       }
@@ -223,7 +223,7 @@ public class XmlTextVisitor extends RendererVisitor
       }
       else
       {
-         renderElementWithAttributes("phrase", ctx.attribute());
+         renderElementWithAttributes("phrase", ctx.metadata().attribute());
          visit(ctx.text());
          append("</phrase>");
       }
@@ -269,7 +269,7 @@ public class XmlTextVisitor extends RendererVisitor
    @Override
    public Object visitTypedBlock(SamXParser.TypedBlockContext ctx)
    {
-      if (isDisabled(ctx.condition()))
+      if (isDisabled(ctx))
       {
          return null;
       }
@@ -376,7 +376,7 @@ public class XmlTextVisitor extends RendererVisitor
 
       for (SamXParser.ListElementContext lec : elements)
       {
-         if ((lec.condition() == null) || Boolean.TRUE.equals(visit(lec.condition())))
+         if ((lec.metadata().condition() == null) || Boolean.TRUE.equals(visit(lec.metadata().condition())))
          {
             addIndent();
 
@@ -469,7 +469,7 @@ public class XmlTextVisitor extends RendererVisitor
    @Override
    public Object visitRecordSet(SamXParser.RecordSetContext ctx)
    {
-      if (isDisabled(ctx.condition()))
+      if (isDisabled(ctx))
       {
          return null;
       }
@@ -479,10 +479,10 @@ public class XmlTextVisitor extends RendererVisitor
       addIndent();
       append('<');
       append(typeText);
-      if (ctx.attribute().size() > 0)
+      if (ctx.metadata().attribute().size() > 0)
       {
          append(' ');
-         for (SamXParser.AttributeContext ac : ctx.attribute())
+         for (SamXParser.AttributeContext ac : ctx.metadata().attribute())
          {
             visit(ac);
          }
@@ -501,7 +501,7 @@ public class XmlTextVisitor extends RendererVisitor
          final SamXParser.RecordDataContext rdc = rrc.recordData();
          if (rdc != null)
          {
-            if (isDisabled(rdc.condition()))
+            if (isDisabled(rdc))
             {
                continue;
             }
@@ -578,7 +578,7 @@ public class XmlTextVisitor extends RendererVisitor
    @Override
    public Exception visitIncludeFile(SamXParser.IncludeFileContext ctx)
    {
-      if (isDisabled(ctx.condition()))
+      if (isDisabled(ctx))
       {
          return null;
       }
@@ -837,7 +837,7 @@ public class XmlTextVisitor extends RendererVisitor
    private void renderDocBookFigure(SamXParser.InsertImageContext ctx)
    {
       AttributeVisitor attributeVisitor = new AttributeVisitor();
-      for (SamXParser.AttributeContext ac : ctx.attribute())
+      for (SamXParser.AttributeContext ac : ctx.metadata().attribute())
       {
          attributeVisitor.visit(ac);
       }
@@ -893,7 +893,7 @@ public class XmlTextVisitor extends RendererVisitor
       {
           attributeVisitor.setDitaMode();
       }
-      for (SamXParser.AttributeContext ac : ctx.attribute())
+      for (SamXParser.AttributeContext ac : ctx.metadata().attribute())
       {
          attributeVisitor.visit(ac);
       }
@@ -917,7 +917,7 @@ public class XmlTextVisitor extends RendererVisitor
    @Override
    public Object visitInsertImage(SamXParser.InsertImageContext ctx)
    {
-      if (isDisabled(ctx.condition()))
+      if (isDisabled(ctx))
       {
          return null;
       }
@@ -997,13 +997,13 @@ public class XmlTextVisitor extends RendererVisitor
    @Override
    public Object visitGrid(SamXParser.GridContext ctx)
    {
-      if (isDisabled(ctx.condition()))
+      if (isDisabled(ctx))
       {
          return null;
       }
 
       addIndent();
-      renderElementWithAttributes("table", ctx.attribute());
+      renderElementWithAttributes("table", ctx.metadata().attribute());
       appendNewline();
 
       indentLevel++;
@@ -1061,13 +1061,13 @@ public class XmlTextVisitor extends RendererVisitor
 
       for (SamXParser.GridRecordRowContext rrc : ctx.gridRecordRow())
       {
-         if (isDisabled(rrc.condition()))
+         if (isDisabled(rrc))
          {
             continue;
          }
 
          addIndent();
-         renderElementWithAttributes(getTableRowTag(), rrc.attribute());
+         renderElementWithAttributes(getTableRowTag(), rrc.metadata().attribute());
          appendNewline();
 
          indentLevel++;
@@ -1171,7 +1171,7 @@ public class XmlTextVisitor extends RendererVisitor
    @Override
    public StringBuilder visitGeneralGrid(SamXParser.GeneralGridContext ctx)
    {
-      if (isDisabled(ctx.condition()))
+      if (isDisabled(ctx))
       {
          return null;
       }
@@ -1186,12 +1186,12 @@ public class XmlTextVisitor extends RendererVisitor
             final SamXParser.GeneralGridRowDataContext rdc = rc.generalGridRowData();
             if (rdc != null)
             {
-               if (! isDisabled(rdc.condition()))
+               if (! isDisabled(rdc))
                {
                   ArrayList<GridCell> rowCells = renderGeneralGridRow(rdc);
                   cells.add(rowCells);
 
-                  rowAttributes.add(rdc.attribute());
+                  rowAttributes.add(rdc.metadata().attribute());
                }
             }
          }
@@ -1204,18 +1204,18 @@ public class XmlTextVisitor extends RendererVisitor
          final SamXParser.GeneralGridRowDataContext rdc = rc.generalGridRowData();
          if (rdc != null)
          {
-            if (! isDisabled(rdc.condition()))
+            if (! isDisabled(rdc))
             {
                ArrayList<GridCell> rowCells = renderGeneralGridRow(rdc);
                cells.add(rowCells);
 
-               rowAttributes.add(rdc.attribute());
+               rowAttributes.add(rdc.metadata().attribute());
             }
          }
       }
 
       addIndent();
-      renderElementWithAttributes("table", ctx.attribute());
+      renderElementWithAttributes("table", ctx.metadata().attribute());
       appendNewline();
 
       indentLevel++;

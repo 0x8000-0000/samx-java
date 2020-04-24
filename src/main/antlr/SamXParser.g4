@@ -142,7 +142,7 @@ text : ( literal | entity | string ) + ;
 
 annotation : STT_ANN flow CLOSE_PAR ;
 
-phrase : OPEN_PHR text CLOSE_PHR annotation* attribute* condition? ;
+phrase : OPEN_PHR text CLOSE_PHR annotation* metadata ;
 
 localInsert : STT_LOCIN text CLOSE_PAR ;
 
@@ -198,7 +198,7 @@ gridHeaderRow
 
 gridRecordRow
    locals [ int columnCount = 0; ]
-   : attribute* condition? ( gridElement { $ctx.columnCount ++; } )+ NEWLINE
+   : metadata ( gridElement { $ctx.columnCount ++; } )+ NEWLINE
    {
       if (currentHeaderLength != $ctx.columnCount)
       {
@@ -211,7 +211,7 @@ gridRecordRow
 
 generalGridHeaderSep : STT_HDR_SEP NEWLINE ;
 
-generalGridRowData : attribute* condition? generalGridElement+ COLSEP ;
+generalGridRowData : metadata generalGridElement+ COLSEP ;
 
 generalGridRow : (generalGridRowData | GEN_ROW_SEP) NEWLINE ;
 
@@ -219,38 +219,40 @@ generalGridHeader : generalGridRow+ generalGridHeaderSep ;
 
 preciseRecordSep : (STT_TBL_SEP)+ PLUS NEWLINE ;
 
-preciseGridRowData : attribute* condition? gridElement+ NEWLINE ;
+preciseGridRowData : metadata gridElement+ NEWLINE ;
 
 preciseGridRow : preciseGridRowData | preciseRecordSep ;
 
 externalCode : EXTCODE ;
 
-listElement : condition? flow NEWLINE (separator=NEWLINE? INDENT block+ DEDENT)? ;
+listElement : metadata flow NEWLINE (separator=NEWLINE? INDENT block+ DEDENT)? ;
 
 unorderedList : (BULLET listElement) NEWLINE* ((BULLET listElement) | NEWLINE)* ;
 
 orderedList : (HASH listElement) NEWLINE* ((HASH listElement) | NEWLINE)* ;
 
 block :
-     NAME TYPESEP attribute* condition? description=flow? NEWLINE+ INDENT block+ DEDENT         # TypedBlock
-   | NAME TYPESEP attribute* condition? value=flow NEWLINE                                      # Field
+     NAME TYPESEP metadata description=flow? NEWLINE+ INDENT block+ DEDENT         # TypedBlock
+   | NAME TYPESEP metadata value=flow NEWLINE                                      # Field
    | condition NEWLINE+ INDENT block+ DEDENT                                                    # ConditionalBlock
    | paragraph                                                                                  # PlainParagraph
-   | NAME RECSEP attribute* condition? description=flow NEWLINE+ INDENT headerRow (recordRow | NEWLINE)+ DEDENT     # RecordSet
+   | NAME RECSEP metadata description=flow NEWLINE+ INDENT headerRow (recordRow | NEWLINE)+ DEDENT     # RecordSet
    | unorderedList                                                                              # UnorderedListBlock
    | orderedList                                                                                # OrderedListBlock
    | STT_RMK text CLOSE_PAR NEWLINE block                                                       # Remark
    | STT_CIT text CLOSE_SQR NEWLINE ( INDENT block+ DEDENT )                                    # CitationBlock
-   | STT_INFRG name=NAME CLOSE_PAR attribute* condition?                                        # InsertFragment
-   | STT_DEFRG name=NAME CLOSE_PAR attribute* condition? NEWLINE+ INDENT block+ DEDENT          # DefineFragment
-   | STT_INCL reference=text CLOSE_PAR attribute* condition?    { parseFile($reference.text); } # IncludeFile
-   | STT_IMAGE text CLOSE_PAR attribute* condition? description=flow?                           # InsertImage
-   | CODE_MARKER language=text CLOSE_PAR attribute* condition? NEWLINE+ INDENT (externalCode? NEWLINE)+ DEDENT     # CodeBlock
-   | STT_GRID attribute* condition? description=flow? NEWLINE+ INDENT gridHeaderRow (gridRecordRow | NEWLINE) + DEDENT # Grid
-   | STT_GEN_GRID attribute* condition? description=flow? NEWLINE+ INDENT generalGridHeader? (generalGridRow | NEWLINE)+ DEDENT # GeneralGrid
-   | STT_PREC_GRID attribute* condition? description=flow? NEWLINE+ INDENT (preciseGridRow | NEWLINE) + DEDENT # PreciseGrid
+   | STT_INFRG name=NAME CLOSE_PAR metadata                                        # InsertFragment
+   | STT_DEFRG name=NAME CLOSE_PAR metadata NEWLINE+ INDENT block+ DEDENT          # DefineFragment
+   | STT_INCL reference=text CLOSE_PAR metadata    { parseFile($reference.text); } # IncludeFile
+   | STT_IMAGE text CLOSE_PAR metadata description=flow?                           # InsertImage
+   | CODE_MARKER language=text CLOSE_PAR metadata NEWLINE+ INDENT (externalCode? NEWLINE)+ DEDENT     # CodeBlock
+   | STT_GRID metadata description=flow? NEWLINE+ INDENT gridHeaderRow (gridRecordRow | NEWLINE) + DEDENT # Grid
+   | STT_GEN_GRID metadata description=flow? NEWLINE+ INDENT generalGridHeader? (generalGridRow | NEWLINE)+ DEDENT # GeneralGrid
+   | STT_PREC_GRID metadata description=flow? NEWLINE+ INDENT (preciseGridRow | NEWLINE) + DEDENT # PreciseGrid
    | NEWLINE                                                                                    # Empty
    ;
+
+metadata: attribute* condition? ;
 
 document: declaration* block* EOF ;
 

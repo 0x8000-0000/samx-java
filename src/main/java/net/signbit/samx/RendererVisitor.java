@@ -182,11 +182,13 @@ public class RendererVisitor extends SamXParserBaseVisitor<Object>
       return Boolean.FALSE;
    }
 
-   public boolean isDisabled(SamXParser.ConditionContext condition)
+   public boolean isDisabled(ParserRuleContext prc)
    {
-      if (condition != null)
+      final SamXParser.MetadataContext metadata = prc.getRuleContext(SamXParser.MetadataContext.class, 0);
+
+      if ((metadata != null) && (metadata.condition() != null))
       {
-         Object enabled = visit(condition);
+         Object enabled = visit(metadata.condition());
          return !Boolean.TRUE.equals(enabled);
       }
       else
@@ -294,7 +296,7 @@ public class RendererVisitor extends SamXParserBaseVisitor<Object>
    @Override
    public Object visitInsertFragment(SamXParser.InsertFragmentContext ctx)
    {
-      if (isDisabled(ctx.condition()))
+      if (isDisabled(ctx))
       {
          return null;
       }

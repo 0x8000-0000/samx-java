@@ -169,7 +169,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
    {
       StringBuilder firstLineFlow = new StringBuilder();
 
-      final SamXParser.ConditionContext cond = ctx.condition();
+      final SamXParser.ConditionContext cond = ctx.metadata().condition();
       if (cond != null)
       {
          firstLineFlow.append(visit(cond));
@@ -985,12 +985,14 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
 
    private void renderConditionAndAttributes(ParserRuleContext prc, StringBuilder builder)
    {
-      final SamXParser.ConditionContext cond = prc.getRuleContext(SamXParser.ConditionContext.class, 0);
+      final SamXParser.MetadataContext metadata = prc.getRuleContext(SamXParser.MetadataContext.class, 0);
+
+      final SamXParser.ConditionContext cond = metadata.condition();
       if (cond != null)
       {
          builder.append(visit(cond));
       }
-      for (SamXParser.AttributeContext ac : prc.getRuleContexts(SamXParser.AttributeContext.class))
+      for (SamXParser.AttributeContext ac : metadata.attribute())
       {
          builder.append(visit(ac));
       }
@@ -1035,7 +1037,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
 
       for (SamXParser.GridRecordRowContext rrc : ctx.gridRecordRow())
       {
-         ArrayList<String> rowElements = renderGridElementList(rrc.condition(), rrc.attribute(), rrc.gridElement());
+         ArrayList<String> rowElements = renderGridElementList(rrc.metadata().condition(), rrc.metadata().attribute(), rrc.gridElement());
          rows.add(rowElements);
 
          {
