@@ -942,7 +942,21 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
       }
       else
       {
-         return visitFlow(fc).toString();
+         StringBuilder builder = new StringBuilder();
+
+         for (SamXParser.AttributeContext ac : gec.attribute())
+         {
+            builder.append(visit(ac));
+         }
+
+         if (!gec.attribute().isEmpty())
+         {
+            builder.append(' ');
+         }
+
+         builder.append(visitFlow(fc));
+
+         return builder.toString();
       }
    }
 
@@ -1007,7 +1021,13 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
       ArrayList<String> headerElements = renderGridElementList(null, ghrc.attribute(), ghrc.gridElement());
       for (int ii = 0; ii < headerElements.size(); ++ii)
       {
-         columnWidths[ii] = headerElements.get(ii).length();
+         final String value = headerElements.get(ii);
+         int length = value.length();
+         if (value.charAt(0) == '(')
+         {
+            length --;
+         }
+         columnWidths[ii] = length;
          isInteger[ii] = true;
       }
 
@@ -1029,7 +1049,11 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
          for (int ii = 0; ii < headerElements.size(); ++ii)
          {
             final String value = rowElements.get(ii);
-            final int length = value.length();
+            int length = value.length();
+            if ((!value.isEmpty()) && (value.charAt(0) == '('))
+            {
+               length --;
+            }
             if (columnWidths[ii] < length)
             {
                columnWidths[ii] = length;
@@ -1052,14 +1076,24 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
       }
       for (int ii = 1; ii < headerElements.size(); ++ii)
       {
-         builder.append(" | ");
+         builder.append(" |");
          if (ii != (headerElements.size() - 1))
          {
-            builder.append(String.format("%1$-" + columnWidths[ii] + "s", headerElements.get(ii)));
+            final String text = headerElements.get(ii);
+            if (text.charAt(0) != '(')
+            {
+               builder.append(' ');
+            }
+            builder.append(String.format("%1$-" + columnWidths[ii] + "s", text));
          }
          else
          {
-            builder.append(headerElements.get(headerElements.size() - 1));
+            final String text = headerElements.get(headerElements.size() - 1);
+            if (text.charAt(0) != '(')
+            {
+               builder.append(' ');
+            }
+            builder.append(text);
          }
       }
       builder.append('\n');
@@ -1073,16 +1107,21 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
          }
          for (int ii = 1; ii < headerElements.size(); ++ii)
          {
-            builder.append(" | ");
+            builder.append(" |");
+            final String text = rowData.get(ii);
+            if (text.isEmpty() || (text.charAt(0) != '('))
+            {
+               builder.append(' ');
+            }
             if (isInteger[ii])
             {
-               builder.append(String.format("%1$" + columnWidths[ii] + "s", rowData.get(ii)));
+               builder.append(String.format("%1$" + columnWidths[ii] + "s", text));
             }
             else
             {
                if (ii != (headerElements.size() - 1))
                {
-                  builder.append(String.format("%1$-" + columnWidths[ii] + "s", rowData.get(ii)));
+                  builder.append(String.format("%1$-" + columnWidths[ii] + "s", text));
                }
                else
                {

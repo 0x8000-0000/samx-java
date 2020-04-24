@@ -5,6 +5,7 @@ import org.junit.Test;
 
 import net.signbit.samx.Parser;
 import net.signbit.samx.PrettyPrinterVisitor;
+import net.signbit.samx.VisitorUtils;
 import static org.junit.Assert.*;
 
 public class PrettyPrinterTest
@@ -31,6 +32,8 @@ public class PrettyPrinterTest
       final String pretty = prettify(original);
 
       assertEquals(original, pretty);
+
+      assertTrue(VisitorUtils.compareFilesExceptWhitespace(original, pretty));
    }
 
    private void testAsPretty(String resourceName, String prettifiedResource)
@@ -44,6 +47,8 @@ public class PrettyPrinterTest
       final String prettified = TestUtils.getResourceContents(prettifiedResource);
 
       assertEquals(prettified.trim(), pretty.trim());
+
+      assertTrue(VisitorUtils.compareFilesExceptWhitespace(original, pretty));
    }
 
    @Test

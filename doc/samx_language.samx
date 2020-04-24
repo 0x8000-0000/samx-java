@@ -86,6 +86,9 @@ chapter: SAMx Tools
       spaces by replacing consecutive empty lines with a single empty
       line, as well as wrapping the paragraphs to 72 columns.
 
+      Pretty printer will only affect whitespace, by adding or removing
+      spaces and new lines.
+
       If the result of the pretty-printed document matches the input the
       tool will produce the \"OK\: Prettified output matched input\"
       diagnostic. Otherwise the tool will provide an indication of the
