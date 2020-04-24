@@ -73,9 +73,9 @@ public class HtmlPrinterVisitor extends RendererVisitor
       ST template = htmlGroup.getInstanceOf("/typed_block");
 
       template.add("type", ctx.NAME().getText());
-      if (ctx.description != null)
+      if (ctx.blockMetadata().description != null)
       {
-         template.add("description", visitFlow(ctx.description));
+         template.add("description", visitFlow(ctx.blockMetadata().description));
       }
 
       ArrayList<String> renderedBlocks = new ArrayList<>();

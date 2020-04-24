@@ -274,7 +274,7 @@ public class CppVisitor extends RendererVisitor
 
       structure.add("name", attributes.getId());
       structure.add("unitWidth", unitWidth);
-      structure.add("description", getPlainText(ctx.description));
+      structure.add("description", getPlainText(ctx.blockMetadata().description));
       structure.add("fields", structureMembers);
       structure.add("size", dwordCount + 1);
 
@@ -291,7 +291,7 @@ public class CppVisitor extends RendererVisitor
 
       template.add("name", attributes.getId());
       template.add("unitWidth", unitWidth);
-      template.add("description", getPlainText(ctx.description));
+      template.add("description", getPlainText(ctx.blockMetadata().description));
       template.add("fields", structureMembers);
 
       bitFields.add(template.render());

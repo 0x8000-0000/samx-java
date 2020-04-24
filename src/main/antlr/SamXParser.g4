@@ -232,27 +232,29 @@ unorderedList : (BULLET listElement) NEWLINE* ((BULLET listElement) | NEWLINE)* 
 orderedList : (HASH listElement) NEWLINE* ((HASH listElement) | NEWLINE)* ;
 
 block :
-     NAME TYPESEP metadata description=flow? NEWLINE+ INDENT block+ DEDENT         # TypedBlock
-   | NAME TYPESEP metadata value=flow NEWLINE                                      # Field
-   | condition NEWLINE+ INDENT block+ DEDENT                                                    # ConditionalBlock
-   | paragraph                                                                                  # PlainParagraph
-   | NAME RECSEP metadata description=flow NEWLINE+ INDENT headerRow (recordRow | NEWLINE)+ DEDENT     # RecordSet
-   | unorderedList                                                                              # UnorderedListBlock
-   | orderedList                                                                                # OrderedListBlock
-   | STT_RMK text CLOSE_PAR NEWLINE block                                                       # Remark
-   | STT_CIT text CLOSE_SQR NEWLINE ( INDENT block+ DEDENT )                                    # CitationBlock
-   | STT_INFRG name=NAME CLOSE_PAR metadata                                        # InsertFragment
-   | STT_DEFRG name=NAME CLOSE_PAR metadata NEWLINE+ INDENT block+ DEDENT          # DefineFragment
-   | STT_INCL reference=text CLOSE_PAR metadata    { parseFile($reference.text); } # IncludeFile
-   | STT_IMAGE text CLOSE_PAR metadata description=flow?                           # InsertImage
+     NAME TYPESEP blockMetadata NEWLINE+ INDENT block+ DEDENT                                         # TypedBlock
+   | NAME TYPESEP metadata value=flow NEWLINE                                                         # Field
+   | condition NEWLINE+ INDENT block+ DEDENT                                                          # ConditionalBlock
+   | paragraph                                                                                        # PlainParagraph
+   | NAME RECSEP blockMetadata NEWLINE+ INDENT headerRow (recordRow | NEWLINE)+ DEDENT                # RecordSet
+   | unorderedList                                                                                    # UnorderedListBlock
+   | orderedList                                                                                      # OrderedListBlock
+   | STT_RMK text CLOSE_PAR NEWLINE block                                                             # Remark
+   | STT_CIT text CLOSE_SQR NEWLINE ( INDENT block+ DEDENT )                                          # CitationBlock
+   | STT_INFRG name=NAME CLOSE_PAR metadata                                                           # InsertFragment
+   | STT_DEFRG name=NAME CLOSE_PAR metadata NEWLINE+ INDENT block+ DEDENT                             # DefineFragment
+   | STT_INCL reference=text CLOSE_PAR metadata    { parseFile($reference.text); }                    # IncludeFile
+   | STT_IMAGE text CLOSE_PAR blockMetadata                                                           # InsertImage
    | CODE_MARKER language=text CLOSE_PAR metadata NEWLINE+ INDENT (externalCode? NEWLINE)+ DEDENT     # CodeBlock
-   | STT_GRID metadata description=flow? NEWLINE+ INDENT gridHeaderRow (gridRecordRow | NEWLINE) + DEDENT # Grid
-   | STT_GEN_GRID metadata description=flow? NEWLINE+ INDENT generalGridHeader? (generalGridRow | NEWLINE)+ DEDENT # GeneralGrid
-   | STT_PREC_GRID metadata description=flow? NEWLINE+ INDENT (preciseGridRow | NEWLINE) + DEDENT # PreciseGrid
-   | NEWLINE                                                                                    # Empty
+   | STT_GRID blockMetadata NEWLINE+ INDENT gridHeaderRow (gridRecordRow | NEWLINE) + DEDENT          # Grid
+   | STT_GEN_GRID blockMetadata NEWLINE+ INDENT generalGridHeader? (generalGridRow | NEWLINE)+ DEDENT # GeneralGrid
+   | STT_PREC_GRID blockMetadata NEWLINE+ INDENT (preciseGridRow | NEWLINE) + DEDENT                  # PreciseGrid
+   | NEWLINE                                                                                          # Empty
    ;
 
 metadata: attribute* condition? ;
+
+blockMetadata: metadata description=flow? ;
 
 document: declaration* block* EOF ;
 

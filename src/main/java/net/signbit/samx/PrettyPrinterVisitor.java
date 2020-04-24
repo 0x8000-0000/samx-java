@@ -118,13 +118,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
       addIndent(builder);
       builder.append(ctx.NAME().getText());
       builder.append(ctx.TYPESEP().getText());
-      renderConditionAndAttributes(ctx, builder);
-      if (ctx.description != null)
-      {
-         builder.append(' ');
-         builder.append(visit(ctx.description));
-      }
-      builder.append('\n');
+      builder.append(visitBlockMetadata(ctx.blockMetadata()));
       builder.append('\n');
 
       final List<SamXParser.BlockContext> blocks = ctx.block();
@@ -234,13 +228,10 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
    }
 
    @Override
-   public StringBuilder visitRecordSet(SamXParser.RecordSetContext ctx)
+   public StringBuilder visitBlockMetadata(SamXParser.BlockMetadataContext ctx)
    {
       StringBuilder builder = new StringBuilder();
 
-      addIndent(builder);
-      builder.append(ctx.NAME().getText());
-      builder.append(ctx.RECSEP().getText());
       renderConditionAndAttributes(ctx, builder);
       if (ctx.description != null)
       {
@@ -248,6 +239,19 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
          builder.append(visit(ctx.description));
       }
       builder.append('\n');
+
+      return builder;
+   }
+
+   @Override
+   public StringBuilder visitRecordSet(SamXParser.RecordSetContext ctx)
+   {
+      StringBuilder builder = new StringBuilder();
+
+      addIndent(builder);
+      builder.append(ctx.NAME().getText());
+      builder.append(ctx.RECSEP().getText());
+      builder.append(visitBlockMetadata(ctx.blockMetadata()));
       builder.append('\n');
 
       indentLevel++;
@@ -910,13 +914,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
       builder.append(">>>(image ");
       builder.append(visitText(ctx.text()));
       builder.append(')');
-      renderConditionAndAttributes(ctx, builder);
-      if (ctx.description != null)
-      {
-         builder.append(' ');
-         builder.append(visitFlow(ctx.description));
-      }
-      builder.append('\n');
+      builder.append(visitBlockMetadata(ctx.blockMetadata()));
       builder.append('\n');
 
       return builder;
@@ -1005,13 +1003,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
 
       addIndent(builder);
       builder.append("+++");
-      renderConditionAndAttributes(ctx, builder);
-      if (ctx.description != null)
-      {
-         builder.append(' ');
-         builder.append(visit(ctx.description));
-      }
-      builder.append('\n');
+      builder.append(visitBlockMetadata(ctx.blockMetadata()));
       builder.append('\n');
 
       indentLevel++;
@@ -1349,13 +1341,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
       StringBuilder builder = new StringBuilder();
 
       builder.append("-+-");
-      renderConditionAndAttributes(ctx, builder);
-      if (ctx.description != null)
-      {
-         builder.append(' ');
-         builder.append(visit(ctx.description));
-      }
-      builder.append('\n');
+      builder.append(visitBlockMetadata(ctx.blockMetadata()));
       builder.append('\n');
 
       indentLevel++;

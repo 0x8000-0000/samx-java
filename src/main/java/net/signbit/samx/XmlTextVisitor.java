@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.antlr.v4.runtime.BufferedTokenStream;
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.misc.Interval;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -283,18 +284,7 @@ public class XmlTextVisitor extends RendererVisitor
 
       indentLevel++;
 
-      if (ctx.description != null)
-      {
-         final String descriptionText = ctx.description.getText();
-         if (!descriptionText.isEmpty())
-         {
-            addIndent();
-            append("<title>");
-            visit(ctx.description);
-            append("</title>");
-            appendNewline();
-         }
-      }
+      renderTitle(ctx);
 
       for (SamXParser.BlockContext pt : ctx.block())
       {
@@ -479,10 +469,10 @@ public class XmlTextVisitor extends RendererVisitor
       addIndent();
       append('<');
       append(typeText);
-      if (ctx.metadata().attribute().size() > 0)
+      if (ctx.blockMetadata().metadata().attribute().size() > 0)
       {
          append(' ');
-         for (SamXParser.AttributeContext ac : ctx.metadata().attribute())
+         for (SamXParser.AttributeContext ac : ctx.blockMetadata().metadata().attribute())
          {
             visit(ac);
          }
@@ -837,7 +827,7 @@ public class XmlTextVisitor extends RendererVisitor
    private void renderDocBookFigure(SamXParser.InsertImageContext ctx)
    {
       AttributeVisitor attributeVisitor = new AttributeVisitor();
-      for (SamXParser.AttributeContext ac : ctx.metadata().attribute())
+      for (SamXParser.AttributeContext ac : ctx.blockMetadata().metadata().attribute())
       {
          attributeVisitor.visit(ac);
       }
@@ -848,10 +838,8 @@ public class XmlTextVisitor extends RendererVisitor
       indentLevel ++;
 
       addIndent();
-      append("<title>");
-      visitFlow(ctx.description);
-      append("</title>");
-      appendNewline();
+
+      renderTitle(ctx);
 
       addIndent();
       append("<mediaobject>");
@@ -893,7 +881,7 @@ public class XmlTextVisitor extends RendererVisitor
       {
           attributeVisitor.setDitaMode();
       }
-      for (SamXParser.AttributeContext ac : ctx.metadata().attribute())
+      for (SamXParser.AttributeContext ac : ctx.blockMetadata().metadata().attribute())
       {
          attributeVisitor.visit(ac);
       }
@@ -902,10 +890,10 @@ public class XmlTextVisitor extends RendererVisitor
       append(" fileref=\"");
       visitText(ctx.text());
       append("\"");
-      if (ctx.description != null)
+      if (ctx.blockMetadata().description != null)
       {
          append("><title>");
-         visitFlow(ctx.description);
+         visitFlow(ctx.blockMetadata().description);
          append("</title></imagedata>");
       }
       else
@@ -994,6 +982,27 @@ public class XmlTextVisitor extends RendererVisitor
       append('>');
    }
 
+   private void renderTitle(ParserRuleContext prc)
+   {
+      final SamXParser.BlockMetadataContext blockMetadata = prc.getRuleContext(SamXParser.BlockMetadataContext.class, 0);
+
+      if (blockMetadata != null)
+      {
+         if (blockMetadata.description != null)
+         {
+            final String descriptionText = blockMetadata.description.getText();
+            if (!descriptionText.isEmpty())
+            {
+               addIndent();
+               append("<title>");
+               visitFlow(blockMetadata.description);
+               append("</title>");
+               appendNewline();
+            }
+         }
+      }
+   }
+
    @Override
    public Object visitGrid(SamXParser.GridContext ctx)
    {
@@ -1003,23 +1012,12 @@ public class XmlTextVisitor extends RendererVisitor
       }
 
       addIndent();
-      renderElementWithAttributes("table", ctx.metadata().attribute());
+      renderElementWithAttributes("table", ctx.blockMetadata().metadata().attribute());
       appendNewline();
 
       indentLevel++;
 
-      if (ctx.description != null)
-      {
-         final String descriptionText = ctx.description.getText();
-         if (!descriptionText.isEmpty())
-         {
-            addIndent();
-            append("<title>");
-            visit(ctx.description);
-            append("</title>");
-            appendNewline();
-         }
-      }
+      renderTitle(ctx);
 
       if (docBookMode)
       {
@@ -1215,23 +1213,12 @@ public class XmlTextVisitor extends RendererVisitor
       }
 
       addIndent();
-      renderElementWithAttributes("table", ctx.metadata().attribute());
+      renderElementWithAttributes("table", ctx.blockMetadata().metadata().attribute());
       appendNewline();
 
       indentLevel++;
 
-      if (ctx.description != null)
-      {
-         final String descriptionText = ctx.description.getText();
-         if (!descriptionText.isEmpty())
-         {
-            addIndent();
-            append("<title>");
-            visit(ctx.description);
-            append("</title>");
-            appendNewline();
-         }
-      }
+      renderTitle(ctx);
 
       for (int ii = 0; ii < cells.size(); ++ii)
       {
