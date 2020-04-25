@@ -51,7 +51,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
 
    private void addIndent(StringBuilder builder)
    {
-      for (int ii = 0; ii < indentLevel; ++ii)
+      for (int ii = 0; ii < indentLevel; ++ ii)
       {
          builder.append(indentString);
       }
@@ -85,7 +85,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
       StringTokenizer tokenizer = new StringTokenizer(paragraphText, '\n');
       while (tokenizer.hasNext())
       {
-         if (!indentFirst)
+         if (! indentFirst)
          {
             indentFirst = true;
          }
@@ -175,7 +175,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
       ArrayList<SamXParser.BlockContext> blocks = new ArrayList<>(ctx.block());
 
       boolean joined = false;
-      if (!blocks.isEmpty())
+      if (! blocks.isEmpty())
       {
          if (ctx.separator == null)
          {
@@ -205,7 +205,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
       builder.append(wrapText(firstLineFlow.toString(), wrapLength, false));
       indentLevel--;
 
-      if (!blocks.isEmpty())
+      if (! blocks.isEmpty())
       {
          if ((ctx.separator != null) || joined)
          {
@@ -260,7 +260,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
       boolean[] isInteger = new boolean[ctx.headerRow().NAME().size()];
 
       ArrayList<String> headerElements = visitHeaderRowElements(ctx.headerRow());
-      for (int ii = 0; ii < headerElements.size(); ++ii)
+      for (int ii = 0; ii < headerElements.size(); ++ ii)
       {
          columnWidths[ii + 1] = headerElements.get(ii).length();
          isInteger[ii] = true;
@@ -283,7 +283,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
                }
             }
 
-            for (int ii = 0; ii < headerElements.size(); ++ii)
+            for (int ii = 0; ii < headerElements.size(); ++ ii)
             {
                final String value = rowElements.get(ii + 1);
                final int length = value.length();
@@ -292,9 +292,9 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
                   columnWidths[ii + 1] = length;
                }
 
-               if ((value != null) && (!value.isEmpty()))
+               if ((value != null) && (! value.isEmpty()))
                {
-                  if (!VisitorUtils.isInteger(value))
+                  if (! VisitorUtils.isInteger(value))
                   {
                      isInteger[ii] = false;
                   }
@@ -315,7 +315,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
       {
          builder.append(String.format("%1$-" + columnWidths[0] + "s", ""));
       }
-      for (int ii = 0; ii < headerElements.size(); ++ii)
+      for (int ii = 0; ii < headerElements.size(); ++ ii)
       {
          builder.append(" | ");
          if (ii != (headerElements.size() - 1))
@@ -336,15 +336,15 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
          {
             builder.append(' ');
 
-            for (int jj = 0; jj < columnWidths[0]; ++jj)
+            for (int jj = 0; jj < columnWidths[0]; ++ jj)
             {
                builder.append(' ');
             }
 
-            for (int ii = 0; ii < headerElements.size(); ++ii)
+            for (int ii = 0; ii < headerElements.size(); ++ ii)
             {
                builder.append("+---");
-               for (int jj = 1; jj < columnWidths[ii + 1]; ++jj)
+               for (int jj = 1; jj < columnWidths[ii + 1]; ++ jj)
                {
                   builder.append('-');
                }
@@ -356,7 +356,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
             {
                builder.append(String.format("%1$-" + columnWidths[0] + "s", rowData.get(0)));
             }
-            for (int ii = 0; ii < headerElements.size(); ++ii)
+            for (int ii = 0; ii < headerElements.size(); ++ ii)
             {
                builder.append(" | ");
                if (isInteger[ii])
@@ -477,7 +477,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
          StringBuilder childBuilder = visit(tn);
          if (childBuilder != null)
          {
-            if (!firstToken)
+            if (! firstToken)
             {
                addSpaceIfPresentInInput(builder, tn);
             }
@@ -495,7 +495,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
       if (pos.a <= pos.b)
       {
          final List<Token> precedingTokens = tokenStream.getHiddenTokensToLeft(pos.a, SamXLexer.WHITESPACE);
-         if ((precedingTokens != null) && (!precedingTokens.isEmpty()))
+         if ((precedingTokens != null) && (! precedingTokens.isEmpty()))
          {
             builder.append(' ');
          }
@@ -683,7 +683,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
 
          final int codeLineIndent = VisitorUtils.getTokenIndent(ecc, tokenStream);
 
-         for (int ii = codeBlockIndent; ii < codeLineIndent; ++ii)
+         for (int ii = codeBlockIndent; ii < codeLineIndent; ++ ii)
          {
             builder.append(' ');
          }
@@ -858,7 +858,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
          }
       }
 
-      if (!lastChildHadNewline)
+      if (! lastChildHadNewline)
       {
          builder.append('\n');
       }
@@ -947,7 +947,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
             builder.append(visit(ac));
          }
 
-         if (!gec.attribute().isEmpty())
+         if (! gec.attribute().isEmpty())
          {
             builder.append(' ');
          }
@@ -1010,7 +1010,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
 
       int conditionColumnWidth = body.conditionColumnWidth;
       int columnWidths[] = new int[body.columnCount];
-      for (int ii = 0; ii < body.columnCount; ++ii)
+      for (int ii = 0; ii < body.columnCount; ++ ii)
       {
          columnWidths[ii] = body.columnWidths[ii];
       }
@@ -1029,7 +1029,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
             conditionColumnWidth = header.conditionColumnWidth;
          }
 
-         for (int ii = 0; ii < body.columnCount; ++ii)
+         for (int ii = 0; ii < body.columnCount; ++ ii)
          {
             if (columnWidths[ii] < header.columnWidths[ii])
             {
@@ -1052,7 +1052,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
             conditionColumnWidth = footer.conditionColumnWidth;
          }
 
-         for (int ii = 0; ii < body.columnCount; ++ii)
+         for (int ii = 0; ii < body.columnCount; ++ ii)
          {
             if (columnWidths[ii] < footer.columnWidths[ii])
             {
@@ -1095,11 +1095,11 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
    private void renderGeneralTableSeparator(int conditionColumnWidth, int[] columnWidths, int columnCount, StringBuilder builder)
    {
       addIndent(builder);
-      for (int jj = 0; jj < conditionColumnWidth + 1; ++jj)
+      for (int jj = 0; jj < conditionColumnWidth + 1; ++ jj)
       {
          builder.append(' ');
       }
-      for (int jj = 0; jj < columnCount; ++jj)
+      for (int jj = 0; jj < columnCount; ++ jj)
       {
          builder.append('+');
          for (int kk = 0; kk < columnWidths[jj] + 2; kk++)
@@ -1122,7 +1122,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
             builder.append(String.format("%1$-" + conditionColumnWidth + "s", attributeCondition));
          }
 
-         for (int jj = 0; jj < gridGroup.columnCount; ++jj)
+         for (int jj = 0; jj < gridGroup.columnCount; ++ jj)
          {
             final GridVisitor.GridCell gc = ggr.cells.get(jj);
             if (gc.colSpan > 0)
@@ -1130,7 +1130,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
                builder.append(" |");
                int columnWidth = columnWidths[jj];
                final int colSpan = gc.colSpan;
-               for (int kk = 1; kk < colSpan; ++kk)
+               for (int kk = 1; kk < colSpan; ++ kk)
                {
                   columnWidth += columnWidths[jj + kk] + 2;
                   ggr.cells.get(jj + kk).colSpan = 0;
@@ -1140,7 +1140,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
                {
                   builder.append('-');
                   columnWidth--;
-                  for (int kk = 1; kk < gc.rowSpan; ++kk)
+                  for (int kk = 1; kk < gc.rowSpan; ++ kk)
                   {
                      builder.append('-');
                      columnWidth--;

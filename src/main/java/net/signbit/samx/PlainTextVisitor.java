@@ -45,7 +45,7 @@ public class PlainTextVisitor extends SamXParserBaseVisitor<StringBuilder>
 
       for (ParseTree tn : ctx.children)
       {
-         if (!firstToken)
+         if (! firstToken)
          {
             addSpaceIfPresentInInput(builder, tn);
          }
@@ -70,7 +70,7 @@ public class PlainTextVisitor extends SamXParserBaseVisitor<StringBuilder>
       if (pos.a <= pos.b)
       {
          final List<Token> precedingTokens = tokenStream.getHiddenTokensToLeft(pos.a, SamXLexer.WHITESPACE);
-         if ((precedingTokens != null) && (!precedingTokens.isEmpty()))
+         if ((precedingTokens != null) && (! precedingTokens.isEmpty()))
          {
             builder.append(' ');
          }

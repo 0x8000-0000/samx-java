@@ -173,7 +173,7 @@ public class XmlTextVisitor extends RendererVisitor
       if (pos.a <= pos.b)
       {
          final List<Token> precedingTokens = tokenStream.getHiddenTokensToLeft(pos.a, SamXLexer.WHITESPACE);
-         if ((precedingTokens != null) && (!precedingTokens.isEmpty()))
+         if ((precedingTokens != null) && (! precedingTokens.isEmpty()))
          {
             append(' ');
          }
@@ -187,7 +187,7 @@ public class XmlTextVisitor extends RendererVisitor
 
       for (ParseTree pt : ctx.children)
       {
-         if (!firstElement)
+         if (! firstElement)
          {
             addSpaceIfPresentInInput(pt);
          }
@@ -207,10 +207,10 @@ public class XmlTextVisitor extends RendererVisitor
          return null;
       }
 
-      if (!ctx.annotation().isEmpty())
+      if (! ctx.annotation().isEmpty())
       {
          final List<SamXParser.UrlContext> url = ctx.annotation(0).flow().url();
-         if ((url != null) && (!url.isEmpty()))
+         if ((url != null) && (! url.isEmpty()))
          {
             if (docBookMode)
             {
@@ -239,13 +239,13 @@ public class XmlTextVisitor extends RendererVisitor
 
       for (ParseTree pt : ctx.children)
       {
-         if (!firstToken)
+         if (! firstToken)
          {
             final Interval pos = pt.getSourceInterval();
             if (pos.a <= pos.b)
             {
                final List<Token> precedingWhitespace = tokenStream.getHiddenTokensToLeft(pos.a, SamXLexer.WHITESPACE);
-               if ((precedingWhitespace != null) && (!precedingWhitespace.isEmpty()))
+               if ((precedingWhitespace != null) && (! precedingWhitespace.isEmpty()))
                {
                   append(' ');
                }
@@ -378,7 +378,7 @@ public class XmlTextVisitor extends RendererVisitor
             visit(lec.flow());
 
             ArrayList<SamXParser.BlockContext> blocks = new ArrayList<>(lec.block());
-            if (!blocks.isEmpty())
+            if (! blocks.isEmpty())
             {
                if (lec.separator == null)
                {
@@ -403,7 +403,7 @@ public class XmlTextVisitor extends RendererVisitor
             append(getParagraphTag());
             append('>');
 
-            if (!blocks.isEmpty())
+            if (! blocks.isEmpty())
             {
                appendNewline();
             }
@@ -417,7 +417,7 @@ public class XmlTextVisitor extends RendererVisitor
             }
             indentLevel--;
 
-            if (!blocks.isEmpty())
+            if (! blocks.isEmpty())
             {
                addIndent();
             }
@@ -808,7 +808,7 @@ public class XmlTextVisitor extends RendererVisitor
       {
          final int codeLineIndent = VisitorUtils.getTokenIndent(ecc, tokenStream);
 
-         for (int ii = codeBlockIndent; ii < codeLineIndent; ++ii)
+         for (int ii = codeBlockIndent; ii < codeLineIndent; ++ ii)
          {
             append(' ');
          }
@@ -991,7 +991,7 @@ public class XmlTextVisitor extends RendererVisitor
          if (blockMetadata.description != null)
          {
             final String descriptionText = blockMetadata.description.getText();
-            if (!descriptionText.isEmpty())
+            if (! descriptionText.isEmpty())
             {
                addIndent();
                append("<title>");
@@ -1112,7 +1112,7 @@ public class XmlTextVisitor extends RendererVisitor
             GridVisitor.GridCell gc = new GridVisitor.GridCell(ggec.spanGridElement().attribute(), ggec.spanGridElement().optionalFlow());
             gc.setSpan(ggec.spanGridElement().MUL_COLSEP().getText());
 
-            for (int ii = 0; ii < gc.colSpan; ++ii)
+            for (int ii = 0; ii < gc.colSpan; ++ ii)
             {
                rowCells.add(gc);
             }
@@ -1241,15 +1241,15 @@ public class XmlTextVisitor extends RendererVisitor
          {
             if (rowSpans[jj] > 0)
             {
-               rowSpans[jj] --;
+               rowSpans[jj]--;
                final int beginEmptySpan = jj;
 
-               jj ++;
+               jj++;
                while ((jj < gridGroup.columnCount) && (rowSpans[jj] > 0))
                {
-                  rowSpans[jj] --;
+                  rowSpans[jj]--;
 
-                  jj ++;
+                  jj++;
                }
 
                final int endEmptySpan = jj;
@@ -1281,7 +1281,7 @@ public class XmlTextVisitor extends RendererVisitor
                if (docBookMode)
                {
                   append(String.format(" morerows=\"%d\"", gc.rowSpan - 1));
-                  for (int kk = jj; kk < jj + gc.colSpan; ++kk)
+                  for (int kk = jj; kk < jj + gc.colSpan; ++ kk)
                   {
                      rowSpans[kk] = gc.rowSpan - 1;
                   }
@@ -1292,7 +1292,7 @@ public class XmlTextVisitor extends RendererVisitor
                }
             }
 
-            if ((gc.flow != null && (!gc.flow.getText().isEmpty())))
+            if ((gc.flow != null && (! gc.flow.getText().isEmpty())))
             {
                append('>');
                gc.renderContent(this);

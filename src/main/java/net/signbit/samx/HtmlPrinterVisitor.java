@@ -125,13 +125,13 @@ public class HtmlPrinterVisitor extends RendererVisitor
 
       for (ParseTree pt : ctx.children)
       {
-         if (!firstToken)
+         if (! firstToken)
          {
             final Interval pos = pt.getSourceInterval();
             if (pos.a <= pos.b)
             {
                final List<Token> precedingWhitespace = tokenStream.getHiddenTokensToLeft(pos.a, SamXLexer.WHITESPACE);
-               if ((precedingWhitespace != null) && (!precedingWhitespace.isEmpty()))
+               if ((precedingWhitespace != null) && (! precedingWhitespace.isEmpty()))
                {
                   builder.append(' ');
                }

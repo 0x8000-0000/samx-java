@@ -99,12 +99,12 @@ public class AttributeVisitor extends SamXParserBaseVisitor<Void>
 
       boolean isEmpty = true;
 
-      if ((!classAttributes.isEmpty()) || (idAttribute != null) || (nameAttribute != null))
+      if ((! classAttributes.isEmpty()) || (idAttribute != null) || (nameAttribute != null))
       {
          builder.append(' ');
       }
 
-      if (!classAttributes.isEmpty())
+      if (! classAttributes.isEmpty())
       {
          if (docBookMode)
          {
@@ -134,7 +134,7 @@ public class AttributeVisitor extends SamXParserBaseVisitor<Void>
 
       if (idAttribute != null)
       {
-         if (!isEmpty)
+         if (! isEmpty)
          {
             builder.append(' ');
          }
@@ -155,7 +155,7 @@ public class AttributeVisitor extends SamXParserBaseVisitor<Void>
 
       if (nameAttribute != null)
       {
-         if (!isEmpty)
+         if (! isEmpty)
          {
             builder.append(' ');
          }

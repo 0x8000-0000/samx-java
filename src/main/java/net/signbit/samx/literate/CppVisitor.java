@@ -68,7 +68,7 @@ public class CppVisitor extends RendererVisitor
          }
          else
          {
-            return -1;
+            return - 1;
          }
       }
 

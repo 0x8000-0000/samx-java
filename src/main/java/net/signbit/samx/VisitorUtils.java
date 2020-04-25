@@ -130,7 +130,7 @@ public class VisitorUtils
 
       int commonSubstring = 0;
 
-      while ((!original.isExhausted()) && (!pretty.isExhausted()))
+      while ((! original.isExhausted()) && (! pretty.isExhausted()))
       {
          if (original.advancePastWhitespace())
          {

@@ -143,7 +143,7 @@ public class RendererVisitor extends SamXParserBaseVisitor<Object>
             result = Boolean.TRUE;
          }
 
-         if ((!configuredValue.equals(value)) && (operator.charAt(0) == '!'))
+         if ((! configuredValue.equals(value)) && (operator.charAt(0) == '!'))
          {
             result = Boolean.TRUE;
          }
@@ -188,7 +188,7 @@ public class RendererVisitor extends SamXParserBaseVisitor<Object>
          HashSet<String> potentialValues = (HashSet<String>) visit(ctx.nameList());
          if (potentialValues != null)
          {
-            if (!potentialValues.contains(configuredValue))
+            if (! potentialValues.contains(configuredValue))
             {
                return Boolean.TRUE;
             }
@@ -203,7 +203,7 @@ public class RendererVisitor extends SamXParserBaseVisitor<Object>
       if (cc != null)
       {
          Object enabled = visit(cc);
-         return !Boolean.TRUE.equals(enabled);
+         return ! Boolean.TRUE.equals(enabled);
       }
       else
       {
@@ -218,7 +218,7 @@ public class RendererVisitor extends SamXParserBaseVisitor<Object>
       if ((metadata != null) && (metadata.condition() != null))
       {
          Object enabled = visit(metadata.condition());
-         return !Boolean.TRUE.equals(enabled);
+         return ! Boolean.TRUE.equals(enabled);
       }
       else
       {
@@ -295,7 +295,7 @@ public class RendererVisitor extends SamXParserBaseVisitor<Object>
    {
       if (writeIndent)
       {
-         for (int ii = 0; ii < indentLevel; ++ii)
+         for (int ii = 0; ii < indentLevel; ++ ii)
          {
             append("  ");
          }
@@ -304,7 +304,7 @@ public class RendererVisitor extends SamXParserBaseVisitor<Object>
 
    void addIndent(StringBuilder builder)
    {
-      for (int ii = 0; ii < indentLevel; ++ii)
+      for (int ii = 0; ii < indentLevel; ++ ii)
       {
          builder.append("  ");
       }

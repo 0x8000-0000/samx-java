@@ -97,7 +97,7 @@ public class GridVisitor extends SamXParserBaseVisitor<StringBuilder>
 
       public boolean hasContent()
       {
-         return flow != null && (!flow.getText().isEmpty());
+         return flow != null && (! flow.getText().isEmpty());
       }
 
       public Object renderContent(SamXParserVisitor<Object> visitor)
@@ -148,7 +148,7 @@ public class GridVisitor extends SamXParserBaseVisitor<StringBuilder>
                GridCell gc = new GridCell(ggec.spanGridElement().attribute(), ggec.spanGridElement().optionalFlow());
                gc.setSpan(ggec.spanGridElement().MUL_COLSEP().getText());
 
-               for (int ii = 0; ii < gc.colSpan; ++ii)
+               for (int ii = 0; ii < gc.colSpan; ++ ii)
                {
                   cells.add(gc);
                }
@@ -203,7 +203,7 @@ public class GridVisitor extends SamXParserBaseVisitor<StringBuilder>
          columnWidths = new int[localColumnCount];
          isInteger = new boolean[localColumnCount];
 
-         for (int ii = 0; ii < localColumnCount; ++ii)
+         for (int ii = 0; ii < localColumnCount; ++ ii)
          {
             isInteger[ii] = true;
          }
@@ -214,7 +214,7 @@ public class GridVisitor extends SamXParserBaseVisitor<StringBuilder>
          {
             if (visitor != null)
             {
-               for (int ii = 0; ii < ggr.cells.size(); ++ii)
+               for (int ii = 0; ii < ggr.cells.size(); ++ ii)
                {
                   final GridCell gc = ggr.cells.get(ii);
 
@@ -234,7 +234,7 @@ public class GridVisitor extends SamXParserBaseVisitor<StringBuilder>
                      columnWidths[ii] = thisWidth;
                   }
 
-                  if (!VisitorUtils.isInteger(content))
+                  if (! VisitorUtils.isInteger(content))
                   {
                      isInteger[ii] = false;
                   }
