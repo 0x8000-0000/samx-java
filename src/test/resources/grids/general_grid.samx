@@ -2,25 +2,17 @@
 
 RFC793 defines the following Transmission Control Protocol Header Format\:
 
--+-(#tcp-header)
++++(#tcp-header)
 
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    ||      Source Port      || Destination Port |
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    ||||       Sequence Number              |
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    ||||       Acknowledgment Number          |
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    | Data Offset | Reserved | Flags | Window |
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    ||       Checksum        || Urgent Pointer |
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    ||        Options        ||    Padding     |
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    ||||               data                     |
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
--+-(#large-cells)
++++(#large-cells)
 
    |              ||         Grouping            |
    | First Header | Second Header | Third Header |

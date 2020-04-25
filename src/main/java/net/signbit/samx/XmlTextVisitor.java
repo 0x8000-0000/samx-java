@@ -1003,6 +1003,7 @@ public class XmlTextVisitor extends RendererVisitor
       }
    }
 
+   /*
    @Override
    public Object visitGrid(SamXParser.GridContext ctx)
    {
@@ -1093,6 +1094,7 @@ public class XmlTextVisitor extends RendererVisitor
 
       return null;
    }
+    */
 
    private ArrayList<GridVisitor.GridCell> renderGeneralGridRow(SamXParser.GeneralGridRowDataContext ggrdc)
    {
@@ -1138,7 +1140,7 @@ public class XmlTextVisitor extends RendererVisitor
       if (ctx.header != null)
       {
          header = new GridVisitor.GeneralGridGroup(ctx.header, null);
-         if (header.columnWidths.length != body.columnWidths.length)
+         if (header.columnCount != body.columnCount)
          {
             throw new RuntimeException(String.format("Invalid table specification: multiple table column sizes between header (%d) and body (%d)", header.columnWidths.length, body.columnWidths.length));
          }
@@ -1148,7 +1150,7 @@ public class XmlTextVisitor extends RendererVisitor
       if (ctx.footer != null)
       {
          footer = new GridVisitor.GeneralGridGroup(ctx.footer, null);
-         if (footer.columnWidths.length != body.columnWidths.length)
+         if (footer.columnCount != body.columnCount)
          {
             throw new RuntimeException(String.format("Invalid table specification: multiple table column sizes between footer (%d) and body (%d)", footer.columnWidths.length, body.columnWidths.length));
          }
@@ -1169,10 +1171,10 @@ public class XmlTextVisitor extends RendererVisitor
       if (docBookMode)
       {
          addIndent();
-         append(String.format("<tgroup cols=\"%d\">", body.columnWidths.length));
+         append(String.format("<tgroup cols=\"%d\">", body.columnCount));
          appendNewline();
 
-         for (int ii = 1; ii <= body.columnWidths.length; ++ ii)
+         for (int ii = 1; ii <= body.columnCount; ++ ii)
          {
             addIndent();
             append(String.format("<colspec colname=\"c%d\"/>", ii));
@@ -1219,7 +1221,7 @@ public class XmlTextVisitor extends RendererVisitor
          indentLevel++;
       }
 
-      int rowSpans[] = new int[gridGroup.columnWidths.length];
+      int rowSpans[] = new int[gridGroup.columnCount];
 
       for (GridVisitor.GeneralGridRow ggr : gridGroup.rows)
       {
@@ -1235,7 +1237,7 @@ public class XmlTextVisitor extends RendererVisitor
 
          final ArrayList<GridVisitor.GridCell> rowCells = ggr.cells;
          int jj = 0;
-         while (jj < rowCells.size())
+         while (jj < gridGroup.columnCount)
          {
             if (rowSpans[jj] > 0)
             {
@@ -1243,7 +1245,7 @@ public class XmlTextVisitor extends RendererVisitor
                final int beginEmptySpan = jj;
 
                jj ++;
-               while ((jj < rowCells.size()) && (rowSpans[jj] > 0))
+               while ((jj < gridGroup.columnCount) && (rowSpans[jj] > 0))
                {
                   rowSpans[jj] --;
 
@@ -1311,64 +1313,6 @@ public class XmlTextVisitor extends RendererVisitor
          indentLevel--;
          appendCloseTag(getTableRowTag());
       }
-
-      // TODO:
-/*
-      for (int ii = 0; ii < cells.size(); ++ii)
-      {
-         String cellTag = "td";
-         if ((headerOffsetAt != 0) && (ii < headerOffsetAt))
-         {
-            cellTag = "th";
-         }
-
-         addIndent();
-         renderElementWithAttributes("tr", rowAttributes.get(ii));
-         appendNewline();
-
-         indentLevel++;
-
-         final ArrayList<GridVisitor.GridCell> rowCells = cells.get(ii);
-         int jj = 0;
-         while (jj < rowCells.size())
-         {
-            final GridVisitor.GridCell gc = rowCells.get(jj);
-
-            addIndent();
-
-            renderElementWithAttributesOpen(cellTag, gc.attributes);
-            if (gc.colSpan > 1)
-            {
-               append(String.format(" colspan=\"%d\"", gc.colSpan));
-            }
-
-            if ((gc.flow != null && (!gc.flow.getText().isEmpty())))
-            {
-               append('>');
-               gc.renderContent(this);
-               append('<');
-               append('/');
-               append(cellTag);
-            }
-            else
-            {
-               append('/');
-            }
-            append('>');
-            appendNewline();
-
-            jj += gc.colSpan;
-         }
-
-         indentLevel--;
-
-         addIndent();
-         append("</tr>");
-         appendNewline();
-      }
-
- */
-
 
       if (docBookMode)
       {

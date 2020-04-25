@@ -1004,151 +1004,13 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
    }
 
    @Override
-   public StringBuilder visitGrid(SamXParser.GridContext ctx)
-   {
-      StringBuilder builder = new StringBuilder();
-
-      addIndent(builder);
-      builder.append("+++");
-      builder.append(visitBlockMetadata(ctx.blockMetadata()));
-      builder.append('\n');
-
-      indentLevel++;
-
-      int[] columnWidths = new int[ctx.gridHeaderRow().gridElement().size() + 1];
-      boolean[] isInteger = new boolean[ctx.gridHeaderRow().gridElement().size() + 1];
-
-      final SamXParser.GridHeaderRowContext ghrc = ctx.gridHeaderRow();
-      ArrayList<String> headerElements = renderGridElementList(null, ghrc.attribute(), ghrc.gridElement());
-      for (int ii = 0; ii < headerElements.size(); ++ii)
-      {
-         final String value = headerElements.get(ii);
-         int length = value.length();
-         if (value.charAt(0) == '(')
-         {
-            length--;
-         }
-         columnWidths[ii] = length;
-         isInteger[ii] = true;
-      }
-
-      ArrayList<ArrayList<String>> rows = new ArrayList<>(ctx.gridRecordRow().size());
-
-      for (SamXParser.GridRecordRowContext rrc : ctx.gridRecordRow())
-      {
-         ArrayList<String> rowElements = renderGridElementList(rrc.metadata().condition(), rrc.metadata().attribute(), rrc.gridElement());
-         rows.add(rowElements);
-
-         {
-            final int conditionLength = rowElements.get(0).length();
-            if (columnWidths[0] < conditionLength)
-            {
-               columnWidths[0] = conditionLength;
-            }
-         }
-
-         for (int ii = 0; ii < headerElements.size(); ++ii)
-         {
-            final String value = rowElements.get(ii);
-            int length = value.length();
-            if ((!value.isEmpty()) && (value.charAt(0) == '('))
-            {
-               length--;
-            }
-            if (columnWidths[ii] < length)
-            {
-               columnWidths[ii] = length;
-            }
-
-            if ((value != null) && (!value.isEmpty()))
-            {
-               if (!VisitorUtils.isInteger(value))
-               {
-                  isInteger[ii] = false;
-               }
-            }
-         }
-      }
-
-      addIndent(builder);
-      if (columnWidths[0] != 0)
-      {
-         builder.append(String.format("%1$-" + columnWidths[0] + "s", headerElements.get(0)));
-      }
-      for (int ii = 1; ii < headerElements.size(); ++ii)
-      {
-         builder.append(" |");
-         if (ii != (headerElements.size() - 1))
-         {
-            final String text = headerElements.get(ii);
-            if (text.charAt(0) != '(')
-            {
-               builder.append(' ');
-            }
-            builder.append(String.format("%1$-" + columnWidths[ii] + "s", text));
-         }
-         else
-         {
-            final String text = headerElements.get(headerElements.size() - 1);
-            if (text.charAt(0) != '(')
-            {
-               builder.append(' ');
-            }
-            builder.append(text);
-         }
-      }
-      builder.append('\n');
-
-      for (ArrayList<String> rowData : rows)
-      {
-         addIndent(builder);
-         if (columnWidths[0] != 0)
-         {
-            builder.append(String.format("%1$-" + columnWidths[0] + "s", rowData.get(0)));
-         }
-         for (int ii = 1; ii < headerElements.size(); ++ii)
-         {
-            builder.append(" |");
-            final String text = rowData.get(ii);
-            if (text.isEmpty() || (text.charAt(0) != '('))
-            {
-               builder.append(' ');
-            }
-            if (isInteger[ii])
-            {
-               builder.append(String.format("%1$" + columnWidths[ii] + "s", text));
-            }
-            else
-            {
-               if (ii != (headerElements.size() - 1))
-               {
-                  builder.append(String.format("%1$-" + columnWidths[ii] + "s", text));
-               }
-               else
-               {
-                  builder.append(rowData.get(headerElements.size() - 1));
-               }
-            }
-         }
-         builder.append('\n');
-      }
-
-      indentLevel--;
-
-      builder.append('\n');
-
-      return builder;
-   }
-
-
-   @Override
    public StringBuilder visitGeneralGrid(SamXParser.GeneralGridContext ctx)
    {
       final GridVisitor.GeneralGridGroup body = new GridVisitor.GeneralGridGroup(ctx.body, this);
 
       int conditionColumnWidth = body.conditionColumnWidth;
-      int columnWidths[] = new int[body.columnWidths.length];
-      for (int ii = 0; ii < body.columnWidths.length; ++ii)
+      int columnWidths[] = new int[body.columnCount];
+      for (int ii = 0; ii < body.columnCount; ++ii)
       {
          columnWidths[ii] = body.columnWidths[ii];
       }
@@ -1157,7 +1019,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
       if (ctx.header != null)
       {
          header = new GridVisitor.GeneralGridGroup(ctx.header, this);
-         if (header.columnWidths.length != body.columnWidths.length)
+         if (header.columnCount != body.columnCount)
          {
             throw new RuntimeException(String.format("Invalid table specification: multiple table column sizes between header (%d) and body (%d)", header.columnWidths.length, body.columnWidths.length));
          }
@@ -1167,7 +1029,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
             conditionColumnWidth = header.conditionColumnWidth;
          }
 
-         for (int ii = 0; ii < body.columnWidths.length; ++ii)
+         for (int ii = 0; ii < body.columnCount; ++ii)
          {
             if (columnWidths[ii] < header.columnWidths[ii])
             {
@@ -1180,7 +1042,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
       if (ctx.footer != null)
       {
          footer = new GridVisitor.GeneralGridGroup(ctx.footer, this);
-         if (footer.columnWidths.length != body.columnWidths.length)
+         if (footer.columnCount != body.columnCount)
          {
             throw new RuntimeException(String.format("Invalid table specification: multiple table column sizes between footer (%d) and body (%d)", footer.columnWidths.length, body.columnWidths.length));
          }
@@ -1190,7 +1052,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
             conditionColumnWidth = footer.conditionColumnWidth;
          }
 
-         for (int ii = 0; ii < body.columnWidths.length; ++ii)
+         for (int ii = 0; ii < body.columnCount; ++ii)
          {
             if (columnWidths[ii] < footer.columnWidths[ii])
             {
@@ -1201,7 +1063,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
 
       StringBuilder builder = new StringBuilder();
 
-      builder.append("-+-");
+      builder.append("+++");
       builder.append(visitBlockMetadata(ctx.blockMetadata()));
       builder.append('\n');
 
@@ -1211,14 +1073,14 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
       {
          renderGeneralTableGroup(conditionColumnWidth, columnWidths, header, builder);
 
-         renderGeneralTableSeparator(conditionColumnWidth, columnWidths, builder);
+         renderGeneralTableSeparator(conditionColumnWidth, columnWidths, header.columnCount, builder);
       }
 
       renderGeneralTableGroup(conditionColumnWidth, columnWidths, body, builder);
 
       if (footer != null)
       {
-         renderGeneralTableSeparator(conditionColumnWidth, columnWidths, builder);
+         renderGeneralTableSeparator(conditionColumnWidth, columnWidths, footer.columnCount, builder);
 
          renderGeneralTableGroup(conditionColumnWidth, columnWidths, footer, builder);
       }
@@ -1230,14 +1092,14 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
       return builder;
    }
 
-   private void renderGeneralTableSeparator(int conditionColumnWidth, int[] columnWidths, StringBuilder builder)
+   private void renderGeneralTableSeparator(int conditionColumnWidth, int[] columnWidths, int columnCount, StringBuilder builder)
    {
       addIndent(builder);
       for (int jj = 0; jj < conditionColumnWidth + 1; ++jj)
       {
          builder.append(' ');
       }
-      for (int jj = 0; jj < columnWidths.length; ++jj)
+      for (int jj = 0; jj < columnCount; ++jj)
       {
          builder.append('+');
          for (int kk = 0; kk < columnWidths[jj] + 2; kk++)
@@ -1260,7 +1122,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
             builder.append(String.format("%1$-" + conditionColumnWidth + "s", attributeCondition));
          }
 
-         for (int jj = 0; jj < columnWidths.length; ++jj)
+         for (int jj = 0; jj < gridGroup.columnCount; ++jj)
          {
             final GridVisitor.GridCell gc = ggr.cells.get(jj);
             if (gc.colSpan > 0)
@@ -1289,7 +1151,16 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
                builder.append(' ');
                columnWidth -= attributes.length();
 
-               builder.append(String.format("%1$-" + columnWidth + "s", gc.getContent(PrettyPrinterVisitor.this)));
+               final String cellContent = gc.getContent(PrettyPrinterVisitor.this);
+
+               if (gridGroup.isInteger[jj])
+               {
+                  builder.append(String.format("%1$" + columnWidth + "s", cellContent));
+               }
+               else
+               {
+                  builder.append(String.format("%1$-" + columnWidth + "s", cellContent));
+               }
             }
          }
 

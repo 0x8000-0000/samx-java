@@ -104,7 +104,6 @@ public class XmlConverterTest
 
       testConversion("grids/missing_cells.samx", "grids/missing_cells.xml");
 
-
       testDocBook("build/resources/test/grids/simple.samx", "article", "grids/simple-docbook.xml");
    }
 

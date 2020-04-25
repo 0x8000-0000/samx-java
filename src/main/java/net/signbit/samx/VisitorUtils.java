@@ -30,11 +30,90 @@ import net.signbit.samx.parser.SamXLexer;
 
 public class VisitorUtils
 {
+   private static class TestSequence
+   {
+      final String string;
+      final int length;
+
+      int index = 0;
+
+      int line = 1;
+      int column = 1;
+
+      private TestSequence(String string)
+      {
+         this.string = string;
+         this.length = string.length();
+      }
+
+      boolean isExhausted()
+      {
+         return index >= length;
+      }
+
+      char get()
+      {
+         return string.charAt(index);
+      }
+
+      void advance()
+      {
+         if (get() == '\n')
+         {
+            line++;
+            column = 1;
+         }
+         else
+         {
+            column++;
+         }
+         index++;
+      }
+
+      boolean advancePastWhitespace()
+      {
+         boolean advanced = false;
+
+         while (! isExhausted())
+         {
+            final char ch = get();
+            if ((ch == ' ') || (ch == '\t') || (ch == '\n'))
+            {
+               advanced = true;
+               advance();
+            }
+            else
+            {
+               break;
+            }
+         }
+
+         return advanced;
+      }
+
+      void advancePastHeaderSeparator()
+      {
+         while (! isExhausted())
+         {
+            final char ch = get();
+            if ((ch == '+') || (ch == '='))
+            {
+               advance();
+            }
+            else
+            {
+               break;
+            }
+         }
+      }
+   }
+
+
    public static int getTokenIndent(ParserRuleContext ctx, BufferedTokenStream tokenStream)
    {
       final Interval blockPosition = ctx.getSourceInterval();
       final List<Token> whitespacePrecedingBlockPosition = tokenStream.getHiddenTokensToLeft(blockPosition.a, SamXLexer.INDENTS);
-      if ((whitespacePrecedingBlockPosition != null) && (!whitespacePrecedingBlockPosition.isEmpty()))
+      if ((whitespacePrecedingBlockPosition != null) && (! whitespacePrecedingBlockPosition.isEmpty()))
       {
          return whitespacePrecedingBlockPosition.get(0).getText().length();
       }
@@ -44,114 +123,54 @@ public class VisitorUtils
       }
    }
 
-   public static boolean compareFilesExceptWhitespace(String original, String pretty)
+   public static boolean compareFilesExceptWhitespace(String originalString, String prettyString)
    {
-      int originalIdx = 0;
-      int prettyIdx = 0;
+      TestSequence original = new TestSequence(originalString);
+      TestSequence pretty = new TestSequence(prettyString);
 
       int commonSubstring = 0;
 
-      final int originalLen = original.length();
-      final int prettyLen = pretty.length();
-
-      int originalLine = 1;
-      int originalColumn = 1;
-
-      int prettyLine = 1;
-      int prettyColumn = 1;
-
-      while ((originalIdx < originalLen) && (prettyIdx < prettyLen))
+      while ((!original.isExhausted()) && (!pretty.isExhausted()))
       {
-         final char originalChr = original.charAt(originalIdx);
-         if ((originalChr == ' ') || (originalChr == '\t'))
+         if (original.advancePastWhitespace())
          {
-            originalIdx++;
-            originalColumn++;
+            continue;
+         }
+         if (pretty.advancePastWhitespace())
+         {
             continue;
          }
 
-         if (originalChr == '\n')
-         {
-            originalIdx++;
-            originalLine++;
-            originalColumn = 1;
-            continue;
-         }
-
-         final char prettyChr = pretty.charAt(prettyIdx);
-         if ((prettyChr == ' ') || (prettyChr == '\t'))
-         {
-            prettyIdx++;
-            prettyColumn++;
-            continue;
-         }
-
-         if (prettyChr == '\n')
-         {
-            prettyIdx++;
-            prettyLine++;
-            prettyColumn++;
-            continue;
-         }
+         final char originalChr = original.get();
+         final char prettyChr = pretty.get();
 
          if (originalChr == prettyChr)
          {
-            originalIdx++;
-            originalColumn++;
-
-            prettyIdx++;
-            prettyColumn++;
-
             commonSubstring++;
+
+            if (originalChr == '+')
+            {
+               original.advancePastHeaderSeparator();
+               pretty.advancePastHeaderSeparator();
+            }
+            else
+            {
+               original.advance();
+               pretty.advance();
+            }
 
             continue;
          }
 
          throw new RuntimeException(String.format("[stripped] Mismatch at offset %d (line %d, column %d): input has '%c', pretty has '%c' at offset %d (line %d, column %d)",
-               originalIdx, originalLine, originalColumn, originalChr, prettyChr, prettyIdx, prettyLine, prettyColumn));
+               original.index, original.line, original.column, originalChr, prettyChr, pretty.index, pretty.line, pretty.column));
       }
 
       // drain trailing space
-      while (originalIdx < originalLen)
-      {
-         final char originalChr = original.charAt(originalIdx);
-         if ((originalChr == ' ') || (originalChr == '\t'))
-         {
-            originalIdx++;
-            originalColumn++;
-            continue;
-         }
+      original.advancePastWhitespace();
+      pretty.advancePastWhitespace();
 
-         if (originalChr == '\n')
-         {
-            originalIdx++;
-            originalLine++;
-            originalColumn = 1;
-            continue;
-         }
-      }
-
-      // drain trailing space
-      while (prettyIdx < prettyLen)
-      {
-         final char prettyChr = pretty.charAt(prettyIdx);
-         if ((prettyChr == ' ') || (prettyChr == '\t'))
-         {
-            prettyIdx++;
-            prettyColumn++;
-            continue;
-         }
-
-         if (prettyChr == '\n')
-         {
-            prettyIdx++;
-            prettyLine++;
-            prettyColumn++;
-            continue;
-         }
-      }
-
-      if ((originalIdx == originalLen) && (prettyIdx == prettyLen))
+      if (original.isExhausted() && pretty.isExhausted())
       {
          return true;
       }
@@ -193,12 +212,12 @@ public class VisitorUtils
          {
             if (original.charAt(ii) == '\n')
             {
-               ++lineNumber;
+               ++ lineNumber;
                columnNumber = 0;
             }
-            ++columnNumber;
+            ++ columnNumber;
 
-            ++ii;
+            ++ ii;
          }
 
          if (ii == compareLength)

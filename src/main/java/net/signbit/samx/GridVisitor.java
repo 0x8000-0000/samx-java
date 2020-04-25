@@ -114,6 +114,11 @@ public class GridVisitor extends SamXParserBaseVisitor<StringBuilder>
          }
          return av.toPlainString();
       }
+
+      public boolean empty()
+      {
+         return flow == null && attributes.isEmpty();
+      }
    }
 
    static class GeneralGridRow
@@ -135,12 +140,12 @@ public class GridVisitor extends SamXParserBaseVisitor<StringBuilder>
          {
             if (ggec.gridElement() != null)
             {
-               GridVisitor.GridCell gc = new GridVisitor.GridCell(ggec.gridElement().attribute(), ggec.gridElement().optionalFlow());
+               GridCell gc = new GridCell(ggec.gridElement().attribute(), ggec.gridElement().optionalFlow());
                cells.add(gc);
             }
             else if (ggec.spanGridElement() != null)
             {
-               GridVisitor.GridCell gc = new GridVisitor.GridCell(ggec.spanGridElement().attribute(), ggec.spanGridElement().optionalFlow());
+               GridCell gc = new GridCell(ggec.spanGridElement().attribute(), ggec.spanGridElement().optionalFlow());
                gc.setSpan(ggec.spanGridElement().MUL_COLSEP().getText());
 
                for (int ii = 0; ii < gc.colSpan; ++ii)
@@ -154,20 +159,25 @@ public class GridVisitor extends SamXParserBaseVisitor<StringBuilder>
 
    static class GeneralGridGroup
    {
-      ArrayList<GridVisitor.GeneralGridRow> rows = new ArrayList<>();
+      ArrayList<GeneralGridRow> rows = new ArrayList<>();
+
+      final int columnCount;
 
       int conditionColumnWidth = 0;
       int columnWidths[];
+      boolean isInteger[];
+      boolean isCurrency[];
+      boolean isNumeric[];
 
       GeneralGridGroup(SamXParser.GeneralGridGroupContext gggc, SamXParserVisitor<StringBuilder> visitor)
       {
-         HashSet<Integer> columnCount = new HashSet<>();
+         HashSet<Integer> columnLengths = new HashSet<>();
          for (SamXParser.GeneralGridRowContext rc : gggc.generalGridRow())
          {
             final SamXParser.GeneralGridRowDataContext rdc = rc.generalGridRowData();
             if (rdc != null)
             {
-               final GridVisitor.GeneralGridRow ggr = new GridVisitor.GeneralGridRow(rdc);
+               final GeneralGridRow ggr = new GeneralGridRow(rdc);
 
                if (visitor != null)
                {
@@ -180,24 +190,35 @@ public class GridVisitor extends SamXParserBaseVisitor<StringBuilder>
                }
 
                rows.add(ggr);
-               columnCount.add(ggr.getColumnCount());
+               columnLengths.add(ggr.getColumnCount());
             }
          }
 
-         if (columnCount.size() != 1)
+         if (columnLengths.size() != 1)
          {
-            throw new RuntimeException("Invalid table specification: multiple table column sizes: " + columnCount.toString());
+            throw new RuntimeException("Invalid table specification: multiple table column sizes: " + columnLengths.toString());
          }
 
-         columnWidths = new int[columnCount.iterator().next()];
+         int localColumnCount = columnLengths.iterator().next();
+         columnWidths = new int[localColumnCount];
+         isInteger = new boolean[localColumnCount];
 
-         if (visitor != null)
+         for (int ii = 0; ii < localColumnCount; ++ii)
          {
-            for (GridVisitor.GeneralGridRow ggr : rows)
+            isInteger[ii] = true;
+         }
+
+         boolean lastColumnEmpty = true;
+
+         for (GeneralGridRow ggr : rows)
+         {
+            if (visitor != null)
             {
                for (int ii = 0; ii < ggr.cells.size(); ++ii)
                {
-                  final GridVisitor.GridCell gc = ggr.cells.get(ii);
+                  final GridCell gc = ggr.cells.get(ii);
+
+                  final String attributes = gc.getAttributesPlain();
                   final String content = gc.getContent(visitor);
 
                   int rowSpanIndicator = 0;
@@ -206,15 +227,36 @@ public class GridVisitor extends SamXParserBaseVisitor<StringBuilder>
                      rowSpanIndicator = gc.rowSpan;
                   }
 
-                  final int thisWidth = (int) Math.ceil((content.length() + rowSpanIndicator) / (double) (gc.colSpan));
+                  final int thisWidth = (int) Math.ceil((attributes.length() + content.length() + rowSpanIndicator) / (double) (gc.colSpan));
 
                   if (columnWidths[ii] < thisWidth)
                   {
                      columnWidths[ii] = thisWidth;
                   }
+
+                  if (!VisitorUtils.isInteger(content))
+                  {
+                     isInteger[ii] = false;
+                  }
+               }
+            }
+
+            if (lastColumnEmpty)
+            {
+               final GridCell lastCell = ggr.cells.get(localColumnCount - 1);
+               if (! lastCell.empty())
+               {
+                  lastColumnEmpty = false;
                }
             }
          }
+
+         if (lastColumnEmpty)
+         {
+            localColumnCount--;
+         }
+
+         columnCount = localColumnCount;
       }
    }
 }

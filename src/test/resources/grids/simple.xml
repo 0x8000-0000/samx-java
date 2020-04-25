@@ -3,13 +3,13 @@
   <p>This document contains a grid.</p>
   <table class="fancy" id="the-grid">
     <title>Example table</title>
-    <tr class="header">
+    <tr>
       <th>Name</th>
       <th>Position</th>
       <th><phrase class="location">Office</phrase></th>
-      <th><phrase class="numeric">Age</phrase></th>
-      <th>Start date</th>
-      <th>Salary</th>
+      <th class="pink"><phrase class="numeric">Age</phrase></th>
+      <th class="header">Start date</th>
+      <th class="cyan">Salary</th>
     </tr>
     <tr>
       <td>Airi Satou</td>
@@ -25,7 +25,7 @@
       <td>London</td>
       <td>47</td>
       <td>2009/10/09</td>
-      <td>$1,200,000</td>
+      <td class="top">$1,200,000</td>
     </tr>
     <tr>
       <td>Ashton Cox</td>
@@ -85,11 +85,11 @@
     </tr>
     <tr>
       <td>Cedric Kelly</td>
-      <td>Senior Javascript Developer</td>
+      <td class="promo">Senior Javascript Developer</td>
       <td>Edinburgh</td>
       <td>22</td>
       <td>2012/03/29</td>
-      <td>$433,060</td>
+      <td class="last">$433,060</td>
     </tr>
   </table>
 </document>

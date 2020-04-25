@@ -192,26 +192,9 @@ spanGridElement : MUL_COLSEP attribute* optionalFlow ;
 
 generalGridElement : gridElement | spanGridElement ;
 
-gridHeaderRow
-   locals [ int columnCount = 0; ]
-   : attribute* ( gridElement { $ctx.columnCount ++; } )+ NEWLINE { currentHeaderLength = $ctx.columnCount; };
-
-gridRecordRow
-   locals [ int columnCount = 0; ]
-   : metadata ( gridElement { $ctx.columnCount ++; } )+ NEWLINE
-   {
-      if (currentHeaderLength != $ctx.columnCount)
-      {
-         throw new ParseCancellationException("line " + $start.getLine() +
-            ":" + $start.getCharPositionInLine() +
-            " incorrect number of columns; expected " + currentHeaderLength +
-            " but observed " + $ctx.columnCount);
-      }
-   };
-
 generalGridHeaderSep : STT_HDR_SEP NEWLINE ;
 
-generalGridRowData : metadata generalGridElement+ COLSEP ;
+generalGridRowData : metadata generalGridElement+ ;
 
 generalGridRow : (generalGridRowData | GEN_ROW_SEP) NEWLINE ;
 
@@ -246,8 +229,7 @@ block :
    | STT_INCL reference=text CLOSE_PAR metadata    { parseFile($reference.text); }                    # IncludeFile
    | STT_IMAGE text CLOSE_PAR blockMetadata                                                           # InsertImage
    | CODE_MARKER language=text CLOSE_PAR metadata NEWLINE+ INDENT (externalCode? NEWLINE)+ DEDENT     # CodeBlock
-   | STT_GRID blockMetadata NEWLINE+ INDENT gridHeaderRow (gridRecordRow | NEWLINE) + DEDENT          # Grid
-   | STT_GEN_GRID blockMetadata NEWLINE+ INDENT
+   | STT_GRID blockMetadata NEWLINE+ INDENT
          (header=generalGridGroup? generalGridHeaderSep)?
          body=generalGridGroup
          (generalGridHeaderSep? footer=generalGridGroup)?

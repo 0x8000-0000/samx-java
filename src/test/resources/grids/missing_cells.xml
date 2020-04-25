@@ -2,7 +2,7 @@
 <document xmlns="https://mbakeranalecta.github.io/sam/">
   <p>This document contains a grid with some missing values.</p>
   <table class="fancy" id="the-grid">
-    <tr class="header">
+    <tr>
       <th>Name</th>
       <th>Position</th>
       <th><phrase class="location">Office</phrase></th>

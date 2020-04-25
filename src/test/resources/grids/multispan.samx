@@ -1,4 +1,4 @@
--+-(#multi-span) Example CALS table from DocBook Guide
++++(#multi-span) Example CALS table from DocBook Guide
 
     || Horizontal Span    | a3     | a4 | a5              |
     +==========+==========+========+====+=================+
