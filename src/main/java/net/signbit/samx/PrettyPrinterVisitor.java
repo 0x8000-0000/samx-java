@@ -1139,8 +1139,8 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
       int rowSpan = 1;
       int colSpan = 1;
 
-      final String attributes;
-      final String content;
+      private final String attributes0;
+      private final String content0;
 
       GridCell(List<SamXParser.AttributeContext> attributes, SamXParser.OptionalFlowContext optionalFlowContext)
       {
@@ -1150,7 +1150,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
             {
                builder.append(visit(ac));
             }
-            this.attributes = builder.toString();
+            this.attributes0 = builder.toString();
          }
 
          StringBuilder builder = new StringBuilder();
@@ -1167,17 +1167,17 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
                builder.append(visitFlow(fc));
             }
          }
-         content = builder.toString();
+         content0 = builder.toString();
       }
 
       int getLength()
       {
-         int length = attributes.length();
+         int length = attributes0.length();
          if (length > 0)
          {
             length++;
          }
-         length += content.length();
+         length += content0.length();
          return length;
       }
 
@@ -1203,6 +1203,16 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
          {
             colSpan --;
          }
+      }
+
+      public String getContent()
+      {
+         return content0;
+      }
+
+      public String getAttributes()
+      {
+         return attributes0;
       }
    }
 
@@ -1285,7 +1295,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
             for (int ii = 0; ii < ggr.cells.size(); ++ii)
             {
                final GridCell gc = ggr.cells.get(ii);
-               final int thisWidth = (int) Math.ceil(gc.content.length() / (double) (gc.colSpan));
+               final int thisWidth = (int) Math.ceil((gc.getContent().length() + gc.rowSpan - 1) / (double) (gc.colSpan));
 
                if (columnWidths[ii] < thisWidth)
                {
@@ -1428,11 +1438,17 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
                   ggr.cells.get(jj + kk).colSpan = 0;
                   builder.append('|');
                }
-               builder.append(gc.attributes);
+               for (int kk = 1; kk < gc.rowSpan; ++ kk)
+               {
+                  builder.append('-');
+                  columnWidth --;
+               }
+               final String attributes = gc.getAttributes();
+               builder.append(attributes);
                builder.append(' ');
-               columnWidth -= gc.attributes.length();
+               columnWidth -= attributes.length();
 
-               builder.append(String.format("%1$-" + columnWidth + "s", gc.content));
+               builder.append(String.format("%1$-" + columnWidth + "s", gc.getContent()));
             }
          }
 

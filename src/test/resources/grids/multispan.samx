@@ -1,0 +1,10 @@
+-+-(#multi-span) Example CALS table from DocBook Guide
+
+    || Horizontal Span    | a3     | a4 | a5              |
+    +==========+==========+========+====+=================+
+    | b1       | b2       | b3     | b4 |-- Vertical Span |
+    | c1       ||-- Span Both      | c4 |                 |
+    | d1       ||                  | d4 | d5              |
+    +==========+==========+========+====+=================+
+    | f1       | f2       | f3     | f4 | f5              |
+
