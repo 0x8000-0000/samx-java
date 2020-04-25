@@ -17,6 +17,7 @@
 package net.signbit.samx;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import org.antlr.v4.runtime.BufferedTokenStream;
@@ -1205,136 +1206,151 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
       }
    }
 
-   private ArrayList<GridCell> renderGeneralGridRow(SamXParser.GeneralGridRowDataContext ggrdc)
+
+   private class GeneralGridRow
    {
-      ArrayList<GridCell> rowCells = new ArrayList<>();
+      String attributeCondition;
+      ArrayList<GridCell> cells;
 
-      for (SamXParser.GeneralGridElementContext ggec: ggrdc.generalGridElement())
+      public int getColumnCount()
       {
-         if (ggec.gridElement() != null)
-         {
-            GridCell gc = new GridCell(ggec.gridElement().attribute(), ggec.gridElement().optionalFlow());
-            rowCells.add(gc);
-         }
-         else if (ggec.spanGridElement() != null)
-         {
-            GridCell gc = new GridCell(ggec.spanGridElement().attribute(), ggec.spanGridElement().optionalFlow());
-            gc.setSpan(ggec.spanGridElement().MUL_COLSEP().getText());
+         return cells.size();
+      }
 
-            for (int ii = 0; ii < gc.colSpan; ++ ii)
+      GeneralGridRow(SamXParser.GeneralGridRowDataContext rdc)
+      {
+         StringBuilder builder = new StringBuilder();
+         renderConditionAndAttributes(rdc, builder);
+         attributeCondition = builder.toString();
+
+         cells = new ArrayList<>();
+
+         for (SamXParser.GeneralGridElementContext ggec: rdc.generalGridElement())
+         {
+            if (ggec.gridElement() != null)
             {
-               rowCells.add(gc);
+               GridCell gc = new GridCell(ggec.gridElement().attribute(), ggec.gridElement().optionalFlow());
+               cells.add(gc);
+            }
+            else if (ggec.spanGridElement() != null)
+            {
+               GridCell gc = new GridCell(ggec.spanGridElement().attribute(), ggec.spanGridElement().optionalFlow());
+               gc.setSpan(ggec.spanGridElement().MUL_COLSEP().getText());
+
+               for (int ii = 0; ii < gc.colSpan; ++ ii)
+               {
+                  cells.add(gc);
+               }
             }
          }
       }
+   }
 
-      return rowCells;
+   private class GeneralGridGroup
+   {
+      ArrayList<GeneralGridRow> rows = new ArrayList<>();
+
+      int conditionColumnWidth = 0;
+      int columnWidths[];
+
+      GeneralGridGroup(SamXParser.GeneralGridGroupContext gggc)
+      {
+         HashSet<Integer> columnCount = new HashSet<>();
+         for (SamXParser.GeneralGridRowContext rc : gggc.generalGridRow())
+         {
+            final SamXParser.GeneralGridRowDataContext rdc = rc.generalGridRowData();
+            if (rdc != null)
+            {
+               final GeneralGridRow ggr = new GeneralGridRow(rdc);
+
+               if (conditionColumnWidth < ggr.attributeCondition.length())
+               {
+                  conditionColumnWidth = ggr.attributeCondition.length();
+               }
+
+               rows.add(ggr);
+               columnCount.add(ggr.getColumnCount());
+            }
+         }
+
+         if (columnCount.size() != 1)
+         {
+            throw new RuntimeException("Invalid table specification: multiple table column sizes: " + columnCount.toString());
+         }
+
+         columnWidths = new int[columnCount.iterator().next()];
+
+         for (GeneralGridRow ggr: rows)
+         {
+            for (int ii = 0; ii < ggr.cells.size(); ++ii)
+            {
+               final GridCell gc = ggr.cells.get(ii);
+               final int thisWidth = (int) Math.ceil(gc.content.length() / (double) (gc.colSpan));
+
+               if (columnWidths[ii] < thisWidth)
+               {
+                  columnWidths[ii] = thisWidth;
+               }
+            }
+         }
+      }
    }
 
    @Override
    public StringBuilder visitGeneralGrid(SamXParser.GeneralGridContext ctx)
    {
-      ArrayList<ArrayList<GridCell>> cells = new ArrayList<>();
+      final GeneralGridGroup body = new GeneralGridGroup(ctx.body);
 
-      ArrayList<String> rowAttrAndConditions = new ArrayList<>();
-
-      int columnWidths[] = null;
-
-      if (ctx.generalGridHeader() != null)
+      int conditionColumnWidth = body.conditionColumnWidth;
+      int columnWidths[] = new int[body.columnWidths.length];
+      for (int ii = 0; ii < body.columnWidths.length; ++ ii)
       {
-         for (SamXParser.GeneralGridRowContext rc : ctx.generalGridHeader().generalGridRow())
+         columnWidths[ii] = body.columnWidths[ii];
+      }
+
+      GeneralGridGroup header = null;
+      if (ctx.header != null)
+      {
+         header = new GeneralGridGroup(ctx.header);
+         if (header.columnWidths.length != body.columnWidths.length)
          {
-            final SamXParser.GeneralGridRowDataContext rdc = rc.generalGridRowData();
-            if (rdc != null)
+            throw new RuntimeException(String.format("Invalid table specification: multiple table column sizes between header (%d) and body (%d)", header.columnWidths.length, body.columnWidths.length));
+         }
+
+         if (conditionColumnWidth < header.conditionColumnWidth)
+         {
+            conditionColumnWidth = header.conditionColumnWidth;
+         }
+
+         for (int ii = 0; ii < body.columnWidths.length; ++ ii)
+         {
+            if (columnWidths[ii] < header.columnWidths[ii])
             {
-               StringBuilder builder = new StringBuilder();
-               renderConditionAndAttributes(rdc, builder);
-               rowAttrAndConditions.add(builder.toString());
-
-               ArrayList<GridCell> rowCells = renderGeneralGridRow(rdc);
-               cells.add(rowCells);
-
-               if (columnWidths == null)
-               {
-                  columnWidths = new int[rowCells.size()];
-                  for (int ii = 0; ii < rowCells.size(); ++ii)
-                  {
-                     final GridCell gc = rowCells.get(ii);
-                     columnWidths[ii] = (int) Math.ceil(gc.getLength() / (double) (gc.colSpan));
-                  }
-               }
-               else
-               {
-                  if (columnWidths.length != rowCells.size())
-                  {
-                     throw new RuntimeException("Invalid length");
-                  }
-
-                  for (int ii = 0; ii < rowCells.size(); ++ii)
-                  {
-                     final GridCell gc = rowCells.get(ii);
-                     final int thisWidth = (int) Math.ceil(gc.content.length() / (double) (gc.colSpan));
-
-                     if (columnWidths[ii] < thisWidth)
-                     {
-                        columnWidths[ii] = thisWidth;
-                     }
-                  }
-               }
+               columnWidths[ii] = header.columnWidths[ii];
             }
          }
       }
 
-      int headerOffsetAt = cells.size();
-
-      for (SamXParser.GeneralGridRowContext rc: ctx.generalGridRow())
+      GeneralGridGroup footer = null;
+      if (ctx.footer != null)
       {
-         final SamXParser.GeneralGridRowDataContext rdc = rc.generalGridRowData();
-         if (rdc != null)
+         footer = new GeneralGridGroup(ctx.footer);
+         if (footer.columnWidths.length != body.columnWidths.length)
          {
-            StringBuilder builder = new StringBuilder();
-            renderConditionAndAttributes(rdc, builder);
-            rowAttrAndConditions.add(builder.toString());
-
-            ArrayList<GridCell> rowCells = renderGeneralGridRow(rdc);
-            cells.add(rowCells);
-
-            if (columnWidths == null)
-            {
-               columnWidths = new int[rowCells.size()];
-               for (int ii = 0; ii < rowCells.size(); ++ii)
-               {
-                  final GridCell gc = rowCells.get(ii);
-                  columnWidths[ii] = (int) Math.ceil(gc.content.length() / (double) (gc.colSpan));
-               }
-            }
-            else
-            {
-               if (columnWidths.length != rowCells.size())
-               {
-                  throw new RuntimeException("Invalid length on row ");
-               }
-
-               for (int ii = 0; ii < rowCells.size(); ++ii)
-               {
-                  final GridCell gc = rowCells.get(ii);
-                  final int thisWidth = (int) Math.ceil(gc.content.length() / (double) (gc.colSpan));
-
-                  if (columnWidths[ii] < thisWidth)
-                  {
-                     columnWidths[ii] = thisWidth;
-                  }
-               }
-            }
+            throw new RuntimeException(String.format("Invalid table specification: multiple table column sizes between footer (%d) and body (%d)", footer.columnWidths.length, body.columnWidths.length));
          }
-      }
 
-      int conditionColumnWidth = 0;
-      for (String str: rowAttrAndConditions)
-      {
-         if (conditionColumnWidth < str.length())
+         if (conditionColumnWidth < footer.conditionColumnWidth)
          {
-            conditionColumnWidth = str.length();
+            conditionColumnWidth = footer.conditionColumnWidth;
+         }
+
+         for (int ii = 0; ii < body.columnWidths.length; ++ ii)
+         {
+            if (columnWidths[ii] < footer.columnWidths[ii])
+            {
+               columnWidths[ii] = footer.columnWidths[ii];
+            }
          }
       }
 
@@ -1346,38 +1362,61 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
 
       indentLevel++;
 
-      for (int ii = 0; ii < cells.size(); ++ii)
+      if (header != null)
       {
-         if ((headerOffsetAt != 0) && (ii == headerOffsetAt))
+         renderGeneralTableGroup(conditionColumnWidth, columnWidths, header, builder);
+
+         renderGeneralTableSeparator(conditionColumnWidth, columnWidths, builder);
+      }
+
+      renderGeneralTableGroup(conditionColumnWidth, columnWidths, body, builder);
+
+      if (footer != null)
+      {
+         renderGeneralTableSeparator(conditionColumnWidth, columnWidths, builder);
+
+         renderGeneralTableGroup(conditionColumnWidth, columnWidths, footer, builder);
+      }
+
+      indentLevel --;
+
+      builder.append('\n');
+
+      return builder;
+   }
+
+   private void renderGeneralTableSeparator(int conditionColumnWidth, int[] columnWidths, StringBuilder builder)
+   {
+      addIndent(builder);
+      for (int jj = 0; jj < conditionColumnWidth + 1; ++jj)
+      {
+         builder.append(' ');
+      }
+      for (int jj = 0; jj < columnWidths.length; ++jj)
+      {
+         builder.append('+');
+         for (int kk = 0; kk < columnWidths[jj] + 2; kk++)
          {
-            addIndent(builder);
-            for (int jj = 0; jj < conditionColumnWidth + 1; ++ jj)
-            {
-               builder.append(' ');
-            }
-
-            for (int jj = 0; jj < columnWidths.length; ++ jj)
-            {
-               builder.append('+');
-               for (int kk = 0; kk < columnWidths[jj] + 2; kk ++)
-               {
-                  builder.append('=');
-               }
-            }
-
-            builder.append("+\n");
+            builder.append('=');
          }
+      }
 
-         final ArrayList<GridCell> rowCells = cells.get(ii);
+      builder.append("+\n");
+   }
 
+   private void renderGeneralTableGroup(int conditionColumnWidth, int[] columnWidths, GeneralGridGroup header, StringBuilder builder)
+   {
+      for (GeneralGridRow ggr: header.rows)
+      {
          addIndent(builder);
          if (conditionColumnWidth > 0)
          {
-            builder.append(String.format("%1$-" + conditionColumnWidth + "s", rowAttrAndConditions.get(ii)));
+            builder.append(String.format("%1$-" + conditionColumnWidth + "s", ggr.attributeCondition));
          }
+
          for (int jj = 0; jj < columnWidths.length; ++ jj)
          {
-            final GridCell gc = rowCells.get(jj);
+            final GridCell gc = ggr.cells.get(jj);
             if (gc.colSpan > 0)
             {
                builder.append(" |");
@@ -1386,7 +1425,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
                for (int kk = 1; kk < colSpan; ++ kk)
                {
                   columnWidth += columnWidths[jj + kk] + 2;
-                  rowCells.get(jj + kk).colSpan = 0;
+                  ggr.cells.get(jj + kk).colSpan = 0;
                   builder.append('|');
                }
                builder.append(gc.attributes);
@@ -1399,12 +1438,6 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
 
          builder.append(" |\n");
       }
-
-      indentLevel --;
-
-      builder.append('\n');
-
-      return builder;
    }
 
    @Override

@@ -215,7 +215,7 @@ generalGridRowData : metadata generalGridElement+ COLSEP ;
 
 generalGridRow : (generalGridRowData | GEN_ROW_SEP) NEWLINE ;
 
-generalGridHeader : generalGridRow+ generalGridHeaderSep ;
+generalGridGroup : (generalGridRow | NEWLINE)+ ;
 
 preciseRecordSep : (STT_TBL_SEP)+ PLUS NEWLINE ;
 
@@ -247,7 +247,11 @@ block :
    | STT_IMAGE text CLOSE_PAR blockMetadata                                                           # InsertImage
    | CODE_MARKER language=text CLOSE_PAR metadata NEWLINE+ INDENT (externalCode? NEWLINE)+ DEDENT     # CodeBlock
    | STT_GRID blockMetadata NEWLINE+ INDENT gridHeaderRow (gridRecordRow | NEWLINE) + DEDENT          # Grid
-   | STT_GEN_GRID blockMetadata NEWLINE+ INDENT generalGridHeader? (generalGridRow | NEWLINE)+ DEDENT # GeneralGrid
+   | STT_GEN_GRID blockMetadata NEWLINE+ INDENT
+         (header=generalGridGroup? generalGridHeaderSep)?
+         body=generalGridGroup
+         (generalGridHeaderSep? footer=generalGridGroup)?
+     DEDENT # GeneralGrid
    | STT_PREC_GRID blockMetadata NEWLINE+ INDENT (preciseGridRow | NEWLINE) + DEDENT                  # PreciseGrid
    | NEWLINE                                                                                          # Empty
    ;

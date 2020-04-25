@@ -1177,9 +1177,9 @@ public class XmlTextVisitor extends RendererVisitor
       ArrayList<ArrayList<GridCell>> cells = new ArrayList<>();
       ArrayList<List<SamXParser.AttributeContext>> rowAttributes = new ArrayList<>();
 
-      if (ctx.generalGridHeader() != null)
+      if (ctx.header != null)
       {
-         for (SamXParser.GeneralGridRowContext rc : ctx.generalGridHeader().generalGridRow())
+         for (SamXParser.GeneralGridRowContext rc : ctx.header.generalGridRow())
          {
             final SamXParser.GeneralGridRowDataContext rdc = rc.generalGridRowData();
             if (rdc != null)
@@ -1197,7 +1197,7 @@ public class XmlTextVisitor extends RendererVisitor
 
       int headerOffsetAt = cells.size();
 
-      for (SamXParser.GeneralGridRowContext rc: ctx.generalGridRow())
+      for (SamXParser.GeneralGridRowContext rc: ctx.body.generalGridRow())
       {
          final SamXParser.GeneralGridRowDataContext rdc = rc.generalGridRowData();
          if (rdc != null)
