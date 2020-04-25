@@ -7,11 +7,15 @@ To Do:
 
 In Progress:
 
+* Implement the literate programming processor.
+
 * Add HTML exporter / visitor / converter.
 
 * Convert exporter visitors to use StringTemplate instead of hard-coding.
 
 Done:
+
+* [0.4.1] Add multi-row / multi-column grids, experimental for now.
 
 * [0.3.5] Add partial support for generalized grids: column spanning cells.
 
