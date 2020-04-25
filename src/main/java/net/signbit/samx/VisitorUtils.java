@@ -102,7 +102,7 @@ public class VisitorUtils
             prettyIdx++;
             prettyColumn++;
 
-            commonSubstring ++;
+            commonSubstring++;
 
             continue;
          }

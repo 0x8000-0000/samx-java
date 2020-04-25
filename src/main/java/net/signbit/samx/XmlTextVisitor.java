@@ -207,10 +207,10 @@ public class XmlTextVisitor extends RendererVisitor
          return null;
       }
 
-      if (! ctx.annotation().isEmpty())
+      if (!ctx.annotation().isEmpty())
       {
          final List<SamXParser.UrlContext> url = ctx.annotation(0).flow().url();
-         if ((url != null) && (! url.isEmpty()))
+         if ((url != null) && (!url.isEmpty()))
          {
             if (docBookMode)
             {
@@ -378,7 +378,7 @@ public class XmlTextVisitor extends RendererVisitor
             visit(lec.flow());
 
             ArrayList<SamXParser.BlockContext> blocks = new ArrayList<>(lec.block());
-            if (! blocks.isEmpty())
+            if (!blocks.isEmpty())
             {
                if (lec.separator == null)
                {
@@ -403,21 +403,21 @@ public class XmlTextVisitor extends RendererVisitor
             append(getParagraphTag());
             append('>');
 
-            if (! blocks.isEmpty())
+            if (!blocks.isEmpty())
             {
                appendNewline();
             }
 
             indentParagraph = true;
-            indentLevel ++;
-            for (SamXParser.BlockContext bc: blocks)
+            indentLevel++;
+            for (SamXParser.BlockContext bc : blocks)
             {
                visit(bc);
                //appendNewline();
             }
-            indentLevel --;
+            indentLevel--;
 
-            if (! blocks.isEmpty())
+            if (!blocks.isEmpty())
             {
                addIndent();
             }
@@ -613,11 +613,11 @@ public class XmlTextVisitor extends RendererVisitor
          visitor.setIndentLevel(indentLevel + 1);
          if (docBookMode)
          {
-             visitor.setDocBookMode();
+            visitor.setDocBookMode();
          }
          if (ditaMode)
          {
-             visitor.setDitaMode();
+            visitor.setDitaMode();
          }
 
          visitor.visit(includedResult.document);
@@ -835,7 +835,7 @@ public class XmlTextVisitor extends RendererVisitor
       final String elementId = attributeVisitor.getId();
       append(String.format("<figure xml:id=\"%s\">", elementId));
       appendNewline();
-      indentLevel ++;
+      indentLevel++;
 
       addIndent();
 
@@ -844,12 +844,12 @@ public class XmlTextVisitor extends RendererVisitor
       addIndent();
       append("<mediaobject>");
       appendNewline();
-      indentLevel ++;
-      
+      indentLevel++;
+
       addIndent();
       append("<imageobject>");
       appendNewline();
-      indentLevel ++;
+      indentLevel++;
 
       addIndent();
       append("<imagedata fileref=\"");
@@ -857,17 +857,17 @@ public class XmlTextVisitor extends RendererVisitor
       append("\" />");
       appendNewline();
 
-      indentLevel --;
+      indentLevel--;
       addIndent();
       append("</imageobject>");
       appendNewline();
 
-      indentLevel --;
+      indentLevel--;
       addIndent();
       append("</mediaobject>");
       appendNewline();
 
-      indentLevel --;
+      indentLevel--;
       addIndent();
       append("</figure>");
       appendNewline();
@@ -879,7 +879,7 @@ public class XmlTextVisitor extends RendererVisitor
       AttributeVisitor attributeVisitor = new AttributeVisitor();
       if (ditaMode)
       {
-          attributeVisitor.setDitaMode();
+         attributeVisitor.setDitaMode();
       }
       for (SamXParser.AttributeContext ac : ctx.blockMetadata().metadata().attribute())
       {
@@ -913,11 +913,11 @@ public class XmlTextVisitor extends RendererVisitor
       addIndent();
       if (docBookMode)
       {
-          renderDocBookFigure(ctx);
+         renderDocBookFigure(ctx);
       }
       else
       {
-          renderFigure(ctx);
+         renderFigure(ctx);
       }
       appendNewline();
 
@@ -962,11 +962,11 @@ public class XmlTextVisitor extends RendererVisitor
       AttributeVisitor attributeVisitor = new AttributeVisitor();
       if (docBookMode)
       {
-        attributeVisitor.setDocBookMode();
+         attributeVisitor.setDocBookMode();
       }
       if (ditaMode)
       {
-        attributeVisitor.setDitaMode();
+         attributeVisitor.setDitaMode();
       }
       for (SamXParser.AttributeContext ac : attributes)
       {
@@ -1094,69 +1094,23 @@ public class XmlTextVisitor extends RendererVisitor
       return null;
    }
 
-   private class GridCell
+   private ArrayList<GridVisitor.GridCell> renderGeneralGridRow(SamXParser.GeneralGridRowDataContext ggrdc)
    {
-      int rowSpan = 1;
-      int colSpan = 1;
+      ArrayList<GridVisitor.GridCell> rowCells = new ArrayList<>();
 
-      final List<SamXParser.AttributeContext> attribute;
-      final SamXParser.FlowContext flow;
-
-      GridCell(List<SamXParser.AttributeContext> attributes, SamXParser.OptionalFlowContext optionalFlowContext)
-      {
-         this.attribute = attributes;
-         if (optionalFlowContext != null)
-         {
-            flow = optionalFlowContext.flow();
-         }
-         else
-         {
-            flow = null;
-         }
-      }
-
-      void setSpan(String span)
-      {
-         for (char ch: span.toCharArray())
-         {
-            if (ch == '|')
-            {
-               colSpan ++;
-            }
-            else if (ch == '-')
-            {
-               rowSpan ++;
-            }
-            else
-            {
-               // error
-            }
-         }
-
-         if (colSpan > 1)
-         {
-            colSpan --;
-         }
-      }
-   }
-
-   private ArrayList<GridCell> renderGeneralGridRow(SamXParser.GeneralGridRowDataContext ggrdc)
-   {
-      ArrayList<GridCell> rowCells = new ArrayList<>();
-
-      for (SamXParser.GeneralGridElementContext ggec: ggrdc.generalGridElement())
+      for (SamXParser.GeneralGridElementContext ggec : ggrdc.generalGridElement())
       {
          if (ggec.gridElement() != null)
          {
-            GridCell gc = new GridCell(ggec.gridElement().attribute(), ggec.gridElement().optionalFlow());
+            GridVisitor.GridCell gc = new GridVisitor.GridCell(ggec.gridElement().attribute(), ggec.gridElement().optionalFlow());
             rowCells.add(gc);
          }
          else if (ggec.spanGridElement() != null)
          {
-            GridCell gc = new GridCell(ggec.spanGridElement().attribute(), ggec.spanGridElement().optionalFlow());
+            GridVisitor.GridCell gc = new GridVisitor.GridCell(ggec.spanGridElement().attribute(), ggec.spanGridElement().optionalFlow());
             gc.setSpan(ggec.spanGridElement().MUL_COLSEP().getText());
 
-            for (int ii = 0; ii < gc.colSpan; ++ ii)
+            for (int ii = 0; ii < gc.colSpan; ++ii)
             {
                rowCells.add(gc);
             }
@@ -1174,43 +1128,35 @@ public class XmlTextVisitor extends RendererVisitor
          return null;
       }
 
-      ArrayList<ArrayList<GridCell>> cells = new ArrayList<>();
-      ArrayList<List<SamXParser.AttributeContext>> rowAttributes = new ArrayList<>();
+      /*
+       * parse
+       */
 
+      final GridVisitor.GeneralGridGroup body = new GridVisitor.GeneralGridGroup(ctx.body, null);
+
+      GridVisitor.GeneralGridGroup header = null;
       if (ctx.header != null)
       {
-         for (SamXParser.GeneralGridRowContext rc : ctx.header.generalGridRow())
+         header = new GridVisitor.GeneralGridGroup(ctx.header, null);
+         if (header.columnWidths.length != body.columnWidths.length)
          {
-            final SamXParser.GeneralGridRowDataContext rdc = rc.generalGridRowData();
-            if (rdc != null)
-            {
-               if (! isDisabled(rdc))
-               {
-                  ArrayList<GridCell> rowCells = renderGeneralGridRow(rdc);
-                  cells.add(rowCells);
-
-                  rowAttributes.add(rdc.metadata().attribute());
-               }
-            }
+            throw new RuntimeException(String.format("Invalid table specification: multiple table column sizes between header (%d) and body (%d)", header.columnWidths.length, body.columnWidths.length));
          }
       }
 
-      int headerOffsetAt = cells.size();
-
-      for (SamXParser.GeneralGridRowContext rc: ctx.body.generalGridRow())
+      GridVisitor.GeneralGridGroup footer = null;
+      if (ctx.footer != null)
       {
-         final SamXParser.GeneralGridRowDataContext rdc = rc.generalGridRowData();
-         if (rdc != null)
+         footer = new GridVisitor.GeneralGridGroup(ctx.footer, null);
+         if (footer.columnWidths.length != body.columnWidths.length)
          {
-            if (! isDisabled(rdc))
-            {
-               ArrayList<GridCell> rowCells = renderGeneralGridRow(rdc);
-               cells.add(rowCells);
-
-               rowAttributes.add(rdc.metadata().attribute());
-            }
+            throw new RuntimeException(String.format("Invalid table specification: multiple table column sizes between footer (%d) and body (%d)", footer.columnWidths.length, body.columnWidths.length));
          }
       }
+
+      /*
+       * render
+       */
 
       addIndent();
       renderElementWithAttributes("table", ctx.blockMetadata().metadata().attribute());
@@ -1220,6 +1166,154 @@ public class XmlTextVisitor extends RendererVisitor
 
       renderTitle(ctx);
 
+      if (docBookMode)
+      {
+         addIndent();
+         append(String.format("<tgroup cols=\"%d\">", body.columnWidths.length));
+         appendNewline();
+
+         for (int ii = 1; ii <= body.columnWidths.length; ++ ii)
+         {
+            addIndent();
+            append(String.format("<colspec colname=\"c%d\"/>", ii));
+            appendNewline();
+         }
+      }
+
+      if (header != null)
+      {
+         renderGeneralTableGroup(header, "thead", getTableHeaderDataTag());
+      }
+
+      if (footer != null)
+      {
+         renderGeneralTableGroup(footer, "tfoot", getTableDataTag());
+      }
+
+      renderGeneralTableGroup(body, "tbody", getTableDataTag());
+
+      if (docBookMode)
+      {
+         indentLevel--;
+         addIndent();
+         append("</tgroup>");
+         appendNewline();
+      }
+
+      indentLevel--;
+
+      appendCloseTag("table");
+
+      return null;
+   }
+
+   private void renderGeneralTableGroup(GridVisitor.GeneralGridGroup gridGroup, String groupName, String dataName)
+   {
+      if (docBookMode)
+      {
+         addIndent();
+         append('<');
+         append(groupName);
+         append('>');
+         appendNewline();
+         indentLevel++;
+      }
+
+      int rowSpans[] = new int[gridGroup.columnWidths.length];
+
+      for (GridVisitor.GeneralGridRow ggr : gridGroup.rows)
+      {
+         if (isDisabled(ggr.metadataContext.condition()))
+         {
+            continue;
+         }
+
+         addIndent();
+         renderElementWithAttributes(getTableRowTag(), ggr.metadataContext.attribute());
+         appendNewline();
+         indentLevel++;
+
+         final ArrayList<GridVisitor.GridCell> rowCells = ggr.cells;
+         int jj = 0;
+         while (jj < rowCells.size())
+         {
+            if (rowSpans[jj] > 0)
+            {
+               rowSpans[jj] --;
+               final int beginEmptySpan = jj;
+
+               jj ++;
+               while ((jj < rowCells.size()) && (rowSpans[jj] > 0))
+               {
+                  rowSpans[jj] --;
+
+                  jj ++;
+               }
+
+               final int endEmptySpan = jj;
+               addIndent();
+               append(String.format("<!-- span namest=\"c%d\" nameend=\"c%d\" -->", beginEmptySpan, endEmptySpan));
+               appendNewline();
+
+               continue;
+            }
+
+            final GridVisitor.GridCell gc = rowCells.get(jj);
+
+            addIndent();
+
+            renderElementWithAttributesOpen(dataName, gc.attributes);
+            if (gc.colSpan > 1)
+            {
+               if (docBookMode)
+               {
+                  append(String.format(" namest=\"c%d\" nameend=\"c%d\"", jj + 1, jj + gc.colSpan));
+               }
+               else
+               {
+                  append(String.format(" colspan=\"%d\"", gc.colSpan));
+               }
+            }
+            if (gc.rowSpan > 1)
+            {
+               if (docBookMode)
+               {
+                  append(String.format(" morerows=\"%d\"", gc.rowSpan - 1));
+                  for (int kk = jj; kk < jj + gc.colSpan; ++kk)
+                  {
+                     rowSpans[kk] = gc.rowSpan - 1;
+                  }
+               }
+               else
+               {
+                  append(String.format("<!-- fixme; need rowspan: %d -->", gc.rowSpan));
+               }
+            }
+
+            if ((gc.flow != null && (!gc.flow.getText().isEmpty())))
+            {
+               append('>');
+               gc.renderContent(this);
+               append('<');
+               append('/');
+               append(dataName);
+            }
+            else
+            {
+               append('/');
+            }
+            append('>');
+            appendNewline();
+
+            jj += gc.colSpan;
+         }
+
+         indentLevel--;
+         appendCloseTag(getTableRowTag());
+      }
+
+      // TODO:
+/*
       for (int ii = 0; ii < cells.size(); ++ii)
       {
          String cellTag = "td";
@@ -1232,26 +1326,26 @@ public class XmlTextVisitor extends RendererVisitor
          renderElementWithAttributes("tr", rowAttributes.get(ii));
          appendNewline();
 
-         indentLevel ++;
+         indentLevel++;
 
-         final ArrayList<GridCell> rowCells = cells.get(ii);
+         final ArrayList<GridVisitor.GridCell> rowCells = cells.get(ii);
          int jj = 0;
          while (jj < rowCells.size())
          {
-            final GridCell gc = rowCells.get(jj);
+            final GridVisitor.GridCell gc = rowCells.get(jj);
 
             addIndent();
 
-            renderElementWithAttributesOpen(cellTag, gc.attribute);
+            renderElementWithAttributesOpen(cellTag, gc.attributes);
             if (gc.colSpan > 1)
             {
                append(String.format(" colspan=\"%d\"", gc.colSpan));
             }
 
-            if ((gc.flow != null && (! gc.flow.getText().isEmpty())))
+            if ((gc.flow != null && (!gc.flow.getText().isEmpty())))
             {
                append('>');
-               visitFlow(gc.flow);
+               gc.renderContent(this);
                append('<');
                append('/');
                append(cellTag);
@@ -1266,76 +1360,84 @@ public class XmlTextVisitor extends RendererVisitor
             jj += gc.colSpan;
          }
 
-         indentLevel --;
+         indentLevel--;
 
          addIndent();
          append("</tr>");
          appendNewline();
       }
 
-      indentLevel--;
+ */
 
-      appendCloseTag("table");
 
-      return null;
+      if (docBookMode)
+      {
+         indentLevel--;
+         addIndent();
+         append('<');
+         append('/');
+         append(groupName);
+         append('>');
+         appendNewline();
+      }
    }
 
    public void setDocBookMode()
    {
-       docBookMode = true;
+      docBookMode = true;
    }
 
    public void setDitaMode()
    {
-       ditaMode = true;
+      ditaMode = true;
    }
 
    private String getParagraphTag()
    {
-       if (docBookMode)
-       {
-           return "para";
-       }
-       else
-       {
-           return "p";
-       }
+      if (docBookMode)
+      {
+         return "para";
+      }
+      else
+      {
+         return "p";
+      }
    }
 
    private String getOrderedListTag()
    {
-       if (docBookMode)
-       {
-           return "orderedlist";
-       }
-       else
-       {
-           return "ol";
-       }
+      if (docBookMode)
+      {
+         return "orderedlist";
+      }
+      else
+      {
+         return "ol";
+      }
    }
 
    private String getUnorderedListTag()
    {
-       if (docBookMode)
-       {
-           return "itemizedlist";
-       }
-       else
-       {
-           return "ul";
-       }
+      if (docBookMode)
+      {
+         return "itemizedlist";
+      }
+      else
+      {
+         return "ul";
+      }
    }
 
    private String getListItemTag()
    {
-       if (docBookMode)
-       {
-           return "listitem";
-       }
-       else
-       {
-           return "li";
-       }
+      if (docBookMode)
+      {
+         return "listitem";
+      }
+      else
+      {
+         return "li";
+      }
    }
 
    private String getTableRowTag()

@@ -45,6 +45,7 @@ public class AttributeVisitor extends SamXParserBaseVisitor<Void>
    private String idAttribute = null;
    private String nameAttribute = null;
    private String referenceAttribute = null;
+   private String citationAttribute = null;
 
    @Override
    public Void visitClassAttr(SamXParser.ClassAttrContext ctx)
@@ -85,18 +86,25 @@ public class AttributeVisitor extends SamXParserBaseVisitor<Void>
    }
 
    @Override
+   public Void visitCitationAttr(SamXParser.CitationAttrContext ctx)
+   {
+      citationAttribute = ctx.text().getText();
+      return null;
+   }
+
+   @Override
    public String toString()
    {
       StringBuilder builder = new StringBuilder();
 
       boolean isEmpty = true;
 
-      if ((! classAttributes.isEmpty()) || (idAttribute != null) || (nameAttribute != null))
+      if ((!classAttributes.isEmpty()) || (idAttribute != null) || (nameAttribute != null))
       {
          builder.append(' ');
       }
 
-      if (! classAttributes.isEmpty())
+      if (!classAttributes.isEmpty())
       {
          if (docBookMode)
          {
@@ -162,11 +170,48 @@ public class AttributeVisitor extends SamXParserBaseVisitor<Void>
 
    public void setDocBookMode()
    {
-       docBookMode = true;
+      docBookMode = true;
    }
 
    public void setDitaMode()
    {
-       ditaMode = true;
+      ditaMode = true;
    }
+
+   private StringBuilder visitAttribute(char sigil, String text)
+   {
+      StringBuilder builder = new StringBuilder();
+
+      builder.append('(');
+      builder.append(sigil);
+      builder.append(text);
+      builder.append(')');
+
+      return builder;
+   }
+
+   public String toPlainString()
+   {
+      StringBuilder builder = new StringBuilder();
+
+      boolean isEmpty = true;
+
+      if (idAttribute != null)
+      {
+         builder.append(visitAttribute('#', idAttribute));
+      }
+
+      if (nameAttribute != null)
+      {
+         builder.append(visitAttribute('*', nameAttribute));
+      }
+
+      for (String className : classAttributes)
+      {
+         builder.append(visitAttribute('.', className));
+      }
+
+      return builder.toString();
+   }
+
 }

@@ -104,8 +104,15 @@ public class XmlConverterTest
 
       testConversion("grids/missing_cells.samx", "grids/missing_cells.xml");
 
+
+      testDocBook("build/resources/test/grids/simple.samx", "article", "grids/simple-docbook.xml");
+   }
+
+   @Test
+   public void testGeneralGrids() throws IOException
+   {
       testConversion("grids/gengrid_rowspan_only.samx", "grids/gengrid_rowspan_only.xml");
 
-      testDocBook("build/resources/test/grids/simple.samx", "article", "grids/simple-docbook.samx");
+      testDocBook("build/resources/test/grids/multispan.samx", "article", "grids/multispan.xml");
    }
 }
