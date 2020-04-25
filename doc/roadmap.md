@@ -15,7 +15,7 @@ In Progress:
 
 Done:
 
-* [0.4.1] Add multi-row / multi-column grids, experimental for now.
+* [0.4.2] Add multi-row / multi-column capability to grids.
 
 * [0.3.5] Add partial support for generalized grids: column spanning cells.
 

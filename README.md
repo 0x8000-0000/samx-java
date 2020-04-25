@@ -48,7 +48,7 @@ equivalent of a table caption, and uses the first row as a header which
 defines the field names.
 
 * SAM record set field separator is comma, while SAMx uses a vertical pipe
-symbol '|' .
+symbol '|' (same as the grids).
 
 * SAM allows for multiple conditions on a flow, and they are all logically
 'and'-ed together. SAMx allows for one condition on a flow, but allows that
@@ -68,6 +68,8 @@ applies to several sub-blocks at once.
 
 * SAMx is using the CSS sigil for selecting name (hash mark) instead of SAM's
 which is an asterisk. SAMx also supports a class attribute introduced by a dot.
+
+* SAMx grids support row and column spanning.
 
 
 License for SAM
