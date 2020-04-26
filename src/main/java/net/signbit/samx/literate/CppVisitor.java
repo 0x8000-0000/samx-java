@@ -30,10 +30,10 @@ import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 import org.stringtemplate.v4.STGroupFile;
 
-import net.signbit.samx.AttributeVisitor;
 import net.signbit.samx.Parser;
-import net.signbit.samx.RendererVisitor;
 import net.signbit.samx.parser.SamXParser;
+import net.signbit.samx.visitors.AttributeVisitor;
+import net.signbit.samx.visitors.RendererVisitor;
 
 public class CppVisitor extends RendererVisitor
 {

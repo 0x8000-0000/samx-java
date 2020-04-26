@@ -8,7 +8,7 @@ import java.util.HashMap;
 import org.junit.Test;
 
 import net.signbit.samx.Parser;
-import net.signbit.samx.XmlTextVisitor;
+import net.signbit.samx.visitors.XmlTextVisitor;
 import static org.junit.Assert.assertEquals;
 
 public class XmlConverterTest

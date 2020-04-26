@@ -16,11 +16,16 @@
 
 package net.signbit.samx;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.Properties;
 
 import org.apache.commons.cli.*;
 import org.xml.sax.SAXException;
+
+import net.signbit.samx.visitors.RendererVisitor;
 
 public abstract class Renderer
 {

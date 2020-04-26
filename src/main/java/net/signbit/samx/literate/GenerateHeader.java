@@ -16,7 +16,6 @@
 
 package net.signbit.samx.literate;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Writer;
 
@@ -26,7 +25,7 @@ import org.apache.commons.cli.Options;
 
 import net.signbit.samx.Parser;
 import net.signbit.samx.Renderer;
-import net.signbit.samx.RendererVisitor;
+import net.signbit.samx.visitors.RendererVisitor;
 
 public class GenerateHeader extends Renderer
 {

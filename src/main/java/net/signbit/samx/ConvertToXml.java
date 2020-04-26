@@ -31,6 +31,8 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 import com.thaiopensource.validate.ValidationDriver;
+import net.signbit.samx.visitors.RendererVisitor;
+import net.signbit.samx.visitors.XmlTextVisitor;
 
 public final class ConvertToXml extends Renderer
 {

@@ -4,8 +4,8 @@ import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.junit.Test;
 
 import net.signbit.samx.Parser;
-import net.signbit.samx.PrettyPrinterVisitor;
-import net.signbit.samx.VisitorUtils;
+import net.signbit.samx.visitors.PrettyPrinterVisitor;
+import net.signbit.samx.visitors.VisitorUtils;
 import static org.junit.Assert.*;
 
 public class PrettyPrinterTest

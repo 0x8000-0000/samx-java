@@ -1,4 +1,4 @@
-package net.signbit.samx;
+package net.signbit.samx.visitors;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -14,6 +14,7 @@ import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 import org.stringtemplate.v4.STGroupFile;
 
+import net.signbit.samx.Parser;
 import net.signbit.samx.parser.SamXLexer;
 import net.signbit.samx.parser.SamXParser;
 

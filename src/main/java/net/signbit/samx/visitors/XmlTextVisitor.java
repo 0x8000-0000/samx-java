@@ -14,7 +14,7 @@
    limitations under the License.
 */
 
-package net.signbit.samx;
+package net.signbit.samx.visitors;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -30,6 +30,7 @@ import org.antlr.v4.runtime.misc.Interval;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
+import net.signbit.samx.Parser;
 import net.signbit.samx.parser.SamXLexer;
 import net.signbit.samx.parser.SamXParser;
 

@@ -14,7 +14,7 @@
    limitations under the License.
 */
 
-package net.signbit.samx;
+package net.signbit.samx.visitors;
 
 import java.util.List;
 

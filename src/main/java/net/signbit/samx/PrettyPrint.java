@@ -18,6 +18,9 @@ package net.signbit.samx;
 
 import java.io.IOException;
 
+import net.signbit.samx.visitors.PrettyPrinterVisitor;
+import net.signbit.samx.visitors.VisitorUtils;
+
 public final class PrettyPrint
 {
    public static void main(String[] args) throws IOException

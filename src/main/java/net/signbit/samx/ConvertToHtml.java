@@ -22,6 +22,9 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.w3c.tidy.Tidy;
 
+import net.signbit.samx.visitors.HtmlPrinterVisitor;
+import net.signbit.samx.visitors.RendererVisitor;
+
 public class ConvertToHtml extends Renderer
 {
 
