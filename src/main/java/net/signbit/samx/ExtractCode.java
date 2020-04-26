@@ -37,6 +37,11 @@ public class ExtractCode
       output.setRequired(true);
       options.addOption(output);
 
+      Option elements = new Option("e", "elements", true, "selected elements");
+      elements.setRequired(false);
+      elements.setArgs(Option.UNLIMITED_VALUES);
+      options.addOption(elements);
+
       CommandLineParser cmdLine = new DefaultParser();
       HelpFormatter helpFmt = new HelpFormatter();
 
@@ -66,7 +71,7 @@ public class ExtractCode
             outputDir = new File(".");
          }
 
-         EmbeddedCodeVisitor visitor = new EmbeddedCodeVisitor(result.tokens, outputDir);
+         EmbeddedCodeVisitor visitor = new EmbeddedCodeVisitor(result.tokens, outputDir, cmd.getOptionValues("elements"));
 
          visitor.visit(result.document);
 

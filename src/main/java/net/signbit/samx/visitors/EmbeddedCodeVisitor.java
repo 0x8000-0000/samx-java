@@ -19,6 +19,8 @@ package net.signbit.samx.visitors;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
 
 import org.antlr.v4.runtime.BufferedTokenStream;
 
@@ -29,11 +31,18 @@ public class EmbeddedCodeVisitor extends SamXParserBaseVisitor<StringBuilder>
 {
    private final BufferedTokenStream tokenStream;
    private final File parentDir;
+   private final HashSet<String> elements;
 
-   public EmbeddedCodeVisitor(BufferedTokenStream tokenStream, File parentDir)
+
+   public EmbeddedCodeVisitor(BufferedTokenStream tokenStream, File parentDir, String[] elements)
    {
       this.tokenStream = tokenStream;
       this.parentDir = parentDir;
+      this.elements = new HashSet<>();
+      if (elements != null)
+      {
+         this.elements.addAll(Arrays.asList(elements));
+      }
    }
 
    @Override
@@ -65,7 +74,14 @@ public class EmbeddedCodeVisitor extends SamXParserBaseVisitor<StringBuilder>
       attributeVisitor.visit(ctx.metadata());
 
       final String fileStem = attributeVisitor.getId();
+
       final String fileExtension = ctx.language.getText();
+
+      if ((!elements.isEmpty()) && (!elements.contains(fileStem)))
+      {
+         System.out.println(String.format("Skipping unselected element %s (%s)", fileStem, fileExtension));
+         return null;
+      }
 
       final File outputFile = new File(parentDir, fileStem + "." + fileExtension);
 
