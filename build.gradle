@@ -18,6 +18,7 @@ repositories {
 
 dependencies {
     testImplementation group: 'junit', name: 'junit', version: '4.12'
+    testImplementation group: 'org.relaxng', name: 'jing', version: '20181222'
     implementation 'commons-cli:commons-cli:1.4'
     implementation 'commons-io:commons-io:2.6'
     implementation 'org.apache.commons:commons-text:1.8'
@@ -75,7 +76,7 @@ scripts.each() { scriptName, className ->
     createAllStartScripts.dependsOn(t)
 }
 
- publishing {
+publishing {
 	publications {
 		maven(MavenPublication) {
 			groupId = group
@@ -86,3 +87,14 @@ scripts.each() { scriptName, className ->
 		}
 	}
 }
+
+task generateBook(type: JavaExec) {
+    description = 'Generates the documentation in DocBook format'
+    group = 'verification'
+    classpath = sourceSets.main.runtimeClasspath
+    main = 'net.signbit.samx.ConvertToXml'
+    args = ['-i', 'doc/samx_language.samx', '-o', 'build/samx_language.dbk', '-b']
+    mustRunAfter test
+}
+
+check.dependsOn generateBook
