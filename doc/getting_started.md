@@ -23,15 +23,22 @@ Resolving deltas: 100% (661/661), done.
 $ cd samx-java
 
 # Build and package
-$ ./gradlew clean build assembleDist
+$ ./gradlew clean build assemble
 
-BUILD SUCCESSFUL in 4s
-15 actionable tasks: 14 executed, 1 up-to-date
+
+> Task :generateBook
+Enable DocBook mode
+XML output is well-formed
+DocBook document validated using Jing
+
+BUILD SUCCESSFUL in 5s
+18 actionable tasks: 18 executed
 
 # Check build results
 $ ls -l build/distributions/samxj*      
--rw-r--r-- 1 florin florin 17623040 Apr 19 21:07 build/distributions/samxj-0.3.3.tar
--rw-r--r-- 1 florin florin 16174450 Apr 19 21:07 build/distributions/samxj-0.3.3.zip
+total 42780
+-rw-r--r-- 1 florin florin 22917120 Apr 26 16:46 samxj-0.4.4.tar
+-rw-r--r-- 1 florin florin 20888188 Apr 26 16:46 samxj-0.4.4.zip
 ```
 
 Extract the Distribution Package
@@ -39,9 +46,9 @@ Extract the Distribution Package
 
 ```shell script
 $ cd ..
-$ tar xf samx-java/build/distributions/samxj-0.3.3.tar
-$ cd samxj-0.3.3
-$ $ ./bin/pretty_print test/nested_typed_blocks-pretty.samx 
+$ tar xf samx-java/build/distributions/samxj-0.4.4.tar
+$ cd samxj-0.4.4
+$ ./bin/pretty_print examples/nested_typed_blocks-pretty.samx 
 sample: alpha beta
 
    some text in here another entry
