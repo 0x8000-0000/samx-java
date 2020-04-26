@@ -21,6 +21,8 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.antlr.v4.runtime.BufferedTokenStream;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import net.signbit.samx.parser.SamXParser;
 import net.signbit.samx.parser.SamXParserBaseVisitor;
@@ -165,9 +167,11 @@ public class GridVisitor extends SamXParserBaseVisitor<StringBuilder>
 
       int conditionColumnWidth = 0;
       int columnWidths[];
+
       boolean isInteger[];
+      boolean isHexadecimal[];
+      boolean isDouble[];
       boolean isCurrency[];
-      boolean isNumeric[];
 
       GeneralGridGroup(SamXParser.GeneralGridGroupContext gggc, SamXParserVisitor<StringBuilder> visitor)
       {
@@ -201,11 +205,18 @@ public class GridVisitor extends SamXParserBaseVisitor<StringBuilder>
 
          int localColumnCount = columnLengths.iterator().next();
          columnWidths = new int[localColumnCount];
+
          isInteger = new boolean[localColumnCount];
+         isHexadecimal = new boolean[localColumnCount];
+         isDouble = new boolean[localColumnCount];
+         isCurrency = new boolean[localColumnCount];
 
          for (int ii = 0; ii < localColumnCount; ++ ii)
          {
             isInteger[ii] = true;
+            isHexadecimal[ii] = true;
+            isDouble[ii] = true;
+            isCurrency[ii] = true;
          }
 
          boolean lastColumnEmpty = true;
@@ -234,10 +245,7 @@ public class GridVisitor extends SamXParserBaseVisitor<StringBuilder>
                      columnWidths[ii] = thisWidth;
                   }
 
-                  if (! VisitorUtils.isInteger(content))
-                  {
-                     isInteger[ii] = false;
-                  }
+                  checkNumberFormat(ii, content);
                }
             }
 
@@ -257,6 +265,63 @@ public class GridVisitor extends SamXParserBaseVisitor<StringBuilder>
          }
 
          columnCount = localColumnCount;
+      }
+
+      private void checkNumberFormat(int ii, String content)
+      {
+         if (content.isEmpty())
+         {
+            return;
+         }
+
+         if (NumberUtils.isCreatable(content))
+         {
+            try
+            {
+               Integer intValue = NumberUtils.createInteger(content);
+               isCurrency[ii] = false;
+            }
+            catch (NumberFormatException nfei)
+            {
+               isInteger[ii] = false;
+
+               try
+               {
+                  Double dblValue = NumberUtils.createDouble(content);
+                  isCurrency[ii] = false;
+               }
+               catch (NumberFormatException nfed)
+               {
+                  isDouble[ii] = false;
+               }
+            }
+         }
+         else
+         {
+            isDouble[ii] = false;
+            isInteger[ii] = false;
+            isHexadecimal[ii] = false;
+
+            final char symbol = content.charAt(0);
+
+            if ((symbol == '$') || (symbol == '#') || (symbol == '£') || (symbol == '¥') || (symbol == '€'))
+            {
+               final String asCurrency = StringUtils.remove(StringUtils.remove(content.substring(1), ','), '.');
+
+               try
+               {
+                  Integer intCurrency = NumberUtils.createInteger(asCurrency);
+               }
+               catch (NumberFormatException nfec)
+               {
+                  isCurrency[ii] = false;
+               }
+            }
+            else
+            {
+               isCurrency[ii] = false;
+            }
+         }
       }
    }
 }

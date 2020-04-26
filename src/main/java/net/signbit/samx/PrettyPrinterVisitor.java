@@ -1153,7 +1153,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
 
                final String cellContent = gc.getContent(PrettyPrinterVisitor.this);
 
-               if (gridGroup.isInteger[jj])
+               if (gridGroup.isInteger[jj] || gridGroup.isCurrency[jj])
                {
                   builder.append(String.format("%1$" + columnWidth + "s", cellContent));
                }

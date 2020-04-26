@@ -4,8 +4,8 @@ This document contains a grid with some missing values.
 
                 | Name           | Position          | {Office}(.location)  | {Age}(.numeric) | Start date | Salary     |
                 +================+===================+======================+=================+============+============+
-                | Airi Satou     | Accountant        | Tokyo                |              33 | 2008/11/28 | $162,700   |
+                | Airi Satou     | Accountant        | Tokyo                |              33 | 2008/11/28 |   $162,700 |
    (.highlight) | Angelica Ramos |                   | London               |              47 | 2009/10/09 | $1,200,000 |
-                | Ashton Cox     |                   | San Francisco        |              66 | 2009/01/12 | $86,000    |
-                | Bradley Greer  | Software Engineer | {London}(.expensive) |              41 | 2012/10/13 | $132,000   |
+                | Ashton Cox     |                   | San Francisco        |              66 | 2009/01/12 |    $86,000 |
+                | Bradley Greer  | Software Engineer | {London}(.expensive) |              41 | 2012/10/13 |   $132,000 |
 
