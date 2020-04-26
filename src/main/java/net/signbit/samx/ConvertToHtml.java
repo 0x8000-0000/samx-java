@@ -54,7 +54,7 @@ public class ConvertToHtml extends Renderer
    }
 
    @Override
-   protected void performCheck(CommandLine cmd) throws FileNotFoundException
+   protected boolean performCheck(CommandLine cmd) throws FileNotFoundException
    {
       Tidy tidy = new Tidy();
       FileInputStream fis = new FileInputStream(cmd.getOptionValue("output"));
@@ -66,5 +66,7 @@ public class ConvertToHtml extends Renderer
          System.err.println(String.format("JTidy found %d errors", count));
          System.err.print(output.toString());
       }
+
+      return (count == 0);
    }
 }

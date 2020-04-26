@@ -62,8 +62,8 @@ public class GenerateHeader extends Renderer
    }
 
    @Override
-   protected void performCheck(CommandLine cmd) throws FileNotFoundException
+   protected boolean performCheck(CommandLine cmd)
    {
-
+      return true;
    }
 }

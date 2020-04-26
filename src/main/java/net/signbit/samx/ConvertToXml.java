@@ -149,23 +149,21 @@ public final class ConvertToXml extends Renderer
    }
 
    @Override
-   protected void performCheck(CommandLine cmd)
+   protected boolean performCheck(CommandLine cmd) throws IOException, SAXException
    {
-      checkWellFormed(new InputSource(cmd.getOptionValue("output")));
-
-      if (cmd.hasOption("b"))
+      if (checkWellFormed(new InputSource(cmd.getOptionValue("output"))))
       {
-         final File schemaFile = findSchemaFile(cmd);
-         if (schemaFile == null)
+         if (cmd.hasOption("b"))
          {
-            System.err.println("Could not find the schema file near the input or output.");
-            System.err.println("You can download it from https://docbook.org/xml/5.1/rng/docbook.rng");
+            final File schemaFile = findSchemaFile(cmd);
+            if (schemaFile == null)
+            {
+               System.err.println("Could not find the schema file near the input or output.");
+               System.err.println("You can download it from https://docbook.org/xml/5.1/rng/docbook.rng");
 
-            return;
-         }
+               return false;
+            }
 
-         try
-         {
             final ValidationDriver vd = new ValidationDriver();
 
             InputStream schemaStream = new FileInputStream(schemaFile);
@@ -186,16 +184,12 @@ public final class ConvertToXml extends Renderer
             {
                System.err.println("DocBook document failed to validate");
             }
-         }
-         catch (SAXException e)
-         {
-            System.err.println("SAXException: " + e.getMessage());
-         }
-         catch (IOException e)
-         {
-            System.err.println("IOException: " + e.getMessage());
+
+            return isValid;
          }
       }
+
+      return false;
    }
 
    private static class SimpleErrorHandler implements ErrorHandler
@@ -216,7 +210,7 @@ public final class ConvertToXml extends Renderer
       }
    }
 
-   private static void checkWellFormed(InputSource output)
+   private static boolean checkWellFormed(InputSource output)
    {
       DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
       factory.setValidating(false);
@@ -231,10 +225,13 @@ public final class ConvertToXml extends Renderer
          Document document = builder.parse(output);
 
          System.err.println("XML output is well-formed");
+
+         return true;
       }
       catch (Exception ee)
       {
          ee.printStackTrace(System.err);
+         return false;
       }
    }
 

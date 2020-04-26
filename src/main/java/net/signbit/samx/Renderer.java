@@ -20,6 +20,7 @@ import java.io.*;
 import java.util.Properties;
 
 import org.apache.commons.cli.*;
+import org.xml.sax.SAXException;
 
 public abstract class Renderer
 {
@@ -55,7 +56,7 @@ public abstract class Renderer
 
    protected abstract void addCustomOptions(CommandLine cmd);
 
-   protected abstract void performCheck(CommandLine cmd) throws FileNotFoundException;
+   protected abstract boolean performCheck(CommandLine cmd) throws IOException, SAXException;
 
    public void render(String[] args) throws IOException
    {
@@ -89,12 +90,28 @@ public abstract class Renderer
          writer.close();
          fileWriter.close();
 
-         performCheck(cmd);
+         if (! performCheck(cmd))
+         {
+            System.err.println("Resulting document is not well-formed or valid");
+            System.exit(1);
+         }
+
+         System.exit(0);
       }
       catch (ParseException pe)
       {
-         System.out.println(pe.getMessage());
+         System.err.println(pe.getMessage());
          helpFmt.printHelp("Renderer", options);
       }
+      catch (IOException ioe)
+      {
+         System.err.println("Caught I/O exception: " + ioe.getMessage());
+      }
+      catch (SAXException se)
+      {
+         System.err.println("Caught SAX exception: " + se.getMessage());
+      }
+
+      System.exit(1);
    }
 }
