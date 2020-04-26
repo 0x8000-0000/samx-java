@@ -41,6 +41,10 @@ total 42780
 -rw-r--r-- 1 florin florin 20888188 Apr 26 16:46 samxj-0.4.4.zip
 ```
 
+> **_NOTE_:** The build steps will generate executable scripts that are not ready to run from the build directory.
+>You need to execute the next step which extracts the package with the paths correctly interpolated.
+
+
 Extract the Distribution Package
 --------------------------------
 
