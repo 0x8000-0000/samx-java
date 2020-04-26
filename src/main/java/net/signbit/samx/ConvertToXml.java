@@ -19,6 +19,7 @@ package net.signbit.samx;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.*;
+import java.util.zip.GZIPInputStream;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -60,6 +61,9 @@ public final class ConvertToXml extends Renderer
 
       Option rootElementVersion = new Option("v", "version", true, "root element version (default null)");
       options.addOption(rootElementVersion);
+
+      Option schemaPath = new Option("s", "schema", true, "RelaxNG schema");
+      options.addOption(schemaPath);
    }
 
    @Override
@@ -114,10 +118,20 @@ public final class ConvertToXml extends Renderer
 
    private File findSchemaFile(CommandLine cmd)
    {
+      File schemaFile = null;
+
+      if (cmd.getOptionValue("schema") != null)
+      {
+         schemaFile = new File(cmd.getOptionValue("schema"));
+         if (schemaFile.exists())
+         {
+            return schemaFile;
+         }
+      }
+
       final File outputFile = new File(cmd.getOptionValue("output"));
       final File outputFileParent = outputFile.getParentFile();
-
-      File schemaFile = new File(outputFileParent, "docbook.rng");
+      schemaFile = new File(outputFileParent, "docbook.rng");
       if (schemaFile.exists())
       {
          return schemaFile;
@@ -153,7 +167,14 @@ public final class ConvertToXml extends Renderer
          try
          {
             final ValidationDriver vd = new ValidationDriver();
-            vd.loadSchema(new InputSource(new FileInputStream(schemaFile)));
+
+            InputStream schemaStream = new FileInputStream(schemaFile);
+            if (schemaFile.getName().endsWith(".gz"))
+            {
+               schemaStream = new GZIPInputStream(schemaStream);
+            }
+
+            vd.loadSchema(new InputSource(schemaStream));
 
             final boolean isValid = vd.validate(new InputSource(cmd.getOptionValue("output")));
 

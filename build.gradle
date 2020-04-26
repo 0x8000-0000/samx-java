@@ -1,7 +1,6 @@
 plugins {
     id 'java-library'
     id 'antlr'
-    id 'distribution'
     id 'application'
     id 'maven-publish'
     id "de.undercouch.download" version "4.0.4"
@@ -48,10 +47,6 @@ application {
     executableDir = 'bin'
 }
 
-applicationDistribution.from("src/test/resources/") {
-    into "test"
-}
-
 task createAllStartScripts() {
     // just a placeholder
 }
@@ -96,17 +91,42 @@ task downloadRelaxSchema(type: Download) {
     overwrite false
 }
 
+task createDocs {
+    def docs = file("$buildDir/docs")
+    outputs.dir docs
+    doLast {
+        docs.mkdirs()
+    }
+}
+
 task generateBook(type: JavaExec) {
     description = 'Generates the documentation in DocBook format'
     group = 'verification'
     classpath = sourceSets.main.runtimeClasspath
     main = 'net.signbit.samx.ConvertToXml'
-    args = ['-i', 'doc/samx_language.samx', '-o', 'build/samx_language.dbk', '-b']
+    args = ['-i', 'doc/samx_language.samx', '-o', 'build/docs/samx_language.dbk', '-b', '-s', 'src/dist/schemas/docbook.rng.gz']
     mustRunAfter test
 }
 
-tasks.build.dependsOn downloadRelaxSchema
-
-tasks.generateBook.dependsOn downloadRelaxSchema
+tasks.generateBook.dependsOn createDocs
 
 check.dependsOn generateBook
+
+distributions {
+    main {
+        contents {
+            from 'README.md'
+
+            from("src/test/resources/") {
+                into "examples"
+            }
+            from(createDocs) {
+                into 'docs'
+            }
+            from(generateBook) {
+                into 'docs'
+            }
+        }
+    }
+}
+
