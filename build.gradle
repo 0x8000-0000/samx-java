@@ -7,7 +7,7 @@ plugins {
 }
 
 group 'net.signbit.samx'
-version '0.4.4'
+version '0.4.5'
 
 sourceCompatibility = 1.8
 
@@ -55,6 +55,7 @@ def scripts = ['tokenize'       : 'net.signbit.samx.Tokenize',
                'to_xml'         : 'net.signbit.samx.ConvertToXml',
                'to_html'        : 'net.signbit.samx.ConvertToHtml',
                'pretty_print'   : 'net.signbit.samx.PrettyPrint',
+               'extract_code'   : 'net.signbit.samx.ExtractCode',
                'generate_header': 'net.signbit.samx.literate.GenerateHeader',
 ]
 

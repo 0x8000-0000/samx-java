@@ -6,7 +6,7 @@ markup:
 
 result:
 
-   ```(xml)
+   ```(xml)(#example)
        <section xml:lang="es">
           <citation>Mother McCree</citation>
           <title>Greeting</title>

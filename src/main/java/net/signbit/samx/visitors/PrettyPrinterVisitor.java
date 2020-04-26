@@ -674,6 +674,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
       builder.append("```(");
       builder.append(visit(ctx.language));
       builder.append(")");
+      builder.append(visitMetadata(ctx.metadata()));
       builder.append('\n');
 
       indentLevel++;

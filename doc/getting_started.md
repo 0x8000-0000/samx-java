@@ -79,6 +79,8 @@ There are several applications bundled in the distribution package:
 
 ```shell script
 $ ls bin | cat
+extract_code
+extract_code.bat
 generate_header
 generate_header.bat
 pretty_print
@@ -95,7 +97,7 @@ to_xml.bat
 
 The applications can run on either UNIX or Windows.
 
-Pretty-print
+Pretty print
 ------------
 
 `pretty_print` parses the input document and writes out a copy in canonical form: it normalizes white space by
@@ -109,6 +111,12 @@ To-XML
 ------
 
 `to_xml` converts the input document into the corresponding XML format. It should support most of the SAMx constructs.
+
+Extract Code
+------------
+
+`extract_code` parses the input document and extracts all the code blocks into individual files. This is useful if the
+document contains embedded code or diagrams which need to be rendered with external tools.
 
 Debug Utilities
 ---------------

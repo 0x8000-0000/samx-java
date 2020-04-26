@@ -76,9 +76,11 @@ chapter: SAMx Tools
 
    * pretty_print
 
+   * extract_code
+
    * to_xml
 
-   section: pretty_print
+   section: Pretty Print
 
       Pretty print is a tool that parses the SAMx document and then
       recreates it by visiting every node. The pretty printer does not
@@ -94,6 +96,13 @@ chapter: SAMx Tools
       diagnostic. Otherwise the tool will provide an indication of the
       first mismatch location.
 
+   section: Extract Code
+
+      Extract code parses the input document and extracts all the code
+      blocks into individual files. This is useful if the document
+      contains embedded code or diagrams which need to be rendered with
+      external tools.
+
 chapter: Building SAMx from source
 
    The two prerequites are Git, for downloading the source code and Java
@@ -105,21 +114,17 @@ chapter: Building SAMx from source
    {release}(:https://github.com/0x8000-0000/samx-java/releases) from
    GitHub.
 
-   Simply run \"./gradlew clean build assembleDist\" to build, test and
+   Simply run \"./gradlew clean build assemble\" to build, test and
    create a binary distribution. The binary distribution is generated in
    \"build/distributions/\" directory.
 
    section: Building this Document from Source
 
-      This document is available in SAMx source for in the doc
-      subdirectory of a source or a binary distribution.
+      This document is available in SAMx source tree and also in the
+      \"docs\" subdirectory in a binary distribution.
 
-      Run \"./bin/to_xml -i doc/samx_language.samx -b -o samx_book.xml\"
-      to convert it.
-
-      Then run \"jing -f docbook.rng samx_book.xml\" to validate it.
-
-      Then run \"dblatex samx_book.xml\" to convert this book to PDF.
+      Run \"dblatex docs/samx_language.dbk\" to convert this book to
+      PDF.
 
 chapter: Frequently Asked Questions
 

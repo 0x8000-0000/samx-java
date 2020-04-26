@@ -47,6 +47,7 @@ public class AttributeVisitor extends SamXParserBaseVisitor<Void>
    private String referenceAttribute = null;
    private String citationAttribute = null;
 
+
    @Override
    public Void visitClassAttr(SamXParser.ClassAttrContext ctx)
    {
@@ -212,6 +213,23 @@ public class AttributeVisitor extends SamXParserBaseVisitor<Void>
       }
 
       return builder.toString();
+   }
+
+   @Override
+   public Void visitMetadata(SamXParser.MetadataContext ctx)
+   {
+      for (SamXParser.AttributeContext ac : ctx.attribute())
+      {
+         visit(ac);
+      }
+      return null;
+   }
+
+   @Override
+   public Void visitBlockMetadata(SamXParser.BlockMetadataContext ctx)
+   {
+      visitMetadata(ctx.metadata());
+      return null;
    }
 
 }
