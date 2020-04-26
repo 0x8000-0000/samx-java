@@ -144,7 +144,9 @@ public final class ConvertToXml extends Renderer
          final File schemaFile = findSchemaFile(cmd);
          if (schemaFile == null)
          {
-            System.err.println("Could not find the schema file near the input or output");
+            System.err.println("Could not find the schema file near the input or output.");
+            System.err.println("You can download it from https://docbook.org/xml/5.1/rng/docbook.rng");
+
             return;
          }
 
