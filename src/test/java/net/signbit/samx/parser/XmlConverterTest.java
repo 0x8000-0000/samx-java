@@ -16,6 +16,7 @@ public class XmlConverterTest
    private static String convert(String inputString)
    {
       Parser.Result result = Parser.parseString(inputString);
+      assertEquals(result.errorCount, 0);
 
       StringWriter writer = new StringWriter();
 

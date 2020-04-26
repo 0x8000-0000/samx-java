@@ -76,6 +76,12 @@ public abstract class Renderer
          BufferedWriter writer = new BufferedWriter(fileWriter);
 
          Parser.Result result = Parser.parse(cmd.getOptionValue("input"));
+         if (result.errorCount > 0)
+         {
+            System.err.print("Failed to parse input file " + cmd.getOptionValue("input"));
+            System.exit(10);
+         }
+
          RendererVisitor visitor = makeVisitor(writer, result);
 
          Properties props = cmd.getOptionProperties("V");

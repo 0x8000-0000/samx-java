@@ -14,6 +14,8 @@ public class PrettyPrinterTest
    private static String prettify(String inputString)
    {
       Parser.Result result = Parser.parseString(inputString);
+      assertEquals(result.errorCount, 0);
+
       PrettyPrinterVisitor printer = new PrettyPrinterVisitor(result.tokens);
 
       assertTrue(SamXLexerTest.balancedIndentsDedents(result.tokens.getTokens()));
