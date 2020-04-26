@@ -18,8 +18,7 @@ package net.signbit.samx;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.IOException;
-import java.io.Writer;
+import java.io.*;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -27,7 +26,10 @@ import org.apache.commons.cli.Options;
 import org.w3c.dom.Document;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
+
+import com.thaiopensource.validate.ValidationDriver;
 
 public final class ConvertToXml extends Renderer
 {
@@ -110,10 +112,67 @@ public final class ConvertToXml extends Renderer
       }
    }
 
+   private File findSchemaFile(CommandLine cmd)
+   {
+      final File outputFile = new File(cmd.getOptionValue("output"));
+      final File outputFileParent = outputFile.getParentFile();
+
+      File schemaFile = new File(outputFileParent, "docbook.rng");
+      if (schemaFile.exists())
+      {
+         return schemaFile;
+      }
+
+      File inputFile = new File(cmd.getOptionValue("input"));
+      File inputFileParent = inputFile.getParentFile();
+      schemaFile = new File(inputFileParent, "docbook.rng");
+      if (schemaFile.exists())
+      {
+         return schemaFile;
+      }
+
+      return null;
+   }
+
    @Override
    protected void performCheck(CommandLine cmd)
    {
       checkWellFormed(new InputSource(cmd.getOptionValue("output")));
+
+      if (cmd.hasOption("b"))
+      {
+         final File schemaFile = findSchemaFile(cmd);
+         if (schemaFile == null)
+         {
+            System.err.println("Could not find the schema file near the input or output");
+            return;
+         }
+
+         try
+         {
+            final ValidationDriver vd = new ValidationDriver();
+            vd.loadSchema(new InputSource(new FileInputStream(schemaFile)));
+
+            final boolean isValid = vd.validate(new InputSource(cmd.getOptionValue("output")));
+
+            if (isValid)
+            {
+               System.err.println("DocBook document validated using Jing");
+            }
+            else
+            {
+               System.err.println("DocBook document failed to validate");
+            }
+         }
+         catch (SAXException e)
+         {
+            System.err.println("SAXException: " + e.getMessage());
+         }
+         catch (IOException e)
+         {
+            System.err.println("IOException: " + e.getMessage());
+         }
+      }
    }
 
    private static class SimpleErrorHandler implements ErrorHandler
@@ -154,7 +213,6 @@ public final class ConvertToXml extends Renderer
       {
          ee.printStackTrace(System.err);
       }
-
    }
 
 }
