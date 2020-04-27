@@ -7,7 +7,7 @@ plugins {
 }
 
 group 'net.signbit.samx'
-version '0.4.6'
+version '0.4.7'
 
 sourceCompatibility = 1.8
 
@@ -25,6 +25,7 @@ dependencies {
     implementation 'org.apache.commons:commons-text:1.8'
     implementation 'org.apache.commons:commons-lang3:3.10'
     implementation 'com.github.jtidy:jtidy:1.0.2'
+    runtimeOnly group: 'net.sourceforge.plantuml', name: 'plantuml', version: '1.2020.8'
     antlr 'org.antlr:antlr4:4.8'
 }
 
@@ -109,22 +110,52 @@ task generateBook(type: JavaExec) {
     mustRunAfter test
 }
 
+task extractBookDiagrams(type: JavaExec) {
+    description = 'Extracts diagrams from the manual'
+    group = 'verification'
+    classpath = sourceSets.main.runtimeClasspath
+    main = 'net.signbit.samx.ExtractCode'
+    args = ['-i', 'doc/samx_language.samx', '-o', 'build/docs']
+    mustRunAfter test
+}
+
+task convertBookDiagrams(type: JavaExec) {
+    description = 'Converts diagrams to PNG'
+    group = 'verification'
+    classpath = sourceSets.main.runtimeClasspath
+    main = 'net.sourceforge.plantuml.Run'
+    args = ['build/docs/ditaa-example.plantuml']   // TODO: read diagrams from directory
+    mustRunAfter test
+}
+
 tasks.generateBook.dependsOn createDocs
+tasks.extractBookDiagrams.dependsOn createDocs
+tasks.convertBookDiagrams.dependsOn extractBookDiagrams
 
 check.dependsOn generateBook
+check.dependsOn convertBookDiagrams
 
 distributions {
     main {
         contents {
+
+            exclude("**/*.plantuml")        // TODO: remove hack
+
             from 'README.md'
 
             from("src/test/resources/") {
                 into "examples"
             }
+
             from(createDocs) {
                 into 'docs'
             }
+
             from(generateBook) {
+                into 'docs'
+            }
+
+            from(convertBookDiagrams) {
                 into 'docs'
             }
         }

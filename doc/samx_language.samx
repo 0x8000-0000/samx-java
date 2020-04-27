@@ -70,6 +70,25 @@ chapter: Document Structure
 
    * verbatim code blocks
 
+   section: Images
+
+      Images can be defined inline and then referenced to be included in
+      the final document.
+
+      >>>(image ditaa-example.png)(#ditaa-diagram) Embedded Example Ditaa Diagram
+         ```(plantuml)(#ditaa-example)
+            @startditaa
+            +--------+   +-------+    +-------+
+            |        +---+ ditaa +--> |       |
+            |  Text  |   +-------+    |diagram|
+            |Document|   |!magic!|    |       |
+            |     {d}|   |       |    |       |
+            +---+----+   +-------+    +-------+
+                :                         ^
+                |       Lots of work      |
+                +-------------------------+
+            @endditaa
+
 chapter: SAMx Tools
 
    The following tools are part of the SAMx distribution\:
