@@ -131,3 +131,44 @@ and it does not support all SAMx functionality.
 
 `generate_header` is part of the support for literate programing in SAMx, where we define enumerations and data
 structures inside SAMx, then generate both end-user documentation and source code from the same model.
+
+Makefile
+--------
+
+There is an experimental Makefile which implements a full documentation flow, tested on Ubuntu 18.04. The following packages
+are required: xsltproc, fop, docbook-xsl-ns .
+
+Here is an example session, assuming we have a document with included images which can all be processed by the included PlantUML processor:
+
+```shell script
+$ ls
+samx_language.samx
+$ make -f ~/tools/samxj-0.4.7/examples/Makefile samx_language.pdf
+~/tools/samxj-0.4.7/bin/to_xml -b -i samx_language.samx -o samx_language.dbk -s ~/tools/samxj-0.4.7/schemas/docbook.rng.gz
+Enable DocBook mode
+XML output is well-formed
+DocBook document validated using Jing
+xsltproc -o samx_language.fo /usr/share/xml/docbook/stylesheet/docbook-xsl-ns/fo/docbook.xsl samx_language.dbk
+Making portrait pages on USletter paper (8.5inx11in)
+~/tools/samxj-0.4.7/bin/extract_code -i samx_language.samx -o .
+Writing /tmp/test/ditaa-example.plantuml
+java -jar ~/tools/samxj-0.4.7/lib/plantuml-1.2020.8.jar ditaa-example.plantuml
+fop -pdf samx_language.pdf -fo samx_language.fo
+[warning] /usr/bin/fop: JVM flavor 'sun' not understood
+[WARN] FOUserAgent - Font "Symbol,normal,700" not found. Substituting with "Symbol,normal,400".
+[WARN] FOUserAgent - Font "ZapfDingbats,normal,700" not found. Substituting with "ZapfDingbats,normal,400".
+[INFO] FOUserAgent - Rendered page #1.
+[INFO] FOUserAgent - Rendered page #2.
+[INFO] FOUserAgent - Rendered page #3.
+[INFO] FOUserAgent - Rendered page #4.
+[INFO] FOUserAgent - Rendered page #5.
+[INFO] FOUserAgent - Rendered page #6.
+[INFO] FOUserAgent - Rendered page #7.
+[INFO] FOUserAgent - Rendered page #8.
+[INFO] FOUserAgent - Rendered page #9.
+[INFO] FOUserAgent - Rendered page #10.
+rm ditaa-example.plantuml samx_language.fo ditaa-example.png samx_language.dbk
+```
+
+This script is meant as an example and might be changed or moved in a subsequent release. The script outputs the exact
+commands used so it can be used as a starting point for your own custom workflow.
