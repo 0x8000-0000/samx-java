@@ -797,6 +797,13 @@ public class XmlTextVisitor extends RendererVisitor
    @Override
    public Object visitCodeBlock(SamXParser.CodeBlockContext ctx)
    {
+      visitCodeBlockDef(ctx.codeBlockDef());
+      return null;
+   }
+
+   @Override
+   public Object visitCodeBlockDef(SamXParser.CodeBlockDefContext ctx)
+   {
       final int codeBlockIndent = VisitorUtils.getTokenIndent(ctx, tokenStream);
 
       addIndent();

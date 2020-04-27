@@ -665,6 +665,12 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
    @Override
    public StringBuilder visitCodeBlock(SamXParser.CodeBlockContext ctx)
    {
+      return visitCodeBlockDef(ctx.codeBlockDef());
+   }
+
+   @Override
+   public StringBuilder visitCodeBlockDef(SamXParser.CodeBlockDefContext ctx)
+   {
       StringBuilder builder = new StringBuilder();
 
       addIndent(builder);
@@ -916,7 +922,17 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
       builder.append(visitText(ctx.text()));
       builder.append(')');
       builder.append(visitBlockMetadata(ctx.blockMetadata()));
-      builder.append('\n');
+
+      if (ctx.codeBlockDef() != null)
+      {
+         indentLevel ++;
+         builder.append(visitCodeBlockDef(ctx.codeBlockDef()));
+         indentLevel --;
+      }
+      else
+      {
+         builder.append('\n');
+      }
 
       return builder;
    }

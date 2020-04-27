@@ -71,6 +71,10 @@ which is an asterisk. SAMx also supports a class attribute introduced by a dot.
 
 * SAMx grids support row and column spanning.
 
+* SAMx image insert tags can contain the image definition in code blocks.
+Those definitions can be extracted by the `extract_code` tool and rendered
+to images that are later included in HTML or PDF output.
+
 
 License for SAM
 ---------------

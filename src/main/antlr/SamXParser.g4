@@ -214,6 +214,8 @@ unorderedList : (BULLET listElement) NEWLINE* ((BULLET listElement) | NEWLINE)* 
 
 orderedList : (HASH listElement) NEWLINE* ((HASH listElement) | NEWLINE)* ;
 
+codeBlockDef : CODE_MARKER language=text CLOSE_PAR metadata NEWLINE+ INDENT (externalCode? NEWLINE)+ DEDENT ;
+
 block :
      NAME TYPESEP blockMetadata NEWLINE+ INDENT block+ DEDENT                                         # TypedBlock
    | NAME TYPESEP metadata value=flow NEWLINE                                                         # Field
@@ -227,13 +229,13 @@ block :
    | STT_INFRG name=NAME CLOSE_PAR metadata                                                           # InsertFragment
    | STT_DEFRG name=NAME CLOSE_PAR metadata NEWLINE+ INDENT block+ DEDENT                             # DefineFragment
    | STT_INCL reference=text CLOSE_PAR metadata    { parseFile($reference.text); }                    # IncludeFile
-   | STT_IMAGE text CLOSE_PAR blockMetadata                                                           # InsertImage
-   | CODE_MARKER language=text CLOSE_PAR metadata NEWLINE+ INDENT (externalCode? NEWLINE)+ DEDENT     # CodeBlock
+   | STT_IMAGE text CLOSE_PAR blockMetadata (NEWLINE INDENT NEWLINE? codeBlockDef DEDENT)?            # InsertImage
+   | codeBlockDef                                                                                     # CodeBlock
    | STT_GRID blockMetadata NEWLINE+ INDENT
          (header=generalGridGroup? generalGridHeaderSep)?
          body=generalGridGroup
          (generalGridHeaderSep? footer=generalGridGroup)?
-     DEDENT # GeneralGrid
+     DEDENT                                                                                           # GeneralGrid
    | STT_PREC_GRID blockMetadata NEWLINE+ INDENT (preciseGridRow | NEWLINE) + DEDENT                  # PreciseGrid
    | NEWLINE                                                                                          # Empty
    ;

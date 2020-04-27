@@ -68,7 +68,7 @@ public class EmbeddedCodeVisitor extends SamXParserBaseVisitor<StringBuilder>
    }
 
    @Override
-   public StringBuilder visitCodeBlock(SamXParser.CodeBlockContext ctx)
+   public StringBuilder visitCodeBlockDef(SamXParser.CodeBlockDefContext ctx)
    {
       AttributeVisitor attributeVisitor = new AttributeVisitor();
       attributeVisitor.visit(ctx.metadata());
@@ -124,6 +124,23 @@ public class EmbeddedCodeVisitor extends SamXParserBaseVisitor<StringBuilder>
          System.err.println("Cannot open file " + outputFile.getAbsolutePath() + " for writing: " + ioe.getMessage());
       }
 
+      return null;
+   }
+
+   @Override
+   public StringBuilder visitCodeBlock(SamXParser.CodeBlockContext ctx)
+   {
+      visitCodeBlockDef(ctx.codeBlockDef());
+      return null;
+   }
+
+   @Override
+   public StringBuilder visitInsertImage(SamXParser.InsertImageContext ctx)
+   {
+      if (ctx.codeBlockDef() != null)
+      {
+         visitCodeBlockDef(ctx.codeBlockDef());
+      }
       return null;
    }
 }

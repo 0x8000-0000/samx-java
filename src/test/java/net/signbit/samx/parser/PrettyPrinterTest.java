@@ -186,4 +186,10 @@ public class PrettyPrinterTest
 
       testIsPretty("grids/multispan.samx");
    }
+
+   @Test
+   public void testDiagram()
+   {
+      testIsPretty("insert/diagram.samx");
+   }
 }

@@ -1,0 +1,15 @@
+This document includes a diagram rendered using
+{ditaa}(:http://ditaa.sourceforge.net/)
+
+>>>(image diagram.png)(#the-diagram) Pretty Diagram
+   ```(ditaa)(#diagram)
+       +--------+   +-------+    +-------+
+       |        | --+ ditaa +--> |       |
+       |  Text  |   +-------+    |diagram|
+       |Document|   |!magic!|    |       |
+       |     {d}|   |       |    |       |
+       +---+----+   +-------+    +-------+
+           :                         ^
+           |       Lots of work      |
+           +-------------------------+
+
