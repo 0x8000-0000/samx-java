@@ -675,7 +675,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
 
       addIndent(builder);
 
-      final int codeBlockIndent = VisitorUtils.getTokenIndent(ctx, tokenStream) + indentLevel * indentString.length();
+      final int codeBlockIndent = VisitorUtils.getTokenIndent(ctx, tokenStream) + indentString.length();
 
       builder.append("```(");
       builder.append(visit(ctx.language));
