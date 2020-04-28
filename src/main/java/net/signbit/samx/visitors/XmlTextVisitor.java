@@ -807,7 +807,9 @@ public class XmlTextVisitor extends RendererVisitor
       final int codeBlockIndent = VisitorUtils.getTokenIndent(ctx, tokenStream);
 
       addIndent();
-      append("<codeblock language=\"");
+      append('<');
+      append(getCodeBlockTag());
+      append(" language=\"");
       append(ctx.language.getText());
       append("\"><![CDATA[");
       appendNewline();
@@ -826,8 +828,8 @@ public class XmlTextVisitor extends RendererVisitor
       }
 
       addIndent();
-      append("]]></codeblock>");
-      appendNewline();
+      append("]]>");
+      appendCloseTag(getCodeBlockTag());
 
       return null;
    }
@@ -1425,6 +1427,18 @@ public class XmlTextVisitor extends RendererVisitor
       else
       {
          return "th";
+      }
+   }
+
+   private String getCodeBlockTag()
+   {
+      if (docBookMode)
+      {
+         return "programlisting";
+      }
+      else
+      {
+         return "codeblock";
       }
    }
 
