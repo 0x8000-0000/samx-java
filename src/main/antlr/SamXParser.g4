@@ -184,7 +184,7 @@ recordSep
       }
    };
 
-recordRow : recordData | recordSep ;
+recordRow : recordData | recordSep | GEN_ROW_SEP ;
 
 gridElement : COLSEP attribute* optionalFlow ;
 
