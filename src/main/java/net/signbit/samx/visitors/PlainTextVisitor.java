@@ -76,4 +76,10 @@ public class PlainTextVisitor extends SamXParserBaseVisitor<StringBuilder>
          }
       }
    }
+
+   @Override
+   public StringBuilder visitCondition(SamXParser.ConditionContext ctx)
+   {
+      return new StringBuilder();
+   }
 }

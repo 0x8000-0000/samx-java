@@ -17,6 +17,7 @@
 package net.signbit.samx.visitors;
 
 import java.util.HashSet;
+import java.util.List;
 
 import net.signbit.samx.parser.SamXParser;
 import net.signbit.samx.parser.SamXParserBaseVisitor;
@@ -47,6 +48,17 @@ public class AttributeVisitor extends SamXParserBaseVisitor<Void>
    private String referenceAttribute = null;
    private String citationAttribute = null;
 
+   public AttributeVisitor()
+   {
+   }
+
+   public AttributeVisitor(List<String> extraClass)
+   {
+      if (extraClass != null)
+      {
+         classAttributes.addAll(extraClass);
+      }
+   }
 
    @Override
    public Void visitClassAttr(SamXParser.ClassAttrContext ctx)

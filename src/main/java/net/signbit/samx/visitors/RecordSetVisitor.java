@@ -36,15 +36,15 @@ public class RecordSetVisitor extends SamXParserBaseVisitor<RecordSetVisitor.AST
 
    class RecordHeader extends AST
    {
-      ArrayList<String> columns;
+      ArrayList<String> attributes;
       boolean hasTrailingBar = false;
 
       RecordHeader(SamXParser.HeaderRowContext ctx)
       {
-         columns = new ArrayList<>(ctx.NAME().size());
+         attributes = new ArrayList<>(ctx.NAME().size());
          for (TerminalNode tn : ctx.NAME())
          {
-            columns.add(tn.getText());
+            attributes.add(tn.getText());
          }
 
          if (ctx.trailingBar != null)
@@ -74,7 +74,43 @@ public class RecordSetVisitor extends SamXParserBaseVisitor<RecordSetVisitor.AST
    class RecordDataGroup extends AST
    {
       ArrayList<RecordData> rows = new ArrayList<>();
+      final int nonNullValues[];
+      final int startLine;
 
+      RecordDataGroup(int attributeCount, int startLine)
+      {
+         this.startLine = startLine;
+         nonNullValues = new int[attributeCount];
+      }
+
+      public void closeGroup(int endLine)
+      {
+         for (RecordData rd : rows)
+         {
+            for (int ii = 0; ii < nonNullValues.length; ++ ii)
+            {
+               if (rd.flows.get(ii) != null)
+               {
+                  nonNullValues[ii]++;
+               }
+            }
+         }
+
+         final int rowCount = rows.size();
+
+         for (int ii = 0; ii < nonNullValues.length; ++ ii)
+         {
+            if ((nonNullValues[ii] != 0) && (nonNullValues[ii] != 1) && (nonNullValues[ii] != rowCount))
+            {
+               throw new RuntimeException(String.format("Record set group starting at line %d and ending at line %d has an invalid number of distinct values %d", startLine, endLine, nonNullValues[ii]));
+            }
+         }
+      }
+
+      boolean hasSingleValue(int index)
+      {
+         return nonNullValues[index] != rows.size();
+      }
    }
 
    class RecordSet extends AST
@@ -92,13 +128,13 @@ public class RecordSetVisitor extends SamXParserBaseVisitor<RecordSetVisitor.AST
 
       void computePresentation(SamXParserBaseVisitor<StringBuilder> visitor)
       {
-         final int columnCount = header.columns.size();
+         final int columnCount = header.attributes.size();
          columnWidths = new int[columnCount];
          isInteger = new boolean[columnCount];
 
          for (int ii = 0; ii < columnCount; ++ ii)
          {
-            columnWidths[ii] = header.columns.get(ii).length();
+            columnWidths[ii] = header.attributes.get(ii).length();
             isInteger[ii] = true;
          }
 
@@ -192,7 +228,9 @@ public class RecordSetVisitor extends SamXParserBaseVisitor<RecordSetVisitor.AST
 
       rs.header = (RecordHeader) visitHeaderRow(ctx.headerRow());
 
-      RecordDataGroup rdg = new RecordDataGroup();
+      final int attributeCount = rs.header.attributes.size();
+
+      RecordDataGroup rdg = new RecordDataGroup(attributeCount, ctx.headerRow().stop.getLine());
 
       for (SamXParser.RecordRowContext rrc : ctx.recordRow())
       {
@@ -202,8 +240,9 @@ public class RecordSetVisitor extends SamXParserBaseVisitor<RecordSetVisitor.AST
             // current group is finished, starting a new group
             if (! rdg.rows.isEmpty())
             {
+               rdg.closeGroup(rrc.start.getLine());
                rs.groups.add(rdg);
-               rdg = new RecordDataGroup();
+               rdg = new RecordDataGroup(attributeCount, rrc.start.getLine());
             }
             else
             {
@@ -221,6 +260,7 @@ public class RecordSetVisitor extends SamXParserBaseVisitor<RecordSetVisitor.AST
 
       if (! rdg.rows.isEmpty())
       {
+         rdg.closeGroup(ctx.stop.getLine());
          rs.groups.add(rdg);
       }
       else

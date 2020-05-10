@@ -264,7 +264,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
        * header
        */
       addIndent(builder);
-      final int attributeCount = rs.header.columns.size();
+      final int attributeCount = rs.header.attributes.size();
 
       if (rs.conditionColumnWidth != 0)
       {
@@ -275,17 +275,17 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
          builder.append(" | ");
          if (rs.isInteger[ii])
          {
-            builder.append(String.format("%1$" + rs.columnWidths[ii] + "s", rs.header.columns.get(ii)));
+            builder.append(String.format("%1$" + rs.columnWidths[ii] + "s", rs.header.attributes.get(ii)));
          }
          else
          {
             if (((ii + 1) == attributeCount) && (! rs.header.hasTrailingBar))
             {
-               builder.append(rs.header.columns.get(ii));
+               builder.append(rs.header.attributes.get(ii));
             }
             else
             {
-               builder.append(String.format("%1$-" + rs.columnWidths[ii] + "s", rs.header.columns.get(ii)));
+               builder.append(String.format("%1$-" + rs.columnWidths[ii] + "s", rs.header.attributes.get(ii)));
             }
          }
       }

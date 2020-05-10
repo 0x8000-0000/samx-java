@@ -110,9 +110,10 @@ section: User Datagram Protocol
        | _32_bit | Width | Type     | Field  | Name        | Description
        +---------+-------+----------+--------+-------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
        |       0 |    16 | unsigned | source | Source      | Source Port is an optional field, when meaningful, it indicates the port of the sending process, and may be assumed to be the port to which a reply should be addressed in the absence of any other information. If not used, a value of zero is inserted.
-       |       0 |    16 | unsigned | dest   | Destination | Destination Port has a meaning within the context of a particular internet destination address.
+       |         |    16 | unsigned | dest   | Destination | Destination Port has a meaning within the context of a particular internet destination address.
+       +---------+-------+----------+--------+-------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
        |       1 |    16 | unsigned | len    | Length      | Length is the length in octets of this user datagram including this header and the data. (This means the minimum value of the length is eight.)
-       |       1 |    16 | unsigned | check  | Checksum    | Checksum is the 16-bit one's complement of the one's complement sum of a pseudo header of information from the IP header, the UDP header, and the data, padded with zero octets at the end (if necessary) to make a multiple of two octets.
+       |         |    16 | unsigned | check  | Checksum    | Checksum is the 16-bit one's complement of the one's complement sum of a pseudo header of information from the IP header, the UDP header, and the data, padded with zero octets at the end (if necessary) to make a multiple of two octets.
 
 section: Transmission Control Protocol
 

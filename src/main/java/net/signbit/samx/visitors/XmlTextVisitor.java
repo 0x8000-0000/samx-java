@@ -457,14 +457,8 @@ public class XmlTextVisitor extends RendererVisitor
       return null;
    }
 
-   @Override
-   public Object visitRecordSet(SamXParser.RecordSetContext ctx)
+   private Object visitRecordSetNative(SamXParser.RecordSetContext ctx)
    {
-      if (isDisabled(ctx))
-      {
-         return null;
-      }
-
       final String typeText = ctx.NAME().getText();
 
       addIndent();
@@ -564,6 +558,180 @@ public class XmlTextVisitor extends RendererVisitor
       appendCloseTag(typeText);
 
       return null;
+   }
+
+   private Object visitRecordSetDocBook(SamXParser.RecordSetContext ctx)
+   {
+      RecordSetVisitor visitor = new RecordSetVisitor(tokenStream);
+      RecordSetVisitor.RecordSet rs = (RecordSetVisitor.RecordSet) visitor.visitRecordSet(ctx);
+
+      rs.computePresentation(new PlainTextVisitor(tokenStream));
+
+      addIndent();
+      ArrayList<String> extraClass = new ArrayList<>(1);
+      extraClass.add(ctx.NAME().toString());
+      renderElementWithAttributes("table", ctx.blockMetadata().metadata().attribute(), extraClass);
+      appendNewline();
+
+      indentLevel++;
+
+      renderTitle(ctx);
+
+      final int columnCount = rs.header.attributes.size();
+
+      addIndent();
+      append(String.format("<tgroup cols=\"%d\">", columnCount));
+      appendNewline();
+
+      for (int ii = 1; ii <= columnCount; ++ ii)
+      {
+         addIndent();
+         append(String.format("<colspec colname=\"c%d\"/>", ii));
+         appendNewline();
+      }
+
+      /*
+       * header
+       */
+      addIndent();
+      append("<thead>\n");
+      indentLevel ++;
+      addIndent();
+      append("<row>\n");
+
+      indentLevel ++;
+      for (String column: rs.header.attributes)
+      {
+         addIndent();
+         append("<entry>");
+         append(column);
+         append("</entry>\n");
+      }
+      indentLevel --;
+
+      addIndent();
+      append("</row>\n");
+      indentLevel --;
+      addIndent();
+      append("</thead>\n");
+
+      /*
+       * body
+       */
+      addIndent();
+      append("<tbody>\n");
+      indentLevel ++;
+
+      for (RecordSetVisitor.RecordDataGroup rdg : rs.groups)
+      {
+         addIndent();
+         append("<!-- group -->\n");
+
+         boolean firstRow = true;
+
+         for (RecordSetVisitor.RecordData rd : rdg.rows)
+         {
+            addIndent();
+            append("<row>\n");
+
+            indentLevel ++;
+            for (int ii = 0; ii < rd.flows.size(); ++ ii)
+            {
+               SamXParser.FlowContext fc = rd.flows.get(ii);
+               if ((fc == null) && ((ii + 1) == rd.flows.size()))
+               {
+                  continue;
+               }
+
+               if (rdg.hasSingleValue(ii))
+               {
+                  if (firstRow)
+                  {
+                     addIndent();
+
+                     String alignRight = "";
+                     if (rs.isInteger[ii] && (fc != null))
+                     {
+                        alignRight = " align=\"right\"";
+                     }
+
+                     String moreRows = "";
+                     if (rdg.rows.size() > 1)
+                     {
+                        moreRows = String.format(" valign=\"top\" morerows=\"%d\"", rdg.rows.size() - 1);
+                     }
+
+                     append(String.format("<entry%s%s>", moreRows, alignRight));
+                     if (fc != null)
+                     {
+                        visitFlow(fc);
+                     }
+                     append("</entry>\n");
+                  }
+               }
+               else
+               {
+                  addIndent();
+                  if (fc != null)
+                  {
+                     String alignRight = "";
+                     if (rs.isInteger[ii])
+                     {
+                        alignRight = " align=\"right\"";
+                     }
+
+                     append(String.format("<entry%s>", alignRight));
+                     visitFlow(fc);
+                     append("</entry>\n");
+                  }
+                  else
+                  {
+                     append("<entry/>\n");
+                  }
+               }
+            }
+            indentLevel --;
+
+            addIndent();
+            append("</row>\n");
+
+            firstRow = false;
+         }
+      }
+
+      indentLevel --;
+      addIndent();
+      append("</tbody>\n");
+
+
+      indentLevel--;
+      addIndent();
+      append("</tgroup>");
+      appendNewline();
+
+      indentLevel--;
+
+      appendCloseTag("table");
+
+      return null;
+   }
+
+   @Override
+   public Object visitRecordSet(SamXParser.RecordSetContext ctx)
+   {
+      if (isDisabled(ctx))
+      {
+         return null;
+      }
+
+      if (docBookMode)
+      {
+         return visitRecordSetDocBook(ctx);
+      }
+      else
+      {
+         return visitRecordSetNative(ctx);
+      }
    }
 
    @Override
@@ -809,9 +977,13 @@ public class XmlTextVisitor extends RendererVisitor
       addIndent();
       append('<');
       append(getCodeBlockTag());
-      append(" language=\"");
-      append(ctx.language.getText());
-      append("\"><![CDATA[");
+      if (! docBookMode)
+      {
+         append(" language=\"");
+         append(ctx.language.getText());
+         append("\"");
+      }
+      append("><![CDATA[");
       appendNewline();
 
       for (SamXParser.ExternalCodeContext ecc : ctx.externalCode())
@@ -964,12 +1136,12 @@ public class XmlTextVisitor extends RendererVisitor
       append('>');
    }
 
-   private void renderElementWithAttributesOpen(String tagType, List<SamXParser.AttributeContext> attributes)
+   private void renderElementWithAttributesOpen(String tagType, List<SamXParser.AttributeContext> attributes, List<String> extraClass)
    {
       append('<');
       append(tagType);
 
-      AttributeVisitor attributeVisitor = new AttributeVisitor();
+      AttributeVisitor attributeVisitor = new AttributeVisitor(extraClass);
       if (docBookMode)
       {
          attributeVisitor.setDocBookMode();
@@ -988,7 +1160,13 @@ public class XmlTextVisitor extends RendererVisitor
 
    private void renderElementWithAttributes(String tagType, List<SamXParser.AttributeContext> attributes)
    {
-      renderElementWithAttributesOpen(tagType, attributes);
+      renderElementWithAttributesOpen(tagType, attributes, null);
+      append('>');
+   }
+
+   private void renderElementWithAttributes(String tagType, List<SamXParser.AttributeContext> attributes, List<String> extraClass)
+   {
+      renderElementWithAttributesOpen(tagType, attributes, extraClass);
       append('>');
    }
 
@@ -1274,7 +1452,7 @@ public class XmlTextVisitor extends RendererVisitor
 
             addIndent();
 
-            renderElementWithAttributesOpen(dataName, gc.attributes);
+            renderElementWithAttributesOpen(dataName, gc.attributes, null);
             if (gc.colSpan > 1)
             {
                if (docBookMode)
