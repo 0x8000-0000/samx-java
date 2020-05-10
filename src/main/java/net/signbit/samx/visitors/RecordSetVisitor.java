@@ -54,7 +54,7 @@ public class RecordSetVisitor extends SamXParserBaseVisitor<RecordSetVisitor.AST
       }
    }
 
-   class RecordData extends AST
+   public class RecordData extends AST
    {
       final SamXParser.ConditionContext condition;
       final ArrayList<SamXParser.FlowContext> flows;
@@ -69,9 +69,22 @@ public class RecordSetVisitor extends SamXParserBaseVisitor<RecordSetVisitor.AST
             flows.add(ofc.flow());
          }
       }
+
+      public String getValue(int index, SamXParserBaseVisitor<StringBuilder> visitor)
+      {
+         SamXParser.FlowContext fc = flows.get(index);
+         if (fc != null)
+         {
+            return visitor.visitFlow(fc).toString();
+         }
+         else
+         {
+            return null;
+         }
+      }
    }
 
-   class RecordDataGroup extends AST
+   public class RecordDataGroup extends AST
    {
       final ArrayList<RecordData> rows = new ArrayList<>();
       final int[] nonNullValues;
@@ -107,13 +120,38 @@ public class RecordSetVisitor extends SamXParserBaseVisitor<RecordSetVisitor.AST
          }
       }
 
-      boolean hasSingleValue(int index)
+      public boolean hasSingleValue(int index)
       {
          return nonNullValues[index] != rows.size();
       }
+
+      public String getValue(int index, SamXParserBaseVisitor<StringBuilder> visitor)
+      {
+         if (hasSingleValue(index))
+         {
+            SamXParser.FlowContext fc = rows.get(0).flows.get(index);
+            if (fc != null)
+            {
+               return visitor.visitFlow(fc).toString();
+            }
+            else
+            {
+               return null;
+            }
+         }
+         else
+         {
+            throw new RuntimeException("Multiple values found");
+         }
+      }
+
+      public ArrayList<RecordData> getRows()
+      {
+         return rows;
+      }
    }
 
-   class RecordSet extends AST
+   public class RecordSet extends AST
    {
       boolean hasHeaderSeparator = false;
       boolean hasBottomBorder = false;
@@ -190,6 +228,11 @@ public class RecordSetVisitor extends SamXParserBaseVisitor<RecordSetVisitor.AST
          {
             isInteger[ii] = false;
          }
+      }
+
+      public ArrayList<RecordDataGroup> getGroups()
+      {
+         return groups;
       }
    }
 

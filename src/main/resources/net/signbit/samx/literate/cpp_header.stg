@@ -32,7 +32,7 @@ namespace <namespace>
 
 >>
 
-bitField(name, description, fields, unitWidth) ::= <<
+bitFieldType(name, description, fields, unitWidth) ::= <<
 
 /** <description>
  */
@@ -49,11 +49,40 @@ public:
       return m_data;
    }
 
-   <fields:fieldDecl()>
+<fields:bitFieldDecl(unitWidth)>
 
 private:
    uint<unitWidth>_t m_data;
 };
+
+>>
+
+bitFieldDecl(field, unitWidth) ::= <<
+
+   /** <field.name>
+    *
+    * <field.description>
+    */
+   constexpr void set<field.name>(<if(field.boolean)>bool<else>uint<unitWidth>_t<endif> val)
+   {
+      <if(field.boolean)>const auto mask = uint<unitWidth>_t(1U);<else>const auto mask = static_cast\<uint<unitWidth>_t>((uint<unitWidth>_t(1U) \<\< <field.width>U) - uint<unitWidth>_t(1U));
+assert(val \<= mask);
+<endif>
+
+
+      const auto shiftedMask = mask \<\< <field.offset>U;
+
+      m_data = (m_data & (~shiftedMask)) | (<if(field.boolean)>uint<unitWidth>_t(val)<else>val<endif> \<\< <field.offset>U);
+   }
+
+   constexpr <if(field.boolean)>bool<else>uint<unitWidth>_t<endif> get<field.name>() const
+   {
+      <if(field.boolean)>const auto mask = uint<unitWidth>_t(1U);<else>const auto mask = static_cast\<uint<unitWidth>_t>((uint<unitWidth>_t(1U) \<\< <field.width>U) - uint<unitWidth>_t(1U));
+<endif>
+
+
+      return ((m_data \>> <field.offset>U) & mask)<if(field.boolean)> != 0<endif>;
+   }
 
 >>
 

@@ -22,6 +22,7 @@ import java.util.*;
 
 import org.antlr.v4.runtime.BufferedTokenStream;
 import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.TokenStream;
 
 import net.signbit.samx.Parser;
 import net.signbit.samx.parser.SamXParser;
@@ -361,5 +362,10 @@ public class RendererVisitor extends SamXParserBaseVisitor<Object>
          attributeVisitor.visit(ac);
       }
       return attributeVisitor;
+   }
+
+   public BufferedTokenStream getTokenStream()
+   {
+      return tokenStream;
    }
 }

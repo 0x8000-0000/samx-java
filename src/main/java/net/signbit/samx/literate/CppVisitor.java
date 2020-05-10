@@ -23,6 +23,7 @@ import java.util.HashMap;
 
 import org.antlr.v4.runtime.BufferedTokenStream;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.text.StringTokenizer;
 import org.apache.commons.text.TextStringBuilder;
 import org.apache.commons.text.WordUtils;
@@ -33,11 +34,14 @@ import org.stringtemplate.v4.STGroupFile;
 import net.signbit.samx.Parser;
 import net.signbit.samx.parser.SamXParser;
 import net.signbit.samx.visitors.AttributeVisitor;
+import net.signbit.samx.visitors.PlainTextVisitor;
+import net.signbit.samx.visitors.RecordSetVisitor;
 import net.signbit.samx.visitors.RendererVisitor;
 
 public class CppVisitor extends RendererVisitor
 {
    private final STGroup cppGroup;
+   private final PlainTextVisitor plainTextVisitor;
 
    private final ArrayList<String> enumerations = new ArrayList<>();
    private final ArrayList<String> bitFields = new ArrayList<>();
@@ -181,6 +185,8 @@ public class CppVisitor extends RendererVisitor
       unitWidths.put("_16_bit", 16);
       unitWidths.put("_32_bit", 32);
       unitWidths.put("_64_bit", 64);
+
+      plainTextVisitor = new PlainTextVisitor(tokenStream);
    }
 
    @Override
@@ -270,7 +276,7 @@ public class CppVisitor extends RendererVisitor
       }
 
       ST structure = cppGroup.getInstanceOf("/structure");
-      AttributeVisitor attributes = getAttributes(ctx);
+      AttributeVisitor attributes = getAttributes(ctx.blockMetadata().metadata());
 
       structure.add("name", attributes.getId());
       structure.add("unitWidth", unitWidth);
@@ -281,18 +287,113 @@ public class CppVisitor extends RendererVisitor
       structures.add(structure.render());
    }
 
+   private enum FieldIndices
+   {
+      Word,
+      Offset,
+      Width,
+      Name,
+      Value,
+      ValueName,
+      ValueDescription
+   }
+
+   class BitField
+   {
+      final int word;
+      final int offset;
+      final int width;
+      final String name;
+
+      public BitField(RecordSetVisitor.RecordDataGroup rdg)
+      {
+         final String wordText = rdg.getValue(FieldIndices.Word.ordinal(), plainTextVisitor);
+         word = NumberUtils.createInteger(wordText);
+         final String offsetText = rdg.getValue(FieldIndices.Offset.ordinal(), plainTextVisitor);
+         offset = NumberUtils.createInteger(offsetText);
+         final String widthText = rdg.getValue(FieldIndices.Width.ordinal(), plainTextVisitor);
+         width = NumberUtils.createInteger(widthText);
+         name = rdg.getValue(FieldIndices.Name.ordinal(), plainTextVisitor);
+      }
+
+      public BitField(RecordSetVisitor.RecordData rd)
+      {
+         final String wordText = rd.getValue(FieldIndices.Word.ordinal(), plainTextVisitor);
+         word = NumberUtils.createInteger(wordText);
+         final String offsetText = rd.getValue(FieldIndices.Offset.ordinal(), plainTextVisitor);
+         offset = NumberUtils.createInteger(offsetText);
+         final String widthText = rd.getValue(FieldIndices.Width.ordinal(), plainTextVisitor);
+         width = NumberUtils.createInteger(widthText);
+         name = rd.getValue(FieldIndices.Name.ordinal(), plainTextVisitor);
+      }
+
+      public int getWord()
+      {
+         return word;
+      }
+
+      public int getOffset()
+      {
+         return offset;
+      }
+
+      public int getWidth()
+      {
+         return width;
+      }
+
+      public boolean isBoolean()
+      {
+         return width == 1;
+      }
+
+      public String getName()
+      {
+         return name;
+      }
+   }
+
+   class BitFieldDefinition
+   {
+      final int unitWidth;
+      final ArrayList<BitField> fields = new ArrayList<>();
+
+      public BitFieldDefinition(SamXParser.RecordSetContext ctx)
+      {
+         RecordSetVisitor visitor = new RecordSetVisitor(getTokenStream());
+         RecordSetVisitor.RecordSet rs = (RecordSetVisitor.RecordSet) visitor.visitRecordSet(ctx);
+
+         final String unitWidthHeader = ctx.headerRow().NAME(0).getText();
+         unitWidth = unitWidths.getOrDefault(unitWidthHeader, 0);
+
+         for (RecordSetVisitor.RecordDataGroup rdg: rs.getGroups())
+         {
+            if (rdg.hasSingleValue(FieldIndices.Name.ordinal()) && rdg.hasSingleValue(FieldIndices.Offset.ordinal()) && rdg.hasSingleValue(FieldIndices.Offset.ordinal()))
+            {
+               fields.add(new BitField(rdg));
+            }
+            else
+            {
+               for (RecordSetVisitor.RecordData rd: rdg.getRows())
+               {
+                  fields.add(new BitField(rd));
+               }
+            }
+         }
+      }
+   }
+
    private void renderBitfield(SamXParser.RecordSetContext ctx)
    {
-      final String unitWidthHeader = ctx.headerRow().NAME(0).getText();
-      final int unitWidth = unitWidths.getOrDefault(unitWidthHeader, 0);
+      BitFieldDefinition bfd = new BitFieldDefinition(ctx);
 
-      ST template = cppGroup.getInstanceOf("/bitField");
-      AttributeVisitor attributes = getAttributes(ctx);
+      ST template = cppGroup.getInstanceOf("/bitFieldType");
+      AttributeVisitor attributes = getAttributes(ctx.blockMetadata().metadata());
 
       template.add("name", attributes.getId());
-      template.add("unitWidth", unitWidth);
+      template.add("unitWidth", bfd.unitWidth);
       template.add("description", getPlainText(ctx.blockMetadata().description));
-      template.add("fields", structureMembers);
+      template.add("fields", bfd.fields);
 
       bitFields.add(template.render());
    }
