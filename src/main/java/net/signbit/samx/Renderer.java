@@ -63,7 +63,7 @@ public abstract class Renderer
 
    protected abstract boolean performCheck(CommandLine cmd) throws IOException, SAXException;
 
-   public void render(String[] args) throws IOException
+   public void render(String[] args)
    {
       Options options = makeOptions();
 

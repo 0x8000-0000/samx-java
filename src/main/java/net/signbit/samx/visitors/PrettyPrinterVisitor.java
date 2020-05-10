@@ -399,55 +399,6 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
       return builder;
    }
 
-   private ArrayList<String> visitHeaderRowElements(SamXParser.HeaderRowContext ctx)
-   {
-      ArrayList<String> result = new ArrayList<>(1 + ctx.NAME().size());
-
-      for (TerminalNode tc : ctx.NAME())
-      {
-         result.add(tc.getText());
-      }
-
-      return result;
-   }
-
-   private ArrayList<String> visitRecordDataElements(SamXParser.RecordDataContext ctx)
-   {
-      ArrayList<String> result = new ArrayList<>(1 + ctx.optionalFlow().size());
-
-      final SamXParser.ConditionContext cond = ctx.condition();
-      if (cond != null)
-      {
-         result.add(visit(cond).toString());
-      }
-      else
-      {
-         result.add("");
-      }
-
-      for (SamXParser.OptionalFlowContext tc : ctx.optionalFlow())
-      {
-         if (tc.flow() != null)
-         {
-            StringBuilder childBuilder = visitFlow(tc.flow());
-            if (childBuilder != null)
-            {
-               result.add(childBuilder.toString());
-            }
-            else
-            {
-               result.add("");
-            }
-         }
-         else
-         {
-            result.add("");
-         }
-      }
-
-      return result;
-   }
-
    @Override
    public StringBuilder visitText(SamXParser.TextContext ctx)
    {
@@ -962,29 +913,6 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
       }
    }
 
-   private ArrayList<String> renderGridElementList(SamXParser.ConditionContext condition, List<SamXParser.AttributeContext> attributes, List<SamXParser.GridElementContext> elements)
-   {
-      ArrayList<String> result = new ArrayList<>(1 + elements.size());
-
-      StringBuilder builder = new StringBuilder();
-      if (condition != null)
-      {
-         builder.append(visit(condition));
-      }
-      for (SamXParser.AttributeContext ac : attributes)
-      {
-         builder.append(visit(ac));
-      }
-      result.add(builder.toString());
-
-      for (SamXParser.GridElementContext gec : elements)
-      {
-         result.add(renderGridElement(gec));
-      }
-
-      return result;
-   }
-
    private void renderConditionAndAttributes(ParserRuleContext prc, StringBuilder builder)
    {
       final SamXParser.MetadataContext metadata = prc.getRuleContext(SamXParser.MetadataContext.class, 0);
@@ -1013,7 +941,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
       final GridVisitor.GeneralGridGroup body = new GridVisitor.GeneralGridGroup(ctx.body, this);
 
       int conditionColumnWidth = body.conditionColumnWidth;
-      int columnWidths[] = new int[body.columnCount];
+      int[] columnWidths = new int[body.columnCount];
       for (int ii = 0; ii < body.columnCount; ++ ii)
       {
          columnWidths[ii] = body.columnWidths[ii];

@@ -36,7 +36,7 @@ public class RecordSetVisitor extends SamXParserBaseVisitor<RecordSetVisitor.AST
 
    class RecordHeader extends AST
    {
-      ArrayList<String> attributes;
+      final ArrayList<String> attributes;
       boolean hasTrailingBar = false;
 
       RecordHeader(SamXParser.HeaderRowContext ctx)
@@ -49,15 +49,15 @@ public class RecordSetVisitor extends SamXParserBaseVisitor<RecordSetVisitor.AST
 
          if (ctx.trailingBar != null)
          {
-             hasTrailingBar = true;
+            hasTrailingBar = true;
          }
       }
    }
 
    class RecordData extends AST
    {
-      SamXParser.ConditionContext condition;
-      ArrayList<SamXParser.FlowContext> flows;
+      final SamXParser.ConditionContext condition;
+      final ArrayList<SamXParser.FlowContext> flows;
 
       RecordData(SamXParser.RecordDataContext ctx)
       {
@@ -73,8 +73,8 @@ public class RecordSetVisitor extends SamXParserBaseVisitor<RecordSetVisitor.AST
 
    class RecordDataGroup extends AST
    {
-      ArrayList<RecordData> rows = new ArrayList<>();
-      final int nonNullValues[];
+      final ArrayList<RecordData> rows = new ArrayList<>();
+      final int[] nonNullValues;
       final int startLine;
 
       RecordDataGroup(int attributeCount, int startLine)
@@ -119,12 +119,12 @@ public class RecordSetVisitor extends SamXParserBaseVisitor<RecordSetVisitor.AST
       boolean hasBottomBorder = false;
 
       RecordHeader header;
-      ArrayList<RecordDataGroup> groups = new ArrayList<>();
+      final ArrayList<RecordDataGroup> groups = new ArrayList<>();
 
       int conditionColumnWidth = 0;
-      int columnWidths[];
+      int[] columnWidths;
 
-      boolean isInteger[];
+      boolean[] isInteger;
 
       void computePresentation(SamXParserBaseVisitor<StringBuilder> visitor)
       {
@@ -179,7 +179,7 @@ public class RecordSetVisitor extends SamXParserBaseVisitor<RecordSetVisitor.AST
          {
             try
             {
-               Integer intValue = NumberUtils.createInteger(content);
+               NumberUtils.createInteger(content);
             }
             catch (NumberFormatException nfei)
             {

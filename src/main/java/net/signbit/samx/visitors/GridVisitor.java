@@ -161,17 +161,17 @@ public class GridVisitor extends SamXParserBaseVisitor<StringBuilder>
 
    static class GeneralGridGroup
    {
-      ArrayList<GeneralGridRow> rows = new ArrayList<>();
+      final ArrayList<GeneralGridRow> rows = new ArrayList<>();
 
       final int columnCount;
 
       int conditionColumnWidth = 0;
-      int columnWidths[];
+      int[] columnWidths;
 
-      boolean isInteger[];
-      boolean isHexadecimal[];
-      boolean isDouble[];
-      boolean isCurrency[];
+      boolean[] isInteger;
+      boolean[] isHexadecimal;
+      boolean[] isDouble;
+      boolean[] isCurrency;
 
       GeneralGridGroup(SamXParser.GeneralGridGroupContext gggc, SamXParserVisitor<StringBuilder> visitor)
       {
@@ -278,7 +278,7 @@ public class GridVisitor extends SamXParserBaseVisitor<StringBuilder>
          {
             try
             {
-               Integer intValue = NumberUtils.createInteger(content);
+               NumberUtils.createInteger(content);
                isCurrency[ii] = false;
             }
             catch (NumberFormatException nfei)
@@ -287,7 +287,7 @@ public class GridVisitor extends SamXParserBaseVisitor<StringBuilder>
 
                try
                {
-                  Double dblValue = NumberUtils.createDouble(content);
+                  NumberUtils.createDouble(content);
                   isCurrency[ii] = false;
                }
                catch (NumberFormatException nfed)
@@ -310,7 +310,7 @@ public class GridVisitor extends SamXParserBaseVisitor<StringBuilder>
 
                try
                {
-                  Integer intCurrency = NumberUtils.createInteger(asCurrency);
+                  NumberUtils.createInteger(asCurrency);
                }
                catch (NumberFormatException nfec)
                {

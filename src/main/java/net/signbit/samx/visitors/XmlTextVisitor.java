@@ -595,23 +595,23 @@ public class XmlTextVisitor extends RendererVisitor
        */
       addIndent();
       append("<thead>\n");
-      indentLevel ++;
+      indentLevel++;
       addIndent();
       append("<row>\n");
 
-      indentLevel ++;
-      for (String column: rs.header.attributes)
+      indentLevel++;
+      for (String column : rs.header.attributes)
       {
          addIndent();
          append("<entry>");
          append(column);
          append("</entry>\n");
       }
-      indentLevel --;
+      indentLevel--;
 
       addIndent();
       append("</row>\n");
-      indentLevel --;
+      indentLevel--;
       addIndent();
       append("</thead>\n");
 
@@ -620,7 +620,7 @@ public class XmlTextVisitor extends RendererVisitor
        */
       addIndent();
       append("<tbody>\n");
-      indentLevel ++;
+      indentLevel++;
 
       for (RecordSetVisitor.RecordDataGroup rdg : rs.groups)
       {
@@ -634,7 +634,7 @@ public class XmlTextVisitor extends RendererVisitor
             addIndent();
             append("<row>\n");
 
-            indentLevel ++;
+            indentLevel++;
             for (int ii = 0; ii < rd.flows.size(); ++ ii)
             {
                SamXParser.FlowContext fc = rd.flows.get(ii);
@@ -690,7 +690,7 @@ public class XmlTextVisitor extends RendererVisitor
                   }
                }
             }
-            indentLevel --;
+            indentLevel--;
 
             addIndent();
             append("</row>\n");
@@ -699,7 +699,7 @@ public class XmlTextVisitor extends RendererVisitor
          }
       }
 
-      indentLevel --;
+      indentLevel--;
       addIndent();
       append("</tbody>\n");
 
@@ -1114,28 +1114,6 @@ public class XmlTextVisitor extends RendererVisitor
       return null;
    }
 
-   private void renderGridElementDirect(String tagType, SamXParser.GridElementContext gec)
-   {
-      final SamXParser.FlowContext fc = gec.optionalFlow().flow();
-
-      append('<');
-      append(tagType);
-
-      if (fc != null)
-      {
-         append('>');
-         visitFlow(fc);
-         append('<');
-         append('/');
-         append(tagType);
-      }
-      else
-      {
-         append('/');
-      }
-      append('>');
-   }
-
    private void renderElementWithAttributesOpen(String tagType, List<SamXParser.AttributeContext> attributes, List<String> extraClass)
    {
       append('<');
@@ -1189,125 +1167,6 @@ public class XmlTextVisitor extends RendererVisitor
             }
          }
       }
-   }
-
-   /*
-   @Override
-   public Object visitGrid(SamXParser.GridContext ctx)
-   {
-      if (isDisabled(ctx))
-      {
-         return null;
-      }
-
-      addIndent();
-      renderElementWithAttributes("table", ctx.blockMetadata().metadata().attribute());
-      appendNewline();
-
-      indentLevel++;
-
-      renderTitle(ctx);
-
-      if (docBookMode)
-      {
-         addIndent();
-         append(String.format("<tgroup cols=\"%d\">", ctx.gridHeaderRow().columnCount));
-         appendNewline();
-
-         addIndent();
-         append("<thead>");
-         appendNewline();
-         indentLevel++;
-      }
-
-      addIndent();
-      renderElementWithAttributes(getTableRowTag(), ctx.gridHeaderRow().attribute());
-      appendNewline();
-
-      indentLevel++;
-      final SamXParser.GridHeaderRowContext header = ctx.gridHeaderRow();
-      for (SamXParser.GridElementContext gec : header.gridElement())
-      {
-         addIndent();
-         renderGridElementDirect(getTableHeaderDataTag(), gec);
-         appendNewline();
-      }
-      indentLevel--;
-
-      appendCloseTag(getTableRowTag());
-
-      if (docBookMode)
-      {
-         indentLevel--;
-         appendCloseTag("thead");
-
-         addIndent();
-         append("<tbody>");
-         appendNewline();
-      }
-
-      for (SamXParser.GridRecordRowContext rrc : ctx.gridRecordRow())
-      {
-         if (isDisabled(rrc))
-         {
-            continue;
-         }
-
-         addIndent();
-         renderElementWithAttributes(getTableRowTag(), rrc.metadata().attribute());
-         appendNewline();
-
-         indentLevel++;
-
-         for (SamXParser.GridElementContext gec : rrc.gridElement())
-         {
-            addIndent();
-            renderGridElementDirect(getTableDataTag(), gec);
-            appendNewline();
-         }
-
-         indentLevel--;
-
-         appendCloseTag(getTableRowTag());
-      }
-
-      indentLevel--;
-
-      if (docBookMode)
-      {
-         appendCloseTag("tbody");
-         appendCloseTag("tgroup");
-      }
-      appendCloseTag("table");
-
-      return null;
-   }
-    */
-
-   private ArrayList<GridVisitor.GridCell> renderGeneralGridRow(SamXParser.GeneralGridRowDataContext ggrdc)
-   {
-      ArrayList<GridVisitor.GridCell> rowCells = new ArrayList<>();
-
-      for (SamXParser.GeneralGridElementContext ggec : ggrdc.generalGridElement())
-      {
-         if (ggec.gridElement() != null)
-         {
-            GridVisitor.GridCell gc = new GridVisitor.GridCell(ggec.gridElement().attribute(), ggec.gridElement().optionalFlow());
-            rowCells.add(gc);
-         }
-         else if (ggec.spanGridElement() != null)
-         {
-            GridVisitor.GridCell gc = new GridVisitor.GridCell(ggec.spanGridElement().attribute(), ggec.spanGridElement().optionalFlow());
-            gc.setSpan(ggec.spanGridElement().MUL_COLSEP().getText());
-
-            for (int ii = 0; ii < gc.colSpan; ++ ii)
-            {
-               rowCells.add(gc);
-            }
-         }
-      }
-
-      return rowCells;
    }
 
    @Override
@@ -1409,7 +1268,7 @@ public class XmlTextVisitor extends RendererVisitor
          indentLevel++;
       }
 
-      int rowSpans[] = new int[gridGroup.columnCount];
+      int[] rowSpans = new int[gridGroup.columnCount];
 
       for (GridVisitor.GeneralGridRow ggr : gridGroup.rows)
       {
