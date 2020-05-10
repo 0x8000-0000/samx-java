@@ -155,7 +155,7 @@ paragraph : ( flow NEWLINE )+ NEWLINE ;
 
 headerRow
    locals [ int columnCount = 0; boolean hasTailColumn = false; ]
-   : ( COLSEP NAME { $ctx.columnCount ++; } )+ (COLSEP { $ctx.hasTailColumn = true; } )? NEWLINE
+   : ( COLSEP NAME { $ctx.columnCount ++; } )+ (trailingBar=COLSEP { $ctx.hasTailColumn = true; } )? NEWLINE
    {
       currentHeaderLength = $ctx.columnCount;
       currentTailColumn = $ctx.hasTailColumn;

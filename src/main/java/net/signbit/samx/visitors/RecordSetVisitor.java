@@ -37,6 +37,7 @@ public class RecordSetVisitor extends SamXParserBaseVisitor<RecordSetVisitor.AST
    class RecordHeader extends AST
    {
       ArrayList<String> columns;
+      boolean hasTrailingBar = false;
 
       RecordHeader(SamXParser.HeaderRowContext ctx)
       {
@@ -44,6 +45,11 @@ public class RecordSetVisitor extends SamXParserBaseVisitor<RecordSetVisitor.AST
          for (TerminalNode tn : ctx.NAME())
          {
             columns.add(tn.getText());
+         }
+
+         if (ctx.trailingBar != null)
+         {
+             hasTrailingBar = true;
          }
       }
    }
@@ -73,6 +79,9 @@ public class RecordSetVisitor extends SamXParserBaseVisitor<RecordSetVisitor.AST
 
    class RecordSet extends AST
    {
+      boolean hasHeaderSeparator = false;
+      boolean hasBottomBorder = false;
+
       RecordHeader header;
       ArrayList<RecordDataGroup> groups = new ArrayList<>();
 
@@ -196,6 +205,13 @@ public class RecordSetVisitor extends SamXParserBaseVisitor<RecordSetVisitor.AST
                rs.groups.add(rdg);
                rdg = new RecordDataGroup();
             }
+            else
+            {
+               if (rs.groups.isEmpty())
+               {
+                  rs.hasHeaderSeparator = true;
+               }
+            }
          }
          else
          {
@@ -206,6 +222,10 @@ public class RecordSetVisitor extends SamXParserBaseVisitor<RecordSetVisitor.AST
       if (! rdg.rows.isEmpty())
       {
          rs.groups.add(rdg);
+      }
+      else
+      {
+         rs.hasBottomBorder = true;
       }
 
       return rs;

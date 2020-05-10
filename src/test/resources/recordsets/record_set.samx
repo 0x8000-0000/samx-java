@@ -4,15 +4,41 @@ sample: alpha beta
 
    subsection: Two
 
-      more paragraphs follow
+      sales:: Vehicle Sales with minimal decoration
 
-   sales:: Vehicle Sales
+         | year | type | quantity
+         | 2010 | sedan | 10000
+         | 2011 | SUV | 2000
+         | 2020 | any | 500
 
-      | year | type | quantity
-      ++
-      | 2010 | sedan | 10000
-      | 2011 | SUV | 2000
-      | 2020 | any | 500
+      sales:: Vehicle Sales with header separator
 
-   Then more text
+         | year | type | quantity
+         ++
+         | 2010 | sedan | 10000
+         | 2011 | SUV | 2000
+         | 2020 | any | 500
 
+      sales:: Vehicle Sales with left border
+
+         | year | type | quantity |
+         | 2010 | sedan | 10000 |
+         | 2011 | SUV | 2000 |
+         | 2020 | any | 500 |
+
+      sales:: Vehicle Sales with left border and header separator
+
+         | year | type | quantity |
+         ++
+         | 2010 | sedan | 10000 |
+         | 2011 | SUV | 2000 |
+         | 2020 | any | 500 |
+
+      sales:: Vehicle Sales with left and bottom borders and header separator
+
+         | year | type | quantity |
+         ++
+         | 2010 | sedan | 10000 |
+         | 2011 | SUV | 2000 |
+         | 2020 | any | 500 |
+         ++

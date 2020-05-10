@@ -279,7 +279,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
          }
          else
          {
-            if ((ii + 1) == attributeCount)
+            if (((ii + 1) == attributeCount) && (! rs.header.hasTrailingBar))
             {
                builder.append(rs.header.columns.get(ii));
             }
@@ -289,14 +289,28 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
             }
          }
       }
+      if (rs.header.hasTrailingBar)
+      {
+         builder.append(" |");
+      }
       builder.append('\n');
+
+      boolean skipHeaderSeparator = false;
+      if (! rs.hasHeaderSeparator)
+      {
+         skipHeaderSeparator = true;
+      }
 
       /*
        * body
        */
       for (RecordSetVisitor.RecordDataGroup rdg : rs.groups)
       {
-         renderRecordGroupSeparator(rs.conditionColumnWidth, rs.columnWidths, attributeCount, builder);
+         if (! skipHeaderSeparator)
+         {
+            renderRecordGroupSeparator(rs.conditionColumnWidth, rs.columnWidths, attributeCount, builder);
+         }
+         skipHeaderSeparator = false;
 
          for (RecordSetVisitor.RecordData rd : rdg.rows)
          {
@@ -328,7 +342,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
                }
                else
                {
-                  if ((ii + 1) == attributeCount)
+                  if (((ii + 1) == attributeCount) && (! rs.header.hasTrailingBar))
                   {
                      builder.append(value);
                   }
@@ -339,8 +353,17 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
                }
             }
 
+            if (rs.header.hasTrailingBar)
+            {
+               builder.append(" |");
+            }
             builder.append('\n');
          }
+      }
+
+      if (rs.hasBottomBorder)
+      {
+         renderRecordGroupSeparator(rs.conditionColumnWidth, rs.columnWidths, attributeCount, builder);
       }
 
       indentLevel--;
