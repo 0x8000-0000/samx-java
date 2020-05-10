@@ -1,149 +1,164 @@
-document: Internet Data Structures
+info: Internet Data Structures
 
-   section: Internet Protocol
+   author:
 
-      RFC791 defines the following Internet Header Format\:
+      orgname: Internet Engineering Task Force
 
-      ```(text)
-         0                   1                   2                   3
-         0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-         |Version|  IHL  |Type of Service|          Total Length         |
-         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-         |         Identification        |Flags|      Fragment Offset    |
-         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-         |  Time to Live |    Protocol   |         Header Checksum       |
-         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-         |                       Source Address                          |
-         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-         |                    Destination Address                        |
-         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-         |                    Options                    |    Padding    |
-         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+section: Internet Protocol
 
-      bitfield::(#ip_tos) Type of Service
+   RFC791 defines the following Internet Header Format\:
 
-          | _8_bit | Offset | Width | Field       | Value | Name | Description
-          +--------+--------+-------+-------------+-------+------+-------------------------
-          |      0 |      0 |     3 | Precedence  | 0b111 |      | Network Control
-          |        |        |       |             | 0b110 |      | Internetwork Control
-          |        |        |       |             | 0b101 |      | CRITIC/ECP
-          |        |        |       |             | 0b100 |      | Flash Override
-          |        |        |       |             | 0b011 |      | Flash
-          |        |        |       |             | 0b010 |      | Immediate
-          |        |        |       |             | 0b001 |      | Priority
-          |        |        |       |             | 0b000 |      | Routine
-          +--------+--------+-------+-------------+-------+------+-------------------------
-          |      0 |      3 |     1 | Delay       | 0     |      | Normal Delay
-          |        |        |       |             | 1     |      | Low Delay
-          +--------+--------+-------+-------------+-------+------+-------------------------
-          |      0 |      4 |     1 | Throughput  | 0     |      | Normal Throughput
-          |        |        |       |             | 1     |      | High Throughput
-          +--------+--------+-------+-------------+-------+------+-------------------------
-          |      0 |      5 |     1 | Reliability | 0     |      | Normal Reliability
-          |        |        |       |             | 1     |      | High Reliability
-          +--------+--------+-------+-------------+-------+------+-------------------------
-          |      0 |      6 |     2 | Reserved    | 0     |      | Reserved for Future Use
+   ```(text)
+      0                   1                   2                   3
+      0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |Version|  IHL  |Type of Service|          Total Length         |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |         Identification        |Flags|      Fragment Offset    |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |  Time to Live |    Protocol   |         Header Checksum       |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |                       Source Address                          |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |                    Destination Address                        |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |                    Options                    |    Padding    |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-      bitfield::(#ip_flags) Various Control Flags
+   bitfield::(#ip_tos) Type of Service
 
-          | _8_bit | Offset | Width | Field    | Value | Name | Description
-          |      0 |      0 |     1 | reserved |     0 |      | must be zero
-          +--------+--------+-------+----------+-------+------+-----------------
-          |      0 |      1 |     1 | DF       |     0 |      | May Fragment.
-          |        |        |       |          |     1 |      | Don't Fragment.
-          +--------+--------+-------+----------+-------+------+-----------------
-          |      0 |      2 |     1 | MF       |     0 |      | Last Fragment.
-          |        |        |       |          |     1 |      | More Fragments.
+       | _8_bit | Offset | Width | Field       | Value | Name | Description             |
+       +--------+--------+-------+-------------+-------+------+-------------------------+
+       | 0      | 0      | 3     | Precedence  | 0b111 |      | Network Control         |
+       |        |        |       |             | 0b110 |      | Internetwork Control    |
+       |        |        |       |             | 0b101 |      | CRITIC/ECP              |
+       |        |        |       |             | 0b100 |      | Flash Override          |
+       |        |        |       |             | 0b011 |      | Flash                   |
+       |        |        |       |             | 0b010 |      | Immediate               |
+       |        |        |       |             | 0b001 |      | Priority                |
+       |        |        |       |             | 0b000 |      | Routine                 |
+       +--------+--------+-------+-------------+-------+------+-------------------------+
+       | 0      | 3      | 1     | Delay       | 0     |      | Normal Delay            |
+       |        |        |       |             | 1     |      | Low Delay               |
+       +--------+--------+-------+-------------+-------+------+-------------------------+
+       | 0      | 4      | 1     | Throughput  | 0     |      | Normal Throughput       |
+       |        |        |       |             | 1     |      | High Throughput         |
+       +--------+--------+-------+-------------+-------+------+-------------------------+
+       | 0      | 5      | 1     | Reliability | 0     |      | Normal Reliability      |
+       |        |        |       |             | 1     |      | High Reliability        |
+       +--------+--------+-------+-------------+-------+------+-------------------------+
+       | 0      | 6      | 2     | Reserved    | 0     |      | Reserved for Future Use |
+       +--------+--------+-------+-------------+-------+------+-------------------------+
 
-      structure::(#ip_header) Internet Header Format
+   bitfield::(#ip_flags) Various Control Flags
 
-          | _32_bit | Width | Type                  | Field    | Name                   | Description
-          |       0 |     4 | unsigned              | version  | Version                | The Version field indicates the format of the internet header. This document describes version 4.
-          |       0 |     4 | unsigned              | ihl      | Internet Header Length | Internet Header Length is the length of the internet header in 32 bit words, and thus points to the beginning of the data. Note that the minimum value for a correct header is 5.
-          |       0 |     8 | {bitfield}[*ip_tos]   | tos      | Type of Service        | The Type of Service provides an indication of the abstract parameters of the quality of service desired.
-          |       0 |    16 | unsigned              | tot_len  | Total Length           | Total Length is the length of the datagram, measured in octets, including internet header and data. This field allows the length of a datagram to be up to 65,535 octets.
-          |       1 |    16 | unsigned              | id       | Identification         | An identifying value assigned by the sender to aid in assembling the fragments of a datagram.
-          |       1 |     3 | {bitfield}[*ip_flags] | flags    | Flags                  | Various Control Flags
-          |       1 |    13 | unsigned              | frag_off | Fragment Offset        | This field indicates where in the datagram this fragment belongs. The fragment offset is measured in units of 8 octets (64 bits). The first fragment has offset zero.
-          |       2 |     8 | unsigned              | ttl      | Time to Live           | This field indicates the maximum time the datagram is allowed to remain in the internet system. If this field contains the value zero, then the datagram must be destroyed.
-          |       2 |     8 | unsigned              | protocol | Protocol               | This field indicates the next level protocol used in the data portion of the internet datagram. The values for various protocols are specified in "Assigned Numbers"
-          |       2 |    16 | unsigned              | check    | Header Checksum        | A checksum on the header only. Since some header fields change (e.g., time to live), this is recomputed and verified at each point that the internet header is processed.
-          |       3 |    32 | unsigned              | saddr    | Source Address         | The source address.
-          |       4 |    32 | unsigned              | daddr    | Destination Address    | The destination address.
-          |       5 |    24 | unsigned              | options  | Options                | The options may appear or not in datagrams. They must be implemented by all IP modules (host and gateways). What is optional is their transmission in any particular datagram, not their implementation.
-          |       5 |     8 | unsigned              | padding  | Padding                | The internet header Padding field is used to ensure that the data begins on 32 bit word boundary. The padding is zero.
+       | _8_bit | Offset | Width | Field    | Value | Name | Description     |
+       +--------+--------+-------+----------+-------+------+-----------------+
+       | 0      | 0      | 1     | reserved | 0     |      | must be zero    |
+       +--------+--------+-------+----------+-------+------+-----------------+
+       | 0      | 1      | 1     | DF       | 0     |      | May Fragment.   |
+       |        |        |       |          | 1     |      | Don't Fragment. |
+       +--------+--------+-------+----------+-------+------+-----------------+
+       | 0      | 2      | 1     | MF       | 0     |      | Last Fragment.  |
+       |        |        |       |          | 1     |      | More Fragments. |
+       +--------+--------+-------+----------+-------+------+-----------------+
 
-   section: User Datagram Protocol
+   structure::(#ip_header) Internet Header Format
 
-      RFC768 defines the following User Datagram Header Format\:
+       | _32_bit | Width | Type                  | Field    | Name                   | Description                                                                                                                                                                                              |
+       +---------+-------+-----------------------+----------+------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+       | 0       | 4     | unsigned              | version  | Version                | The Version field indicates the format of the internet header. This document describes version 4.                                                                                                        |
+       |         | 4     | unsigned              | ihl      | Internet Header Length | Internet Header Length is the length of the internet header in 32 bit words, and thus points to the beginning of the data. Note that the minimum value for a correct header is 5.                        |
+       |         | 8     | {bitfield}[*ip_tos]   | tos      | Type of Service        | The Type of Service provides an indication of the abstract parameters of the quality of service desired.                                                                                                 |
+       |         | 16    | unsigned              | tot_len  | Total Length           | Total Length is the length of the datagram, measured in octets, including internet header and data. This field allows the length of a datagram to be up to 65,535 octets.                                |
+       +---------+-------+-----------------------+----------+------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+       | 1       | 16    | unsigned              | id       | Identification         | An identifying value assigned by the sender to aid in assembling the fragments of a datagram.                                                                                                            |
+       |         | 3     | {bitfield}[*ip_flags] | flags    | Flags                  | Various Control Flags                                                                                                                                                                                    |
+       |         | 13    | unsigned              | frag_off | Fragment Offset        | This field indicates where in the datagram this fragment belongs. The fragment offset is measured in units of 8 octets (64 bits). The first fragment has offset zero.                                    |
+       +---------+-------+-----------------------+----------+------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+       | 2       | 8     | unsigned              | ttl      | Time to Live           | This field indicates the maximum time the datagram is allowed to remain in the internet system. If this field contains the value zero, then the datagram must be destroyed.                              |
+       |         | 8     | unsigned              | protocol | Protocol               | This field indicates the next level protocol used in the data portion of the internet datagram. The values for various protocols are specified in "Assigned Numbers"                                     |
+       |         | 16    | unsigned              | check    | Header Checksum        | A checksum on the header only. Since some header fields change (e.g., time to live), this is recomputed and verified at each point that the internet header is processed.                                |
+       +---------+-------+-----------------------+----------+------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+       | 3       | 32    | unsigned              | saddr    | Source Address         | The source address.                                                                                                                                                                                      |
+       +---------+-------+-----------------------+----------+------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+       | 4       | 32    | unsigned              | daddr    | Destination Address    | The destination address.                                                                                                                                                                                 |
+       +---------+-------+-----------------------+----------+------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+       | 5       | 24    | unsigned              | options  | Options                | The options may appear or not in datagrams. They must be implemented by all IP modules (host and gateways). What is optional is their transmission in any particular datagram, not their implementation. |
+       |         | 8     | unsigned              | padding  | Padding                | The internet header Padding field is used to ensure that the data begins on 32 bit word boundary. The padding is zero.                                                                                   |
+       +---------+-------+-----------------------+----------+------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 
-      ```(text)
-         0      7 8     15 16    23 24    31
-         +--------+--------+--------+--------+
-         |     Source      |   Destination   |
-         |      Port       |      Port       |
-         +--------+--------+--------+--------+
-         |                 |                 |
-         |     Length      |    Checksum     |
-         +--------+--------+--------+--------+
-         |
-         |          data octets ...
-         +---------------- ...
+section: User Datagram Protocol
 
-      structure::(#udp_header) User Datagram Header
+   RFC768 defines the following User Datagram Header Format\:
 
-          | _32_bit | Width | Type     | Field  | Name        | Description
-          |       0 |    16 | unsigned | source | Source      | Source Port is an optional field, when meaningful, it indicates the port of the sending process, and may be assumed to be the port to which a reply should be addressed in the absence of any other information. If not used, a value of zero is inserted.
-          |       0 |    16 | unsigned | dest   | Destination | Destination Port has a meaning within the context of a particular internet destination address.
-          |       1 |    16 | unsigned | len    | Length      | Length is the length in octets of this user datagram including this header and the data. (This means the minimum value of the length is eight.)
-          |       1 |    16 | unsigned | check  | Checksum    | Checksum is the 16-bit one's complement of the one's complement sum of a pseudo header of information from the IP header, the UDP header, and the data, padded with zero octets at the end (if necessary) to make a multiple of two octets.
+   ```(text)
+      0      7 8     15 16    23 24    31
+      +--------+--------+--------+--------+
+      |     Source      |   Destination   |
+      |      Port       |      Port       |
+      +--------+--------+--------+--------+
+      |                 |                 |
+      |     Length      |    Checksum     |
+      +--------+--------+--------+--------+
+      |
+      |          data octets ...
+      +---------------- ...
 
-   section: Transmission Control Protocol
+   structure::(#udp_header) User Datagram Header
 
-      RFC793 defines the following Transmission Control Protocol Header
-      Format\:
+       | _32_bit | Width | Type     | Field  | Name        | Description |
+       +---------+-------+----------+--------+-------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+       |       0 |    16 | unsigned | source | Source      | Source Port is an optional field, when meaningful, it indicates the port of the sending process, and may be assumed to be the port to which a reply should be addressed in the absence of any other information. If not used, a value of zero is inserted. |
+       |       0 |    16 | unsigned | dest   | Destination | Destination Port has a meaning within the context of a particular internet destination address.
+       |       1 |    16 | unsigned | len    | Length      | Length is the length in octets of this user datagram including this header and the data. (This means the minimum value of the length is eight.)
+       |       1 |    16 | unsigned | check  | Checksum    | Checksum is the 16-bit one's complement of the one's complement sum of a pseudo header of information from the IP header, the UDP header, and the data, padded with zero octets at the end (if necessary) to make a multiple of two octets.
 
-      ```(text)
-         0                   1                   2                   3
-         0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-         |          Source Port          |       Destination Port        |
-         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-         |                        Sequence Number                        |
-         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-         |                    Acknowledgment Number                      |
-         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-         |  Data |           |U|A|P|R|S|F|                               |
-         | Offset| Reserved  |R|C|S|S|Y|I|            Window             |
-         |       |           |G|K|H|T|N|N|                               |
-         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-         |           Checksum            |         Urgent Pointer        |
-         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-         |                    Options                    |    Padding    |
-         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-         |                             data                              |
-         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+section: Transmission Control Protocol
 
-      structure::(#tcp_header) User Datagram Header
+   RFC793 defines the following Transmission Control Protocol Header
+   Format\:
 
-                    | _32_bit | Width | Type     | Field    | Name                  | Description
-                    |       0 |    16 | unsigned | source   | Source                | The source port number.
-                    |       0 |    16 | unsigned | dest     | Destination           | The destination port number.
-                    |       1 |    32 | unsigned | seq      | Sequence Number       | The sequence number of the first data octet in this segment (except when SYN is present). If SYN is present the sequence number is the initial sequence number (ISN) and the first data octet is ISN+1.
-                    |       2 |    32 | unsigned | ack_seq  | Acknowledgment Number | If the ACK control bit is set this field contains the value of the next sequence number the sender of the segment is expecting to receive. Once a connection is established this is always sent.
-                    |       3 |     4 | unsigned | doff     | Data Offset           | The number of 32 bit words in the TCP Header. This indicates where the data begins. The TCP header (even one including options) is an integral number of 32 bits long.
-         (?rfc793)  |       3 |     6 | unsigned | reserved | Reserved              | Reserved for future use. Must be zero.
-         (?rfc3168) |       3 |     4 | unsigned | reserved | Reserved              | Reserved for future use. Must be zero.
-         (?rfc3168) |       3 |     1 | unsigned | cwr      | Congestion            | Congestion Window Reduced
-         (?rfc3168) |       3 |     1 | unsigned | ece      | Explicit Congestion   | ECN Echo
-                    |       3 |     1 | unsigned | urg      | Urgent                | Urgent Pointer field significant
-                    |       3 |     1 | unsigned | ack      | Acknowledgment        | Acknowledgment field significant
-                    |       3 |     1 | unsigned | psh      | Push                  | Push Function
-                    |       3 |     1 | unsigned | rst      | Reset                 | Reset the connection
-                    |       3 |     1 | unsigned | syn      | Synchronize           | Synchronize sequence numbers
-                    |       3 |     1 | unsigned | fin      | Finish                | No more data from sender
-                    |       3 |    16 | unsigned | window   | Window                | The number of data octets beginning with the one indicated in the acknowledgment field which the sender of this segment is willing to accept.
-                    |       4 |    16 | unsigned | check    | Checksum              | The checksum field is the 16 bit one's complement of the one's complement sum of all 16 bit words in the header and text. If a segment contains an odd number of header and text octets to be checksummed, the last octet is padded on the right with zeros to form a 16 bit word for checksum purposes.
-                    |       4 |    16 | unsigned | urgent   | Urgent Pointer        | This field communicates the current value of the urgent pointer as a positive offset from the sequence number in this segment. The urgent pointer points to the sequence number of the octet following the urgent data.
+   ```(text)
+      0                   1                   2                   3
+      0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |          Source Port          |       Destination Port        |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |                        Sequence Number                        |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |                    Acknowledgment Number                      |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |  Data |           |U|A|P|R|S|F|                               |
+      | Offset| Reserved  |R|C|S|S|Y|I|            Window             |
+      |       |           |G|K|H|T|N|N|                               |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |           Checksum            |         Urgent Pointer        |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |                    Options                    |    Padding    |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |                             data                              |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+   structure::(#tcp_header) User Datagram Header
+
+                 | _32_bit | Width | Type     | Field    | Name                  | Description
+                 |       0 |    16 | unsigned | source   | Source                | The source port number.
+                 |       0 |    16 | unsigned | dest     | Destination           | The destination port number.
+                 |       1 |    32 | unsigned | seq      | Sequence Number       | The sequence number of the first data octet in this segment (except when SYN is present). If SYN is present the sequence number is the initial sequence number (ISN) and the first data octet is ISN+1.
+                 |       2 |    32 | unsigned | ack_seq  | Acknowledgment Number | If the ACK control bit is set this field contains the value of the next sequence number the sender of the segment is expecting to receive. Once a connection is established this is always sent.
+                 |       3 |     4 | unsigned | doff     | Data Offset           | The number of 32 bit words in the TCP Header. This indicates where the data begins. The TCP header (even one including options) is an integral number of 32 bits long.
+      (?rfc793)  |       3 |     6 | unsigned | reserved | Reserved              | Reserved for future use. Must be zero.
+      (?rfc3168) |       3 |     4 | unsigned | reserved | Reserved              | Reserved for future use. Must be zero.
+      (?rfc3168) |       3 |     1 | unsigned | cwr      | Congestion            | Congestion Window Reduced
+      (?rfc3168) |       3 |     1 | unsigned | ece      | Explicit Congestion   | ECN Echo
+                 |       3 |     1 | unsigned | urg      | Urgent                | Urgent Pointer field significant
+                 |       3 |     1 | unsigned | ack      | Acknowledgment        | Acknowledgment field significant
+                 |       3 |     1 | unsigned | psh      | Push                  | Push Function
+                 |       3 |     1 | unsigned | rst      | Reset                 | Reset the connection
+                 |       3 |     1 | unsigned | syn      | Synchronize           | Synchronize sequence numbers
+                 |       3 |     1 | unsigned | fin      | Finish                | No more data from sender
+                 |       3 |    16 | unsigned | window   | Window                | The number of data octets beginning with the one indicated in the acknowledgment field which the sender of this segment is willing to accept.
+                 |       4 |    16 | unsigned | check    | Checksum              | The checksum field is the 16 bit one's complement of the one's complement sum of all 16 bit words in the header and text. If a segment contains an odd number of header and text octets to be checksummed, the last octet is padded on the right with zeros to form a 16 bit word for checksum purposes.
+                 |       4 |    16 | unsigned | urgent   | Urgent Pointer        | This field communicates the current value of the urgent pointer as a positive offset from the sequence number in this segment. The urgent pointer points to the sequence number of the octet following the urgent data.
 

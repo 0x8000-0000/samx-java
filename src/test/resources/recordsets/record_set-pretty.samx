@@ -9,6 +9,7 @@ sample: alpha beta
    sales:: Vehicle Sales
 
        | year | type  | quantity
+       +------+-------+----------+
        | 2010 | sedan |    10000
        | 2011 | SUV   |     2000
        | 2020 | any   |      500

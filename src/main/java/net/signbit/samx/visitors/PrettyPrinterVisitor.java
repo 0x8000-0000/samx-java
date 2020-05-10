@@ -246,6 +246,10 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
    @Override
    public StringBuilder visitRecordSet(SamXParser.RecordSetContext ctx)
    {
+      RecordSetVisitor visitor = new RecordSetVisitor(tokenStream);
+      RecordSetVisitor.RecordSet rs = (RecordSetVisitor.RecordSet) visitor.visitRecordSet(ctx);
+      rs.computePresentation(this);
+
       StringBuilder builder = new StringBuilder();
 
       addIndent(builder);
@@ -256,127 +260,87 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
 
       indentLevel++;
 
-      int[] columnWidths = new int[ctx.headerRow().NAME().size() + 1];
-      boolean[] isInteger = new boolean[ctx.headerRow().NAME().size()];
-
-      ArrayList<String> headerElements = visitHeaderRowElements(ctx.headerRow());
-      for (int ii = 0; ii < headerElements.size(); ++ ii)
-      {
-         columnWidths[ii + 1] = headerElements.get(ii).length();
-         isInteger[ii] = true;
-      }
-
-      ArrayList<ArrayList<String>> rows = new ArrayList<>(ctx.recordRow().size());
-
-      for (SamXParser.RecordRowContext rrc : ctx.recordRow())
-      {
-         if (rrc.recordData() != null)
-         {
-            ArrayList<String> rowElements = visitRecordDataElements(rrc.recordData());
-            rows.add(rowElements);
-
-            {
-               final int conditionLength = rowElements.get(0).length();
-               if (columnWidths[0] < conditionLength)
-               {
-                  columnWidths[0] = conditionLength;
-               }
-            }
-
-            for (int ii = 0; ii < headerElements.size(); ++ ii)
-            {
-               final String value = rowElements.get(ii + 1);
-               final int length = value.length();
-               if (columnWidths[ii + 1] < length)
-               {
-                  columnWidths[ii + 1] = length;
-               }
-
-               if ((value != null) && (! value.isEmpty()))
-               {
-                  if (! VisitorUtils.isInteger(value))
-                  {
-                     isInteger[ii] = false;
-                  }
-               }
-            }
-         }
-
-         if (rrc.recordSep() != null)
-         {
-            ArrayList<String> cols = new ArrayList<>();
-            cols.add("+-");
-            rows.add(cols);
-         }
-      }
-
+      /*
+       * header
+       */
       addIndent(builder);
-      if (columnWidths[0] != 0)
+      final int attributeCount = rs.header.columns.size();
+
+      if (rs.conditionColumnWidth != 0)
       {
-         builder.append(String.format("%1$-" + columnWidths[0] + "s", ""));
+         builder.append(String.format("%1$-" + rs.conditionColumnWidth + "s", ""));
       }
-      for (int ii = 0; ii < headerElements.size(); ++ ii)
+      for (int ii = 0; ii < attributeCount; ++ ii)
       {
          builder.append(" | ");
-         if (ii != (headerElements.size() - 1))
+         if (rs.isInteger[ii])
          {
-            builder.append(String.format("%1$-" + columnWidths[ii + 1] + "s", headerElements.get(ii)));
+            builder.append(String.format("%1$" + rs.columnWidths[ii] + "s", rs.header.columns.get(ii)));
          }
          else
          {
-            builder.append(headerElements.get(headerElements.size() - 1));
+            if ((ii + 1) == attributeCount)
+            {
+               builder.append(rs.header.columns.get(ii));
+            }
+            else
+            {
+               builder.append(String.format("%1$-" + rs.columnWidths[ii] + "s", rs.header.columns.get(ii)));
+            }
          }
       }
       builder.append('\n');
 
-      for (ArrayList<String> rowData : rows)
+      /*
+       * body
+       */
+      for (RecordSetVisitor.RecordDataGroup rdg : rs.groups)
       {
-         addIndent(builder);
-         if (rowData.get(0).equals("+-"))
+         renderRecordGroupSeparator(rs.conditionColumnWidth, rs.columnWidths, attributeCount, builder);
+
+         for (RecordSetVisitor.RecordData rd : rdg.rows)
          {
-            builder.append(' ');
+            addIndent(builder);
 
-            for (int jj = 0; jj < columnWidths[0]; ++ jj)
+            if (rs.conditionColumnWidth != 0)
             {
-               builder.append(' ');
-            }
-
-            for (int ii = 0; ii < headerElements.size(); ++ ii)
-            {
-               builder.append("+---");
-               for (int jj = 1; jj < columnWidths[ii + 1]; ++ jj)
+               String condition = "";
+               if (rd.condition != null)
                {
-                  builder.append('-');
+                  condition = visitCondition(rd.condition).toString();
                }
+
+               builder.append(String.format("%1$-" + rs.conditionColumnWidth + "s", condition));
             }
-         }
-         else
-         {
-            if (columnWidths[0] != 0)
-            {
-               builder.append(String.format("%1$-" + columnWidths[0] + "s", rowData.get(0)));
-            }
-            for (int ii = 0; ii < headerElements.size(); ++ ii)
+            for (int ii = 0; ii < attributeCount; ++ ii)
             {
                builder.append(" | ");
-               if (isInteger[ii])
+               SamXParser.FlowContext fc = rd.flows.get(ii);
+               String value = "";
+               if (fc != null)
                {
-                  builder.append(String.format("%1$" + columnWidths[ii + 1] + "s", rowData.get(ii + 1)));
+                  value = visitFlow(fc).toString();
+               }
+
+               if (rs.isInteger[ii])
+               {
+                  builder.append(String.format("%1$" + rs.columnWidths[ii] + "s", value));
                }
                else
                {
-                  if (ii != (headerElements.size() - 1))
+                  if ((ii + 1) == attributeCount)
                   {
-                     builder.append(String.format("%1$-" + columnWidths[ii + 1] + "s", rowData.get(ii + 1)));
+                     builder.append(value);
                   }
                   else
                   {
-                     builder.append(rowData.get(headerElements.size()));
+                     builder.append(String.format("%1$-" + rs.columnWidths[ii] + "s", value));
                   }
                }
             }
+
+            builder.append('\n');
          }
-         builder.append('\n');
       }
 
       indentLevel--;
@@ -925,9 +889,9 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
 
       if (ctx.codeBlockDef() != null)
       {
-         indentLevel ++;
+         indentLevel++;
          builder.append(visitCodeBlockDef(ctx.codeBlockDef()));
-         indentLevel --;
+         indentLevel--;
       }
       else
       {
@@ -1109,7 +1073,7 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
       return builder;
    }
 
-   private void renderGeneralTableSeparator(int conditionColumnWidth, int[] columnWidths, int columnCount, StringBuilder builder)
+   private void renderGeneralTableSeparator(int conditionColumnWidth, int[] columnWidths, int columnCount, StringBuilder builder, char separator)
    {
       addIndent(builder);
       for (int jj = 0; jj < conditionColumnWidth + 1; ++ jj)
@@ -1121,11 +1085,21 @@ public class PrettyPrinterVisitor extends SamXParserBaseVisitor<StringBuilder>
          builder.append('+');
          for (int kk = 0; kk < columnWidths[jj] + 2; kk++)
          {
-            builder.append('=');
+            builder.append(separator);
          }
       }
 
       builder.append("+\n");
+   }
+
+   private void renderGeneralTableSeparator(int conditionColumnWidth, int[] columnWidths, int columnCount, StringBuilder builder)
+   {
+      renderGeneralTableSeparator(conditionColumnWidth, columnWidths, columnCount, builder, '=');
+   }
+
+   private void renderRecordGroupSeparator(int conditionColumnWidth, int[] columnWidths, int columnCount, StringBuilder builder)
+   {
+      renderGeneralTableSeparator(conditionColumnWidth, columnWidths, columnCount, builder, '-');
    }
 
    private void renderGeneralTableGroup(int conditionColumnWidth, int[] columnWidths, GridVisitor.GeneralGridGroup gridGroup, StringBuilder builder)

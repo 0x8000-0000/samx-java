@@ -77,7 +77,7 @@ public class EmbeddedCodeVisitor extends SamXParserBaseVisitor<StringBuilder>
 
       final String fileExtension = ctx.language.getText();
 
-      if ((!elements.isEmpty()) && (!elements.contains(fileStem)))
+      if ((! elements.isEmpty()) && (! elements.contains(fileStem)))
       {
          System.out.println(String.format("Skipping unselected element %s (%s)", fileStem, fileExtension));
          return null;

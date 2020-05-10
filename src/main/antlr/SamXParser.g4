@@ -32,6 +32,7 @@ package net.signbit.samx.parser;
    private java.io.File basePath = null;
 
    private int currentHeaderLength = 0;
+   private boolean currentTailColumn = false;
 
    public void setBasePath(java.io.File aPath)
    {
@@ -153,8 +154,12 @@ flow : ( text | phrase | localInsert | url | inlineCode )+ ;
 paragraph : ( flow NEWLINE )+ NEWLINE ;
 
 headerRow
-   locals [ int columnCount = 0; ]
-   : ( COLSEP NAME { $ctx.columnCount ++; } )+ NEWLINE { currentHeaderLength = $ctx.columnCount; };
+   locals [ int columnCount = 0; boolean hasTailColumn = false; ]
+   : ( COLSEP NAME { $ctx.columnCount ++; } )+ (COLSEP { $ctx.hasTailColumn = true; } )? NEWLINE
+   {
+      currentHeaderLength = $ctx.columnCount;
+      currentTailColumn = $ctx.hasTailColumn;
+   };
 
 optionalFlow : flow? ;
 
@@ -164,10 +169,13 @@ recordData
    {
       if (currentHeaderLength != $ctx.columnCount)
       {
-         throw new ParseCancellationException("line " + $start.getLine() +
-            ":" + $start.getCharPositionInLine() +
-            " incorrect number of columns; expected " + currentHeaderLength +
-            " but observed " + $ctx.columnCount);
+         if (((currentHeaderLength + 1) != $ctx.columnCount) || (! currentTailColumn))
+         {
+            throw new ParseCancellationException("line " + $start.getLine() +
+               ":" + $start.getCharPositionInLine() +
+               " incorrect number of columns; expected " + currentHeaderLength +
+               " but observed " + $ctx.columnCount);
+         }
       }
    };
 

@@ -96,7 +96,7 @@ public class VisitorUtils
          while (! isExhausted())
          {
             final char ch = get();
-            if ((ch == '+') || (ch == '='))
+            if ((ch == '+') || (ch == '=') || (ch == '-'))
             {
                advance();
             }

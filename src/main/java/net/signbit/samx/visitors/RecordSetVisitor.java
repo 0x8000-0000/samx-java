@@ -20,6 +20,7 @@ import java.util.ArrayList;
 
 import org.antlr.v4.runtime.BufferedTokenStream;
 import org.antlr.v4.runtime.tree.TerminalNode;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import net.signbit.samx.parser.SamXParser;
 import net.signbit.samx.parser.SamXParserBaseVisitor;
@@ -40,7 +41,7 @@ public class RecordSetVisitor extends SamXParserBaseVisitor<RecordSetVisitor.AST
       RecordHeader(SamXParser.HeaderRowContext ctx)
       {
          columns = new ArrayList<>(ctx.NAME().size());
-         for (TerminalNode tn: ctx.NAME())
+         for (TerminalNode tn : ctx.NAME())
          {
             columns.add(tn.getText());
          }
@@ -57,7 +58,7 @@ public class RecordSetVisitor extends SamXParserBaseVisitor<RecordSetVisitor.AST
          condition = ctx.condition();
 
          flows = new ArrayList<>(ctx.optionalFlow().size());
-         for (SamXParser.OptionalFlowContext ofc: ctx.optionalFlow())
+         for (SamXParser.OptionalFlowContext ofc : ctx.optionalFlow())
          {
             flows.add(ofc.flow());
          }
@@ -75,20 +76,26 @@ public class RecordSetVisitor extends SamXParserBaseVisitor<RecordSetVisitor.AST
       RecordHeader header;
       ArrayList<RecordDataGroup> groups = new ArrayList<>();
 
-      int[] computeColumnWidths(SamXParserBaseVisitor<StringBuilder> visitor)
+      int conditionColumnWidth = 0;
+      int columnWidths[];
+
+      boolean isInteger[];
+
+      void computePresentation(SamXParserBaseVisitor<StringBuilder> visitor)
       {
          final int columnCount = header.columns.size();
-
-         int[] columnWidths = new int[columnCount + 1];
+         columnWidths = new int[columnCount];
+         isInteger = new boolean[columnCount];
 
          for (int ii = 0; ii < columnCount; ++ ii)
          {
             columnWidths[ii] = header.columns.get(ii).length();
+            isInteger[ii] = true;
          }
 
-         for (RecordDataGroup rdg: groups)
+         for (RecordDataGroup rdg : groups)
          {
-            for (RecordData rd: rdg.rows)
+            for (RecordData rd : rdg.rows)
             {
                for (int ii = 0; ii < columnCount; ++ ii)
                {
@@ -100,21 +107,44 @@ public class RecordSetVisitor extends SamXParserBaseVisitor<RecordSetVisitor.AST
                      {
                         columnWidths[ii] = rendered.length();
                      }
+                     checkNumberFormat(ii, rendered);
                   }
                }
 
                if (rd.condition != null)
                {
                   final String renderedCondition = visitor.visitCondition(rd.condition).toString();
-                  if (columnWidths[columnCount] < renderedCondition.length())
+                  if (conditionColumnWidth < renderedCondition.length())
                   {
-                     columnWidths[columnCount] = renderedCondition.length();
+                     conditionColumnWidth = renderedCondition.length();
                   }
                }
             }
          }
+      }
 
-         return columnWidths;
+      private void checkNumberFormat(int ii, String content)
+      {
+         if (content.isEmpty())
+         {
+            return;
+         }
+
+         if (NumberUtils.isCreatable(content))
+         {
+            try
+            {
+               Integer intValue = NumberUtils.createInteger(content);
+            }
+            catch (NumberFormatException nfei)
+            {
+               isInteger[ii] = false;
+            }
+         }
+         else
+         {
+            isInteger[ii] = false;
+         }
       }
    }
 
@@ -155,7 +185,7 @@ public class RecordSetVisitor extends SamXParserBaseVisitor<RecordSetVisitor.AST
 
       RecordDataGroup rdg = new RecordDataGroup();
 
-      for (SamXParser.RecordRowContext rrc: ctx.recordRow())
+      for (SamXParser.RecordRowContext rrc : ctx.recordRow())
       {
          RecordData rd = (RecordData) visitRecordRow(rrc);
          if (rd == null)
