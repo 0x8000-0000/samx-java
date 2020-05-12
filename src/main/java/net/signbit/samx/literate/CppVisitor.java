@@ -305,6 +305,8 @@ public class CppVisitor extends RendererVisitor
       final int width;
       final String name;
 
+      final String enumType;
+
       public BitField(RecordSetVisitor.RecordDataGroup rdg)
       {
          final String wordText = rdg.getValue(FieldIndices.Word.ordinal(), plainTextVisitor);
@@ -314,6 +316,15 @@ public class CppVisitor extends RendererVisitor
          final String widthText = rdg.getValue(FieldIndices.Width.ordinal(), plainTextVisitor);
          width = NumberUtils.createInteger(widthText);
          name = rdg.getValue(FieldIndices.Name.ordinal(), plainTextVisitor);
+
+         if (rdg.getRows().size() > 1)
+         {
+            enumType = name;
+         }
+         else
+         {
+            enumType = null;
+         }
       }
 
       public BitField(RecordSetVisitor.RecordData rd)
@@ -325,6 +336,8 @@ public class CppVisitor extends RendererVisitor
          final String widthText = rd.getValue(FieldIndices.Width.ordinal(), plainTextVisitor);
          width = NumberUtils.createInteger(widthText);
          name = rd.getValue(FieldIndices.Name.ordinal(), plainTextVisitor);
+
+         enumType = null;
       }
 
       public int getWord()
@@ -345,6 +358,16 @@ public class CppVisitor extends RendererVisitor
       public boolean isBoolean()
       {
          return width == 1;
+      }
+
+      public boolean isEnumeration()
+      {
+         return enumType != null && (width > 1);
+      }
+
+      public String getEnumType()
+      {
+         return enumType;
       }
 
       public String getName()

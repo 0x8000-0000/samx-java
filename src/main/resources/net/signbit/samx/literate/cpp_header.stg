@@ -59,30 +59,70 @@ private:
 
 bitFieldDecl(field, unitWidth) ::= <<
 
+   <if(field.enumeration)>enum class <field.enumType> : uint<unitWidth>_t
+{
+};<endif>
+
+
    /** <field.name>
     *
     * <field.description>
     */
-   constexpr void set<field.name>(<if(field.boolean)>bool<else>uint<unitWidth>_t<endif> val)
+   <if(field.boolean)>
+   constexpr void set<field.name>(bool val)
    {
-      <if(field.boolean)>const auto mask = uint<unitWidth>_t(1U);<else>const auto mask = static_cast\<uint<unitWidth>_t>((uint<unitWidth>_t(1U) \<\< <field.width>U) - uint<unitWidth>_t(1U));
-assert(val \<= mask);
-<endif>
-
+      const auto mask = uint<unitWidth>_t(1U);
 
       const auto shiftedMask = mask \<\< <field.offset>U;
 
-      m_data = (m_data & (~shiftedMask)) | (<if(field.boolean)>uint<unitWidth>_t(val)<else>val<endif> \<\< <field.offset>U);
+      m_data = (m_data & (~shiftedMask)) | (uint<unitWidth>_t(val) \<\< <field.offset>U);
    }
 
-   constexpr <if(field.boolean)>bool<else>uint<unitWidth>_t<endif> get<field.name>() const
+   constexpr bool get<field.name>() const
    {
-      <if(field.boolean)>const auto mask = uint<unitWidth>_t(1U);<else>const auto mask = static_cast\<uint<unitWidth>_t>((uint<unitWidth>_t(1U) \<\< <field.width>U) - uint<unitWidth>_t(1U));
-<endif>
+      const auto mask = uint<unitWidth>_t(1U);
 
-
-      return ((m_data \>> <field.offset>U) & mask)<if(field.boolean)> != 0<endif>;
+      return (m_data \>> <field.offset>U) & mask;
    }
+   <elseif(field.enumeration)>
+   constexpr void set<field.name>(enum <field.enumType> enumVal)
+   {
+      const auto val = static_cast\<uint<unitWidth>_t>(enumVal);
+
+      const auto mask = static_cast\<uint<unitWidth>_t>((uint<unitWidth>_t(1U) \<\< <field.width>U) - uint<unitWidth>_t(1U));
+      assert(val \<= mask);
+
+      const auto shiftedMask = mask \<\< <field.offset>U;
+
+      m_data = (m_data & (~shiftedMask)) | (val \<\< <field.offset>U);
+   }
+
+   constexpr enum <field.enumType> get<field.name>() const
+   {
+      const auto mask = static_cast\<uint<unitWidth>_t>((uint<unitWidth>_t(1U) \<\< <field.width>U) - uint<unitWidth>_t(1U));
+
+      const auto val = (m_data \>> <field.offset>U) & mask;
+
+      return static_cast\<enum <field.enumType>\>(val);
+   }
+   <else>
+   constexpr void set<field.name>(uint<unitWidth>_t val)
+   {
+      const auto mask = static_cast\<uint<unitWidth>_t>((uint<unitWidth>_t(1U) \<\< <field.width>U) - uint<unitWidth>_t(1U));
+      assert(val \<= mask);
+
+      const auto shiftedMask = mask \<\< <field.offset>U;
+
+      m_data = (m_data & (~shiftedMask)) | (val \<\< <field.offset>U);
+   }
+
+   constexpr uint<unitWidth>_t get<field.name>() const
+   {
+      const auto mask = static_cast\<uint<unitWidth>_t>((uint<unitWidth>_t(1U) \<\< <field.width>U) - uint<unitWidth>_t(1U));
+
+      return (m_data \>> <field.offset>U) & mask;
+   }
+   <endif>
 
 >>
 
