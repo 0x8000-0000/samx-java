@@ -57,11 +57,16 @@ private:
 
 >>
 
+enumerationDecl(enumVal) ::= <<
+   <enumVal.name> = <enumVal.value>, /// <enumVal.description>
+
+>>
+
 bitFieldDecl(field, unitWidth) ::= <<
 
    <if(field.enumeration)>enum class <field.enumType> : uint<unitWidth>_t
 {
-};<endif>
+<field.enumerationValues:enumerationDecl()>};<endif>
 
 
    /** <field.name>

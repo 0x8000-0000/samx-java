@@ -298,6 +298,64 @@ public class CppVisitor extends RendererVisitor
       ValueDescription
    }
 
+   class EnumerationValue
+   {
+      String name;
+      String value;
+      final String description;
+
+      public EnumerationValue(String name, String value, String description)
+      {
+         if ((name == null) || name.isEmpty())
+         {
+            this.name = computeNameFromDescription(description);
+         }
+         else
+         {
+            this.name = name;
+         }
+         if (NumberUtils.isCreatable(value))
+         {
+            this.value = value;
+         }
+         else
+         {
+            if ((value.charAt(0) == '0') && (value.charAt(1) == 'b'))
+            {
+               int intValue = Integer.parseInt(value.substring(2), 2);
+               this.value = Integer.toHexString(intValue);
+            }
+            else
+            {
+               int intValue = NumberUtils.createInteger(value);
+               this.value = Integer.toString(intValue);
+            }
+         }
+
+         this.description = description + ": " + value;
+      }
+
+      public String getName()
+      {
+         return name;
+      }
+
+      public String getValue()
+      {
+         return value;
+      }
+
+      public String getDescription()
+      {
+         return description;
+      }
+   }
+
+   private String computeNameFromDescription(String description)
+   {
+      return description.replace(' ', '_').replace('/', '_');
+   }
+
    class BitField
    {
       final int word;
@@ -306,6 +364,7 @@ public class CppVisitor extends RendererVisitor
       final String name;
 
       final String enumType;
+      final ArrayList<EnumerationValue> values = new ArrayList<>();
 
       public BitField(RecordSetVisitor.RecordDataGroup rdg)
       {
@@ -320,6 +379,33 @@ public class CppVisitor extends RendererVisitor
          if (rdg.getRows().size() > 1)
          {
             enumType = name;
+
+            for (RecordSetVisitor.RecordData rd : rdg.getRows())
+            {
+               values.add(new EnumerationValue(rd.getValue(FieldIndices.ValueName.ordinal(), plainTextVisitor), rd.getValue(FieldIndices.Value.ordinal(), plainTextVisitor), rd.getValue(FieldIndices.ValueDescription.ordinal(), plainTextVisitor)));
+            }
+
+            int maxNameLength = 0;
+            int maxValueLength = 0;
+
+            for (EnumerationValue ev: values)
+            {
+               if (maxNameLength < ev.name.length())
+               {
+                  maxNameLength = ev.name.length();
+               }
+
+               if (maxValueLength < ev.value.length())
+               {
+                  maxValueLength = ev.value.length();
+               }
+            }
+
+            for (EnumerationValue ev: values)
+            {
+               ev.name = String.format("%1$-" + maxNameLength + "s", ev.name);
+               ev.value = String.format("%1$" + maxValueLength + "s", ev.value);
+            }
          }
          else
          {
@@ -362,12 +448,17 @@ public class CppVisitor extends RendererVisitor
 
       public boolean isEnumeration()
       {
-         return enumType != null && (width > 1);
+         return (! values.isEmpty());
       }
 
       public String getEnumType()
       {
          return enumType;
+      }
+
+      public ArrayList<EnumerationValue> getEnumerationValues()
+      {
+         return values;
       }
 
       public String getName()
@@ -389,7 +480,7 @@ public class CppVisitor extends RendererVisitor
          final String unitWidthHeader = ctx.headerRow().NAME(0).getText();
          unitWidth = unitWidths.getOrDefault(unitWidthHeader, 0);
 
-         for (RecordSetVisitor.RecordDataGroup rdg: rs.getGroups())
+         for (RecordSetVisitor.RecordDataGroup rdg : rs.getGroups())
          {
             if (rdg.hasSingleValue(FieldIndices.Name.ordinal()) && rdg.hasSingleValue(FieldIndices.Offset.ordinal()) && rdg.hasSingleValue(FieldIndices.Offset.ordinal()))
             {
@@ -397,7 +488,7 @@ public class CppVisitor extends RendererVisitor
             }
             else
             {
-               for (RecordSetVisitor.RecordData rd: rdg.getRows())
+               for (RecordSetVisitor.RecordData rd : rdg.getRows())
                {
                   fields.add(new BitField(rd));
                }
