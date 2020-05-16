@@ -152,7 +152,7 @@ tokens { INDENT, DEDENT, END, INVALID, BOL }
    private void addCodeIndent(int indentLevel)
    {
       java.lang.StringBuilder builder = new java.lang.StringBuilder(indentLevel + 1);
-      for (int ii = 0; ii < indentLevel; ++ii)
+      for (int ii = 0; ii <= indentLevel; ++ii)
       {
          builder.append(' ');
       }

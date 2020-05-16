@@ -5,9 +5,13 @@ Semantic Authoring Markdown
 
 Implementation of a SAM toolset in Java using an ANTLRv4 Grammar.
 
+For a C++ implementation please see [SamX-C++](https://github.com/0x8000-0000/samx-cpp)
+
+
 Please see [SAM Documentation](https://mbakeranalecta.github.io/sam/) for 
 an overview and scope of SAM. Please refer to
 https://github.com/mbakeranalecta/sam for the original implementation.
+
 
 Dependencies
 ------------
@@ -81,6 +85,7 @@ License for SAM
 
 [Original SAM code is available](https://github.com/mbakeranalecta/sam/blob/master/license.txt)
 under Apache 2.0 license or Eclipse Public License v1.0.
+
 
 License for SAMx
 ----------------
