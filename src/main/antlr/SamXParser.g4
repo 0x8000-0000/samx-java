@@ -134,8 +134,7 @@ string : STRING ;
 literal : NAME | TOKEN | INTEGER | SLASH
    | KW_IN | KW_NOT | KW_OR | KW_AND | KW_TRUE | KW_FALSE
    | PLUS | COMMA | SEMI | PERIOD
-   | OPEN_PAR | CLOSE_PAR | BANG | QUESTION | EQ_SGN | DOLLAR
-   | BULL_T | HASH_T ;
+   | OPEN_PAR | CLOSE_PAR | BANG | QUESTION | EQ_SGN | DOLLAR ;
 
 entity : escapeSeq | lessThan | greaterThan | ampersand | quote ;
 

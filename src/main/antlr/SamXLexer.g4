@@ -35,8 +35,6 @@ tokens { INDENT, DEDENT, END, INVALID, BOL }
    private boolean processingCode = false;
    private boolean allowFreeIndent = false;
 
-   private boolean expectListStart = false;
-
    private boolean ignoreNewLinesInConditions = false;
    private int nestedParenthesesLevel = 0;
 
@@ -217,11 +215,6 @@ NEWLINE
          addNewLine();
       }
 
-      if ((next == '*') || (next == '#'))
-      {
-         expectListStart = true;
-      }
-
       final int currentIndent = indents.isEmpty() ? 0 : indents.peek();
 
       if (thisIndent == currentIndent)
@@ -337,15 +330,11 @@ RECSEP : '::' { prepareFreeIndent = true; };
 
 COLSEP : '|' ;
 
-BULLET : { expectListStart }? '*' { expectListStart = false; } ;
-
-BULL_T : { !expectListStart }? '*' ;
+BULLET : '*' ;
 
 STT_PREC_GRID : '###' { prepareFreeIndent = true; };
 
-HASH : { expectListStart }? '#' { expectListStart = false; } ;
-
-HASH_T : { !expectListStart }? '#' ;
+HASH : '#' ;
 
 OPEN_PHR : '{' { ignoreNewLinesInPhrases = true; };
 
