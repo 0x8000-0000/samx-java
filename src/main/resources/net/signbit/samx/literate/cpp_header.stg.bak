@@ -31,11 +31,11 @@ constexpr uint16_t htons(uint16_t sh)
 constexpr uint32_t htonl(uint32_t lo)
 {
    return (
-      ((lo & 0x000000FFU) \<\< 24U) |
-      ((lo & 0x0000FF00U) \<\<  8U) |
-      ((lo & 0xFF000000U) \>>  24U) |
-      ((lo & 0x00FF0000U) \>>   8U)
-   );
+          ((lo & 0x000000FFU) \<\< 24U) |
+          ((lo & 0x0000FF00U) \<<   8U) |
+          ((lo & 0xFF000000U) \>\> 24U) |
+          ((lo & 0x00FF0000U) \>>   8U)
+      );
 }
 
 constexpr uint16_t ntohs(uint16_t sh)

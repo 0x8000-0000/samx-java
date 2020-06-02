@@ -34,7 +34,7 @@ public class RecordSetVisitor extends SamXParserBaseVisitor<RecordSetVisitor.AST
 
    }
 
-   class RecordHeader extends AST
+   public class RecordHeader extends AST
    {
       final ArrayList<String> attributes;
       boolean hasTrailingBar = false;
@@ -51,6 +51,11 @@ public class RecordSetVisitor extends SamXParserBaseVisitor<RecordSetVisitor.AST
          {
             hasTrailingBar = true;
          }
+      }
+
+      public ArrayList<String> getAttributes()
+      {
+         return attributes;
       }
    }
 
@@ -234,6 +239,12 @@ public class RecordSetVisitor extends SamXParserBaseVisitor<RecordSetVisitor.AST
       {
          return groups;
       }
+
+      public RecordHeader getHeader()
+      {
+         return header;
+      }
+
    }
 
    public RecordSetVisitor(BufferedTokenStream tokenStream)

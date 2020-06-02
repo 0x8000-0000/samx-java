@@ -97,11 +97,19 @@ public class CppVisitor extends RendererVisitor
          return visitor.getReference();
       }
 
-      public StructureMember(SamXParser.RecordDataContext rdc, int bitOffset, int unitWidth)
+      public StructureMember(SamXParser.RecordDataContext rdc, int unitOffset, int bitOffset, int unitWidth)
       {
          this.unitWidth = unitWidth;
 
-         unitOffset = getInt(rdc, 0);
+         int localUnitOffset = getInt(rdc, 0);
+         if (localUnitOffset == -1)
+         {
+            this.unitOffset = unitOffset;
+         }
+         else
+         {
+            this.unitOffset = localUnitOffset;
+         }
          width = getInt(rdc, 1);
 
          final String localType = getString(rdc, 2);
@@ -130,6 +138,8 @@ public class CppVisitor extends RendererVisitor
       {
          return "unsigned".equals(type);
       }
+
+      public boolean isWord() { return (unitWidth == width) && (bitOffset == 0); };
 
       public String getType()
       {
@@ -233,58 +243,77 @@ public class CppVisitor extends RendererVisitor
       }
       else if ("bitfield".equals(recordType))
       {
-         renderBitfield(ctx);
+         renderBitField(ctx);
       }
 
       return null;
    }
 
-   private void renderStructure(SamXParser.RecordSetContext ctx)
+   class StructureDefinition
    {
-      structureMembers = new ArrayList<>();
+      final int unitWidth;
+      final ArrayList<StructureMember> fields = new ArrayList<>();
+      final int dwordCount;
 
-      int dwordCount = 0;
-      int bitOffset = 0;
-
-      final String unitWidthHeader = ctx.headerRow().NAME(0).getText();
-      final int unitWidth = unitWidths.getOrDefault(unitWidthHeader, 0);
-
-      for (SamXParser.RecordRowContext rrc : ctx.recordRow())
+      public StructureDefinition(SamXParser.RecordSetContext ctx)
       {
-         final SamXParser.RecordDataContext rdc = rrc.recordData();
-         if (rdc != null)
+         RecordSetVisitor visitor = new RecordSetVisitor(getTokenStream());
+         RecordSetVisitor.RecordSet rs = (RecordSetVisitor.RecordSet) visitor.visitRecordSet(ctx);
+
+         final String unitWidthHeader = rs.getHeader().getAttributes().get(0);
+         unitWidth = unitWidths.getOrDefault(unitWidthHeader, 0);
+
+         int unitCount = 0;
+         int bitOffset = 0;
+
+         for (SamXParser.RecordRowContext rrc : ctx.recordRow())
          {
-            if (isDisabled(rdc.condition()))
+            final SamXParser.RecordDataContext rdc = rrc.recordData();
+            if (rdc != null)
             {
-               continue;
-            }
+               if (isDisabled(rdc.condition()))
+               {
+                  continue;
+               }
 
-            StructureMember sm = new StructureMember(rdc, bitOffset, unitWidth);
+               StructureMember sm = new StructureMember(rdc, unitCount, bitOffset, unitWidth);
 
-            bitOffset += sm.width;
-            if (bitOffset == 32)
-            {
-               bitOffset = 0;
-            }
+               bitOffset += sm.width;
+               if (bitOffset == 32)
+               {
+                  bitOffset = 0;
+               }
 
-            structureMembers.add(sm);
-            if (sm.unitOffset > dwordCount)
-            {
-               dwordCount = sm.unitOffset;
+               structureMembers.add(sm);
+               if (sm.unitOffset > unitCount)
+               {
+                  unitCount = sm.unitOffset;
+               }
             }
          }
+
+         this.dwordCount = unitCount;
       }
+   }
+
+
+   private void renderStructure(SamXParser.RecordSetContext ctx)
+   {
+      StructureDefinition sd = new StructureDefinition(ctx);
 
       ST structure = cppGroup.getInstanceOf("/structure");
       AttributeVisitor attributes = getAttributes(ctx.blockMetadata().metadata());
 
       structure.add("name", attributes.getId());
-      structure.add("unitWidth", unitWidth);
+      structure.add("unitWidth", sd.unitWidth);
       structure.add("description", getPlainText(ctx.blockMetadata().description));
       structure.add("fields", structureMembers);
-      structure.add("size", dwordCount + 1);
+      structure.add("size", sd.dwordCount + 1);
 
       structures.add(structure.render());
+
+      // reset structure
+      structureMembers = new ArrayList<>();
    }
 
    private enum FieldIndices
@@ -353,7 +382,26 @@ public class CppVisitor extends RendererVisitor
 
    private String computeNameFromDescription(String description)
    {
-      return description.replace(' ', '_').replace('/', '_');
+      StringBuilder sb = new StringBuilder();
+      for (char ch: description.toCharArray())
+      {
+         switch (ch)
+         {
+            case ' ':
+            case '/':
+               sb.append('_');
+               break;
+
+            case '\'':
+            case '.':
+               break;
+
+            default:
+               sb.append(ch);
+               break;
+         }
+      }
+      return sb.toString();
    }
 
    class BitField
@@ -477,7 +525,7 @@ public class CppVisitor extends RendererVisitor
          RecordSetVisitor visitor = new RecordSetVisitor(getTokenStream());
          RecordSetVisitor.RecordSet rs = (RecordSetVisitor.RecordSet) visitor.visitRecordSet(ctx);
 
-         final String unitWidthHeader = ctx.headerRow().NAME(0).getText();
+         final String unitWidthHeader = rs.getHeader().getAttributes().get(0);
          unitWidth = unitWidths.getOrDefault(unitWidthHeader, 0);
 
          for (RecordSetVisitor.RecordDataGroup rdg : rs.getGroups())
@@ -497,7 +545,7 @@ public class CppVisitor extends RendererVisitor
       }
    }
 
-   private void renderBitfield(SamXParser.RecordSetContext ctx)
+   private void renderBitField(SamXParser.RecordSetContext ctx)
    {
       BitFieldDefinition bfd = new BitFieldDefinition(ctx);
 
