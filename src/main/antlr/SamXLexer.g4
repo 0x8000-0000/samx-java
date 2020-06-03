@@ -32,7 +32,7 @@ tokens { INDENT, DEDENT, END, INVALID, BOL }
    private boolean prepareProcessingCode = false;
    private boolean prepareFreeIndent = false;
 
-   private boolean processingCode = false;
+   private int codeIndentLevel = 0;
    private boolean allowFreeIndent = false;
 
    private boolean ignoreNewLinesInConditions = false;
@@ -162,9 +162,24 @@ tokens { INDENT, DEDENT, END, INVALID, BOL }
       token.setCharPositionInLine(0);
       tokens.add(token);
    }
+
+   private int getIndent(String text)
+   {
+      final char[] tokenTextBytes = text.toCharArray();
+      int thisIndent = 0;
+      for (char ch: tokenTextBytes)
+      {
+         if (ch == ' ')
+         {
+            thisIndent ++;
+         }
+      }
+
+      return thisIndent;
+   }
+
 }
 
-EXTCODE : (~'\n')+ { processingCode }? ;
 
 ESCAPE : '\\' . ;
 
@@ -190,17 +205,7 @@ NEWLINE
          return;
       }
 
-      final String tokenText = getText();
-
-      final char[] tokenTextBytes = tokenText.toCharArray();
-      int thisIndent = 0;
-      for (char ch: tokenTextBytes)
-      {
-         if (ch == ' ')
-         {
-            thisIndent ++;
-         }
-      }
+      final int thisIndent = getIndent(getText());
 
       final int next = _input.LA(1);
       if ((next == '\n') || (next == '\r'))
@@ -226,7 +231,6 @@ NEWLINE
             addDedent();
 
             allowFreeIndent = false;
-            processingCode = false;
          }
       }
       else if (thisIndent > currentIndent)
@@ -236,39 +240,42 @@ NEWLINE
          if (prepareProcessingCode)
          {
             prepareProcessingCode = false;
-            processingCode = true;
-         }
-
-         if (prepareFreeIndent)
-         {
-            prepareFreeIndent = false;
-            allowFreeIndent = true;
-
-            /* Add indent token here to indicate the contained elements
-             * but do not record this particular indent since it might be
-             * deep inside the table due to the column alignment and
-             * conditions.
-             *
-             * Instead, record a level just after the table level.
-             */
-            indents.push(currentIndent + 1);
-            addIndent();
-         }
-
-         if (! allowFreeIndent)
-         {
+            codeIndentLevel = currentIndent;
+            mode(EXTERNAL_CODE);
             indents.push(thisIndent);
             addIndent();
+         }
+         else
+         {
+            if (prepareFreeIndent)
+            {
+               prepareFreeIndent = false;
+               allowFreeIndent = true;
+
+               /* Add indent token here to indicate the contained elements
+                * but do not record this particular indent since it might be
+                * deep inside the table due to the column alignment and
+                * conditions.
+                *
+                * Instead, record a level just after the table level.
+                */
+               indents.push(currentIndent + 1);
+               addIndent();
+            }
+
+            if (! allowFreeIndent)
+            {
+               indents.push(thisIndent);
+               addIndent();
+            }
          }
       }
       else
       {
          addNewLine();
-
          popIndents(thisIndent);
 
          allowFreeIndent = false;
-         processingCode = false;
       }
 
       skip();
@@ -346,7 +353,7 @@ STRING : '"' ( '\\' . | ~[\\\r\n\f"] )* '"' ;
 
 APOSTR : '`' ;
 
-CODE_MARKER : '```(' { prepareProcessingCode = true; prepareFreeIndent = true; } ;
+CODE_MARKER : '```(' { prepareProcessingCode = true; } ;
 
 UNICODE_BOM: (UTF8_BOM
     | UTF16_BOM
@@ -421,3 +428,27 @@ STT_HDR_SEP : '+' ('='| '+' )+ '+' ;
 
 GEN_ROW_SEP : '+' ('+' | '-' | ' ')+ ;
 
+mode EXTERNAL_CODE ;
+
+EXTCODE : (~'\n')+ ;
+
+NEWLINE_EXTCODE
+ : ( '\r'? '\n' | '\r' | '\f' ) SPACES?
+
+   {
+      final int thisIndent = getIndent(getText());
+
+      if (thisIndent > codeIndentLevel)
+      {
+         addNewLine();
+         addCodeIndent(thisIndent);
+      }
+      else
+      {
+         addNewLine();
+
+         mode(DEFAULT_MODE);
+      }
+
+      skip();
+   } ;
