@@ -188,9 +188,7 @@ SPACES : [ \t]+ -> channel(WHITESPACE) ;
 COMMENT : '%' ~[\r\n\f]* -> channel(COMMENTS) ;
 
 NEWLINE
- : ( {atStartOfInput()}?   SPACES
-   | ( '\r'? '\n' | '\r' | '\f' ) SPACES?
-   )
+ : ( '\r'? '\n' | '\r' | '\f' ) SPACES?
    {
       if (ignoreNewLinesInConditions)
       {
